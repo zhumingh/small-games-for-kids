@@ -6,8 +6,7 @@ detail interactions with chatgpt as follows:
 
 whole screenshot:
 
-<img width="802" alt="image" src="https://github.com/user-attachments/assets/996c6f5f-2c99-4e83-82f9-06f9955f4193">
-
+<img width="762" alt="image" src="https://github.com/user-attachments/assets/1be52287-6025-4de5-9a19-b16690a7cb1d">
 
 <img width="792" alt="image" src="https://github.com/user-attachments/assets/e8cf9075-0772-4c8d-a712-d4d9009ba623">
 
