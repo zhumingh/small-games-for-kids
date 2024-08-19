@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ken's Snake by AI v5.0</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        #title {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        #score {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        #message {
+            font-size: 20px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        canvas {
+            border: 2px solid blue;  /* Change border color to blue */
+            background-color: #fff;
+        }
+        #restartBtn {
+            display: none;
+            margin-top: 10px;
+            padding: 10px 20px;
+            font-size: 18px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div id="title">Ken's Snake by AI v5.0</div>
+    <div id="score">Score: 0</div>
+    <div id="message">Press Arrow Keys to Start</div>
+    <canvas id="gameCanvas"></canvas>
+    <button id="restartBtn" onclick="restartGame()">Restart Game</button>
+
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+
+        // Function to resize the canvas
+        function resizeCanvas() {
+            const maxWidth = window.innerWidth * 0.9;
+            const maxHeight = window.innerHeight * 0.8;
+            const minDimension = Math.min(maxWidth, maxHeight);
+
+            canvas.width = Math.floor(minDimension / 30) * 30;  // Make sure it's a multiple of box size
+            canvas.height = Math.floor(minDimension / 30) * 30;
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        const box = 30;
+        let snake = [{x: 9 * box, y: 10 * box}];
+        let food = {
+            x: Math.floor(Math.random() * canvas.width / box) * box,
+            y: Math.floor(Math.random() * canvas.height / box) * box
+        };
+        let d;
+        let score = 0;
+        let gameInterval;
+        const messages = [
+            "Great!", "Keep Going!", "You're Awesome!", "Amazing!", "Fantastic!",
+            "You're on fire!", "Unstoppable!", "Incredible!", "Superb!", "Keep it up!"
+        ];
+        const messageDiv = document.getElementById("message");
+        const scoreDiv = document.getElementById("score");
+        const restartBtn = document.getElementById("restartBtn");
+
+        // Web Audio API setup for sound
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playSound(frequency, duration) {
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+
+            oscillator.type = "square";
+            oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime); 
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            oscillator.start();
+            gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+
+            oscillator.stop(audioCtx.currentTime + duration);
+        }
+
+        document.addEventListener("keydown", direction);
+
+        function direction(event) {
+            if(!gameInterval) {
+                gameInterval = setInterval(draw, 100);
+            }
+
+            if(event.keyCode == 37 && d != "RIGHT") {
+                d = "LEFT";
+            } else if(event.keyCode == 38 && d != "DOWN") {
+                d = "UP";
+            } else if(event.keyCode == 39 && d != "LEFT") {
+                d = "RIGHT";
+            } else if(event.keyCode == 40 && d != "UP") {
+                d = "DOWN";
+            }
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            for(let i = 0; i < snake.length; i++) {
+                ctx.fillStyle = (i == 0) ? "green" : "lightgreen";
+                ctx.fillRect(snake[i].x, snake[i].y, box, box);
+                ctx.strokeStyle = "white";
+                ctx.strokeRect(snake[i].x, snake[i].y, box, box);
+            }
+
+            ctx.fillStyle = "red";
+            ctx.fillRect(food.x, food.y, box, box);
+
+            let snakeX = snake[0].x;
+            let snakeY = snake[0].y;
+
+            if(d == "LEFT") snakeX -= box;
+            if(d == "UP") snakeY -= box;
+            if(d == "RIGHT") snakeX += box;
+            if(d == "DOWN") snakeY += box;
+
+            // Handle snake going through walls on left/right sides
+            if (snakeX < 0) {
+                snakeX = canvas.width - box;
+            } else if (snakeX >= canvas.width) {
+                snakeX = 0;
+            }
+
+            // Handle snake hitting the top/bottom edges (game over)
+            if(snakeY < 0 || snakeY >= canvas.height) {
+                clearInterval(gameInterval);
+                gameInterval = null;
+                messageDiv.textContent = "Game Over! Your score: " + score;
+                restartBtn.style.display = "block";
+                return;
+            }
+
+            if(snakeX == food.x && snakeY == food.y) {
+                score++;
+                playSound(440, 0.1); // A4 note, 100ms duration
+                messageDiv.textContent = messages[Math.floor(Math.random() * messages.length)];
+                scoreDiv.textContent = "Score: " + score;
+
+                food = {
+                    x: Math.floor(Math.random() * canvas.width / box) * box,
+                    y: Math.floor(Math.random() * canvas.height / box) * box
+                };
+            } else {
+                snake.pop();
+            }
+
+            let newHead = {
+                x: snakeX,
+                y: snakeY
+            };
+
+            if(collision(newHead, snake)) {
+                clearInterval(gameInterval);
+                gameInterval = null;
+                messageDiv.textContent = "Game Over! Your score: " + score;
+                restartBtn.style.display = "block";
+                return;
+            }
+
+            snake.unshift(newHead);
+        }
+
+        function collision(head, array) {
+            for(let i = 0; i < array.length; i++) {
+                if(head.x == array[i].x && head.y == array[i].y) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function restartGame() {
+            resizeCanvas();  // Resize the canvas to fit the screen again
+            snake = [{x: 9 * box, y: 10 * box}];
+            score = 0;
+            d = null;
+            messageDiv.textContent = "Press Arrow Keys to Start";
+            scoreDiv.textContent = "Score: 0";
+            restartBtn.style.display = "none";
+            food = {
+                x: Math.floor(Math.random() * canvas.width / box) * box,
+                y: Math.floor(Math.random() * canvas.height / box) * box
+            };
+        }
+    </script>
+</body>
+</html>
+
