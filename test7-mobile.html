@@ -17,6 +17,10 @@
             overflow: hidden; /* Prevent scrolling */
             padding: 20px; /* Add some padding */
             box-sizing: border-box; /* Ensure padding doesn't increase body size */
+            transition: background 0.5s ease; /* Add transition for background change */
+        }
+        body.game-over {
+            background: linear-gradient(to bottom, #ffffff, #cccccc);
         }
         #title {
             font-size: 32px;
@@ -37,6 +41,10 @@
         canvas {
             border: 2px solid blue;  /* Change border color to blue */
             background-color: #fff;
+            transition: background-color 0.5s ease; /* Add transition for background change */
+        }
+        canvas.game-over {
+            background-color: #e6e6e6;
         }
         #restartBtn {
             display: none;
@@ -64,10 +72,15 @@
             border: none;
             border-radius: 5px;
         }
+        #weather {
+            font-size: 16px;
+            margin-left: 10px;
+            color: #666;
+        }
     </style>
 </head>
 <body>
-    <div id="title">Ken's Snake by AI (beta) </div>
+    <div id="title">Ken's Snake by AI (beta) <span id="weather"></span></div>
     <div id="score">Score: 0</div>
     <div id="message">Press Arrow Keys to Start</div>
     <canvas id="gameCanvas"></canvas>
@@ -313,6 +326,21 @@
             gameOver = true; // Set the game over flag
             messageDiv.textContent = "Game Over! Your score: " + score;
             restartBtn.style.display = "block";
+
+            // Change the background color of the body and canvas
+            document.body.classList.add('game-over');
+            canvas.classList.add('game-over');
+
+            // Draw a semi-transparent gray overlay on the canvas
+            ctx.fillStyle = "rgba(200, 200, 200, 0.5)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw game over text in the center of the canvas
+            ctx.fillStyle = "black";
+            ctx.font = "30px Arial";
+            ctx.textAlign = "center";
+            ctx.fillText("Game Over", canvas.width / 2, canvas.height / 2 - 30);
+            ctx.fillText("Score: " + score, canvas.width / 2, canvas.height / 2 + 30);
         }
 
         function restartGame() {
@@ -321,13 +349,33 @@
             snake = [{x: 9 * box, y: 10 * box}];
             score = 0;
             d = null;
-            messageDiv.textContent = "Press Arrow Keys to Start";
+            messageDiv.textContent = "Ready to start";
             scoreDiv.textContent = "Score: 0";
             restartBtn.style.display = "none";
             generateFood();
             if (isHardMode) {
                 createAndShowObstacleSnake();
             }
+
+            // Add countdown functionality
+            let countdown = 3;
+            const countdownInterval = setInterval(() => {
+                if (countdown > 0) {
+                    messageDiv.textContent = countdown.toString();
+                    countdown--;
+                } else {
+                    clearInterval(countdownInterval);
+                    messageDiv.textContent = isMobile ? "Swipe to start" : "Press arrow keys to start";
+                    // After the countdown ends, if it's a mobile device, we can start the game automatically
+                    if (isMobile) {
+                        gameInterval = setInterval(draw, 100);
+                    }
+                }
+            }, 1000);
+
+            // Remove the game over styles
+            document.body.classList.remove('game-over');
+            canvas.classList.remove('game-over');
         }
 
         function generateFood() {
@@ -346,28 +394,54 @@
             return false;
         }
 
+        // Add function to get weather
+        function getWeather() {
+            const weatherSpan = document.getElementById('weather');
+            weatherSpan.textContent = 'Getting weather...';
+
+            // Use wttr.in to get weather information
+            fetch('https://wttr.in/?format=%t+%C')
+                .then(response => response.text())
+                .then(data => {
+                    weatherSpan.textContent = data.trim();
+                })
+                .catch(error => {
+                    console.error('Failed to get weather information:', error);
+                    weatherSpan.textContent = 'Weather unavailable';
+                    // Provide retry option
+                    setTimeout(() => {
+                        if (confirm('Unable to get weather information. Retry?')) {
+                            getWeather();
+                        }
+                    }, 1000);
+                });
+        }
+
+        // Call getWeather function after the page is loaded
+        document.addEventListener('DOMContentLoaded', getWeather);
+
         // Modify button click events
         document.addEventListener('DOMContentLoaded', function() {
             const modeBtn = document.getElementById("modeBtn");
             const restartBtn = document.getElementById("restartBtn");
 
             if (!modeBtn || !restartBtn) {
-                console.error('无法找到按钮元素');
+                console.error('Unable to find button elements');
                 return;
             }
 
             function toggleMode() {
-                console.log('toggleMode 被调用');
+                console.log('toggleMode called');
                 isHardMode = !isHardMode;
                 modeBtn.textContent = isHardMode ? "To Easy Mode" : "To Hard Mode";
                 restartGame();
             }
 
-            // 修改按钮点击事件
+            // Modify button click events
             modeBtn.addEventListener(isMobile ? 'touchstart' : 'click', toggleMode);
             restartBtn.addEventListener(isMobile ? 'touchstart' : 'click', restartGame);
 
-            console.log('事件监听器已添加');
+            console.log('Event listeners added');
         });
     </script>
 </body>
