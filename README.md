@@ -1,12 +1,18 @@
 # small-games-for-kids
 
-just down load the html file, then open with your browser(mac preferred), then directly run the game with your kids... enjoy!
+just down load the html files, then open with your browser(mac preferred), then directly run the game with your kids... enjoy!
+
 
 detail interactions with chatgpt as follows:
 
 whole screenshot:
 
+snake game: 
 <img width="762" alt="image" src="https://github.com/user-attachments/assets/1be52287-6025-4de5-9a19-b16690a7cb1d">
+
+match-3 game:
+<img width="783" alt="image" src="https://github.com/user-attachments/assets/1f650ea5-d12a-48ed-9c13-caae7a8a0710">
+
 
 <img width="792" alt="image" src="https://github.com/user-attachments/assets/e8cf9075-0772-4c8d-a712-d4d9009ba623">
 
@@ -20,3 +26,4 @@ whole screenshot:
 
 <img width="760" alt="image" src="https://github.com/user-attachments/assets/a4821ccf-0d9c-4077-8230-0c4f557fd345">
 
+<img width="1676" alt="image" src="https://github.com/user-attachments/assets/896ea94b-7797-440d-892e-2ec59b735352">
