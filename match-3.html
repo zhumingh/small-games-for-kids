@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ken's Match-3 Game (beta)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Fredoka One', cursive;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+        }
+        .game-title {
+            font-size: 2.5em;
+            color: #ffffff;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        h1 {
+            color: #ffffff;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        #game-board {
+            display: grid;
+            grid-template-columns: repeat(8, 50px);
+            gap: 2px;
+            margin-bottom: 20px;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        .cell {
+            width: 50px;
+            height: 50px;
+            border: 1px solid #ccc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            cursor: pointer;
+            background-color: white;
+            border-radius: 5px;
+            transition: all 0.2s ease;
+        }
+        .cell:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+            z-index: 10;
+        }
+        #score-container {
+            font-size: 36px;
+            color: #ffffff;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            animation: pulse 1s infinite alternate;
+        }
+        @keyframes pulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.05); }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-title">Ken's Match-3 Game (beta)</div>
+    <h1>Match-3 Game</h1>
+    <div id="game-board"></div>
+    <div id="score-container">Score: <span id="score">0</span></div>
+
+    <script>
+        const board = document.getElementById('game-board');
+        const scoreElement = document.getElementById('score');
+        let score = 0;
+        const colors = ['🔴', '🔵', '🟢', '🟡', '🟣'];
+        const boardSize = 8;
+        let gameBoard = [];
+
+        // Create audio context
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playMatchSound() {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(440, audioContext.currentTime); // A4 note
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            gainNode.gain.setValueAtTime(0.5, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+
+            oscillator.start();
+            oscillator.stop(audioContext.currentTime + 0.5);
+        }
+
+        function initBoard() {
+            for (let i = 0; i < boardSize; i++) {
+                gameBoard[i] = [];
+                for (let j = 0; j < boardSize; j++) {
+                    const cell = document.createElement('div');
+                    cell.classList.add('cell');
+                    cell.dataset.row = i;
+                    cell.dataset.col = j;
+                    cell.addEventListener('click', cellClick);
+                    board.appendChild(cell);
+                    gameBoard[i][j] = getRandomColor();
+                    cell.textContent = gameBoard[i][j];
+                }
+            }
+        }
+
+        function getRandomColor() {
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+
+        function cellClick(e) {
+            const row = parseInt(e.target.dataset.row);
+            const col = parseInt(e.target.dataset.col);
+            if (checkMatches(row, col)) {
+                playMatchSound(); // Play sound effect
+            }
+            updateBoard();
+        }
+
+        function checkMatches(row, col) {
+            const color = gameBoard[row][col];
+            const matches = [[row, col]];
+            // Horizontal and vertical directions
+            checkDirection(row, col, 0, 1, color, matches);
+            checkDirection(row, col, 0, -1, color, matches);
+            checkDirection(row, col, 1, 0, color, matches);
+            checkDirection(row, col, -1, 0, color, matches);
+            // Diagonal directions
+            checkDirection(row, col, 1, 1, color, matches);
+            checkDirection(row, col, 1, -1, color, matches);
+            checkDirection(row, col, -1, 1, color, matches);
+            checkDirection(row, col, -1, -1, color, matches);
+
+            if (matches.length >= 3) {
+                score += matches.length;
+                scoreElement.textContent = score;
+                matches.forEach(([r, c]) => {
+                    gameBoard[r][c] = null;
+                });
+                return true; // Return true if a match was found
+            }
+            return false; // Return false if no match was found
+        }
+
+        function checkDirection(row, col, dRow, dCol, color, matches) {
+            let newRow = row + dRow;
+            let newCol = col + dCol;
+            while (
+                newRow >= 0 && newRow < boardSize &&
+                newCol >= 0 && newCol < boardSize &&
+                gameBoard[newRow][newCol] === color
+            ) {
+                matches.push([newRow, newCol]);
+                newRow += dRow;
+                newCol += dCol;
+            }
+        }
+
+        function updateBoard() {
+            for (let col = 0; col < boardSize; col++) {
+                let emptyRow = boardSize - 1;
+                for (let row = boardSize - 1; row >= 0; row--) {
+                    if (gameBoard[row][col] !== null) {
+                        gameBoard[emptyRow][col] = gameBoard[row][col];
+                        emptyRow--;
+                    }
+                }
+                while (emptyRow >= 0) {
+                    gameBoard[emptyRow][col] = getRandomColor();
+                    emptyRow--;
+                }
+            }
+
+            for (let i = 0; i < boardSize; i++) {
+                for (let j = 0; j < boardSize; j++) {
+                    const cell = board.children[i * boardSize + j];
+                    cell.textContent = gameBoard[i][j];
+                }
+            }
+        }
+
+        initBoard();
+    </script>
+</body>
+</html>
