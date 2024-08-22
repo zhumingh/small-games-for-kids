@@ -9,6 +9,8 @@ whole screenshot:
 
 snake game: <br>
 <img width="762" alt="image" src="https://github.com/user-attachments/assets/1be52287-6025-4de5-9a19-b16690a7cb1d">
+<img width="755" alt="image" src="https://github.com/user-attachments/assets/7fc17b64-c122-4afe-9584-cb869f86a7cd">
+
 
 match-3 game: <br>
 <img width="783" alt="image" src="https://github.com/user-attachments/assets/1f650ea5-d12a-48ed-9c13-caae7a8a0710">
