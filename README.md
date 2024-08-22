@@ -26,4 +26,8 @@ match-3 game: <br>
 
 <img width="760" alt="image" src="https://github.com/user-attachments/assets/a4821ccf-0d9c-4077-8230-0c4f557fd345">
 
+
+<br>
+then move to Cursor to continue coding with AI... <br>
+
 <img width="1676" alt="image" src="https://github.com/user-attachments/assets/896ea94b-7797-440d-892e-2ec59b735352">
