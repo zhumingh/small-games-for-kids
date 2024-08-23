@@ -1,11 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
-    
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ken's Snake by AI (beta) </title>
+    <title>Ken's Snake Game (beta)</title>
     <style>
+        @keyframes breathe {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
         body {
             display: flex;
             flex-direction: column;
@@ -13,7 +24,9 @@
             align-items: center;
             height: 100vh;
             margin: 0;
-            background: linear-gradient(to bottom, white, #87CEFA);
+            background: linear-gradient(-45deg, #f6d365, #fda085, #a8edea, #d6e9f7);
+            background-size: 400% 400%;
+            animation: breathe 20s ease infinite;
             overflow: hidden; /* Prevent scrolling */
             padding: 20px; /* Add some padding */
             box-sizing: border-box; /* Ensure padding doesn't increase body size */
@@ -39,7 +52,6 @@
             color: #333;
         }
         canvas {
-            border: 2px solid blue;  /* Change border color to blue */
             background-color: #fff;
             transition: background-color 0.5s ease; /* Add transition for background change */
         }
@@ -80,7 +92,7 @@
     </style>
 </head>
 <body>
-    <div id="title">Ken's Snake by AI (beta) <span id="weather"></span></div>
+    <div id="title">Ken's Snake Game (beta) <span id="weather"></span></div>
     <div id="score">Score: 0</div>
     <div id="message">Press Arrow Keys to Start</div>
     <canvas id="gameCanvas"></canvas>
@@ -236,25 +248,110 @@
             document.addEventListener("keydown", direction);
         }
 
+        let dx = 0;
+        let dy = 0;
+        let lastDirection = { dx: 0, dy: 0 };
+        let pressedKeys = new Set();
+
         function direction(event) {
             if(gameOver) return;
             if(!gameInterval) {
                 gameInterval = setInterval(draw, 100);
             }
 
-            if(event.keyCode == 37 && d != "RIGHT") {
-                d = "LEFT";
-            } else if(event.keyCode == 38 && d != "DOWN") {
-                d = "UP";
-            } else if(event.keyCode == 39 && d != "LEFT") {
-                d = "RIGHT";
-            } else if(event.keyCode == 40 && d != "UP") {
-                d = "DOWN";
+            pressedKeys.add(event.keyCode);
+            updateDirection();
+        }
+
+        function keyUp(event) {
+            pressedKeys.delete(event.keyCode);
+            updateDirection();
+        }
+
+        function updateDirection() {
+            let newDx = 0;
+            let newDy = 0;
+
+            if(pressedKeys.has(37)) newDx -= 1; // LEFT
+            if(pressedKeys.has(39)) newDx += 1; // RIGHT
+            if(pressedKeys.has(38)) newDy -= 1; // UP
+            if(pressedKeys.has(40)) newDy += 1; // DOWN
+
+            // If no keys are pressed, maintain the last direction
+            if (newDx === 0 && newDy === 0) {
+                newDx = lastDirection.dx;
+                newDy = lastDirection.dy;
+            } else {
+                // Prevent 180-degree turns
+                if ((newDx === -lastDirection.dx && newDy === 0) || 
+                    (newDy === -lastDirection.dy && newDx === 0)) {
+                    newDx = lastDirection.dx;
+                    newDy = lastDirection.dy;
+                } else {
+                    // Normalize diagonal movement
+                    if (newDx !== 0 && newDy !== 0) {
+                        newDx *= Math.SQRT1_2;
+                        newDy *= Math.SQRT1_2;
+                    }
+                    // Update last direction
+                    lastDirection.dx = newDx;
+                    lastDirection.dy = newDy;
+                }
+            }
+
+            dx = newDx;
+            dy = newDy;
+        }
+
+        document.addEventListener("keydown", direction);
+        document.addEventListener("keyup", keyUp);
+
+        // Function to speak the message
+        function speakMessage(message) {
+            // Check if the browser supports speech synthesis
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(message);
+                utterance.lang = 'en-US'; // Set language to English
+                utterance.volume = 0.8; // Set volume (0 to 1)
+                utterance.rate = 1.0; // Set rate (0.1 to 10)
+                utterance.pitch = 1.0; // Set pitch (0 to 2)
+                window.speechSynthesis.speak(utterance);
+            } else {
+                console.log("Speech synthesis not supported");
             }
         }
 
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw borders
+            ctx.lineWidth = 2;
+            
+            // Top border (red)
+            ctx.strokeStyle = "red";
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(canvas.width, 0);
+            ctx.stroke();
+
+            // Bottom border (red)
+            ctx.beginPath();
+            ctx.moveTo(0, canvas.height);
+            ctx.lineTo(canvas.width, canvas.height);
+            ctx.stroke();
+
+            // Left border (green)
+            ctx.strokeStyle = "green";
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(0, canvas.height);
+            ctx.stroke();
+
+            // Right border (green)
+            ctx.beginPath();
+            ctx.moveTo(canvas.width, 0);
+            ctx.lineTo(canvas.width, canvas.height);
+            ctx.stroke();
 
             for(let i = 0; i < snake.length; i++) {
                 ctx.fillStyle = (i == 0) ? "green" : "lightgreen";
@@ -275,19 +372,8 @@
                 }
             }
 
-            let snakeX = snake[0].x;
-            let snakeY = snake[0].y;
-
-            if(d == "LEFT") snakeX -= box;
-            if(d == "UP") snakeY -= box;
-            if(d == "RIGHT") snakeX += box;
-            if(d == "DOWN") snakeY += box;
-
-            // Modify boundary checking logic
-            if (snakeY < 0 || snakeY >= canvas.height) {
-                endGame();
-                return;
-            }
+            let snakeX = snake[0].x + dx * box;
+            let snakeY = snake[0].y + dy * box;
 
             // Allow left-right wrapping
             if (snakeX < 0) {
@@ -296,15 +382,10 @@
                 snakeX = 0;
             }
 
-            if(snakeX == food.x && snakeY == food.y) {
-                score++;
-                playSound(440, 0.1); // A4 note, 100ms duration
-                messageDiv.textContent = messages[Math.floor(Math.random() * messages.length)];
-                scoreDiv.textContent = "Score: " + score;
-
-                generateFood();
-            } else {
-                snake.pop();
+            // Check for collision with top and bottom boundaries
+            if (snakeY < 0 || snakeY >= canvas.height) {
+                endGame();
+                return;
             }
 
             let newHead = {
@@ -312,12 +393,49 @@
                 y: snakeY
             };
 
+            // Check if snake ate the food
+            if(isOverlapping(newHead, food)) {
+                score++;
+                playSound(440, 0.1); // A4 note, 100ms duration
+                const message = messages[Math.floor(Math.random() * messages.length)];
+                messageDiv.textContent = message;
+                scoreDiv.textContent = "Score: " + score;
+
+                // Speak the message
+                speakMessage(message);
+
+                generateFood();
+            } else {
+                snake.pop();
+            }
+
             if(collision(newHead, snake) || (isHardMode && obstacleSnakeVisible && collision(newHead, obstacleSnake))) {
                 endGame();
                 return;
             }
 
             snake.unshift(newHead);
+        }
+
+        function isOverlapping(rect1, rect2) {
+            return rect1.x < rect2.x + box &&
+                   rect1.x + box > rect2.x &&
+                   rect1.y < rect2.y + box &&
+                   rect1.y + box > rect2.y;
+        }
+
+        function generateFood() {
+            food = {
+                x: Math.floor(Math.random() * (canvas.width / box)) * box,
+                y: Math.floor(Math.random() * (canvas.height / box)) * box
+            };
+            // Ensure food doesn't spawn on snake
+            while(collision(food, snake)) {
+                food = {
+                    x: Math.floor(Math.random() * (canvas.width / box)) * box,
+                    y: Math.floor(Math.random() * (canvas.height / box)) * box
+                };
+            }
         }
 
         function endGame() {
@@ -376,13 +494,6 @@
             // Remove the game over styles
             document.body.classList.remove('game-over');
             canvas.classList.remove('game-over');
-        }
-
-        function generateFood() {
-            food = {
-                x: Math.floor(Math.random() * (canvas.width / box)) * box,
-                y: Math.floor(Math.random() * (canvas.height / box)) * box
-            };
         }
 
         function collision(head, array) {
