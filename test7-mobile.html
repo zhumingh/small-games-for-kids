@@ -1,5 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+    <!--
+    Snake Game
+    Author: Ken
+    Version: 1.0
+    Last Updated: 2023-05-10
+    Description: A classic snake game with additional features like an obstacle snake in easy mode,
+                 diagonal movement, and background music.
+-->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -150,7 +158,7 @@
         let isHardMode = false;
         let obstacleSnake = [];
         let obstacleSnakeDirection = { dx: 1, dy: 0 };
-        let obstacleSnakeTimer;
+        let obstacleSnakeTimer = 0;
         let obstacleSnakeLength = 5; // Initial length
         const maxObstacleSnakeLength = 15; // Maximum length
 
@@ -163,16 +171,21 @@
         function initObstacleSnake() {
             obstacleSnake = [{ x: 0, y: 0 }];
             obstacleSnakeDirection = { dx: 1, dy: 0 };
+            obstacleSnakeTimer = 0;
         }
 
         function moveObstacleSnake() {
+            obstacleSnakeTimer++;
+            if (obstacleSnakeTimer < 5) return; // Move at 0.6x speed (3/5 = 0.6)
+            obstacleSnakeTimer = 0;
+
             let head = obstacleSnake[0];
             let newHead = {
                 x: head.x + obstacleSnakeDirection.dx * box,
                 y: head.y + obstacleSnakeDirection.dy * box
             };
 
-            // Wrap around the canvas
+            // Wrap around the canvas (including top and bottom)
             if (newHead.x < 0) newHead.x = canvas.width - box;
             if (newHead.x >= canvas.width) newHead.x = 0;
             if (newHead.y < 0) newHead.y = canvas.height - box;
@@ -382,18 +395,11 @@
             let snakeX = snake[0].x + dx * box;
             let snakeY = snake[0].y + dy * box;
 
-            // Allow left-right wrapping
-            if (snakeX < 0) {
-                snakeX = canvas.width - box;
-            } else if (snakeX >= canvas.width) {
-                snakeX = 0;
-            }
-
-            // Check for collision with top and bottom boundaries
-            if (snakeY < 0 || snakeY >= canvas.height) {
-                endGame();
-                return;
-            }
+            // Allow wrapping for all sides
+            if (snakeX < 0) snakeX = canvas.width - box;
+            else if (snakeX >= canvas.width) snakeX = 0;
+            if (snakeY < 0) snakeY = canvas.height - box;
+            else if (snakeY >= canvas.height) snakeY = 0;
 
             let newHead = {
                 x: snakeX,
