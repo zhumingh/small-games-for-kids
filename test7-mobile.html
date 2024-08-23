@@ -149,7 +149,7 @@
 
         let isHardMode = false;
         let obstacleSnake = [];
-        let obstacleSnakeVisible = false;
+        let obstacleSnakeDirection = { dx: 1, dy: 0 };
         let obstacleSnakeTimer;
         let obstacleSnakeLength = 5; // Initial length
         const maxObstacleSnakeLength = 15; // Maximum length
@@ -160,35 +160,41 @@
             restartGame();
         }
 
-        function createObstacleSnake() {
-            obstacleSnake = [];
-            let x = Math.floor(Math.random() * (canvas.width / box - obstacleSnakeLength)) * box;
-            let y = Math.floor(Math.random() * (canvas.height / box)) * box;
-            
-            for (let i = 0; i < obstacleSnakeLength; i++) {
-                obstacleSnake.push({x: x + i * box, y: y});
-            }
+        function initObstacleSnake() {
+            obstacleSnake = [{ x: 0, y: 0 }];
+            obstacleSnakeDirection = { dx: 1, dy: 0 };
         }
 
-        function toggleObstacleSnake() {
-            if (obstacleSnakeVisible) {
-                obstacleSnakeVisible = false;
-                setTimeout(createAndShowObstacleSnake, 2000);
+        function moveObstacleSnake() {
+            let head = obstacleSnake[0];
+            let newHead = {
+                x: head.x + obstacleSnakeDirection.dx * box,
+                y: head.y + obstacleSnakeDirection.dy * box
+            };
+
+            // Wrap around the canvas
+            if (newHead.x < 0) newHead.x = canvas.width - box;
+            if (newHead.x >= canvas.width) newHead.x = 0;
+            if (newHead.y < 0) newHead.y = canvas.height - box;
+            if (newHead.y >= canvas.height) newHead.y = 0;
+
+            // Simple AI: move towards the food
+            let dx = food.x - newHead.x;
+            let dy = food.y - newHead.y;
+            if (Math.abs(dx) > Math.abs(dy)) {
+                obstacleSnakeDirection.dx = dx > 0 ? 1 : -1;
+                obstacleSnakeDirection.dy = 0;
             } else {
-                createAndShowObstacleSnake();
+                obstacleSnakeDirection.dx = 0;
+                obstacleSnakeDirection.dy = dy > 0 ? 1 : -1;
             }
-            
-            // Increase obstacle snake length
-            if (obstacleSnakeLength < maxObstacleSnakeLength) {
-                obstacleSnakeLength++;
-            }
-        }
 
-        function createAndShowObstacleSnake() {
-            createObstacleSnake();
-            obstacleSnakeVisible = true;
-            clearTimeout(obstacleSnakeTimer);
-            obstacleSnakeTimer = setTimeout(toggleObstacleSnake, 3000);
+            obstacleSnake.unshift(newHead);
+
+            // Keep the obstacle snake at a fixed length
+            if (obstacleSnake.length > 5) {
+                obstacleSnake.pop();
+            }
         }
 
         let gameOver = false; // Added this line to track if the game is over
@@ -360,17 +366,18 @@
                 ctx.strokeRect(snake[i].x, snake[i].y, box, box);
             }
 
-            ctx.fillStyle = "red";
-            ctx.fillRect(food.x, food.y, box, box);
-
-            if (isHardMode && obstacleSnakeVisible) {
-                for (let i = 0; i < obstacleSnake.length; i++) {
-                    ctx.fillStyle = "purple";
+            // Draw obstacle snake
+            if (!isHardMode) {
+                for(let i = 0; i < obstacleSnake.length; i++) {
+                    ctx.fillStyle = (i == 0) ? "purple" : "lavender";
                     ctx.fillRect(obstacleSnake[i].x, obstacleSnake[i].y, box, box);
                     ctx.strokeStyle = "white";
                     ctx.strokeRect(obstacleSnake[i].x, obstacleSnake[i].y, box, box);
                 }
             }
+
+            ctx.fillStyle = "red";
+            ctx.fillRect(food.x, food.y, box, box);
 
             let snakeX = snake[0].x + dx * box;
             let snakeY = snake[0].y + dy * box;
@@ -409,12 +416,24 @@
                 snake.pop();
             }
 
-            if(collision(newHead, snake) || (isHardMode && obstacleSnakeVisible && collision(newHead, obstacleSnake))) {
+            if(collision(newHead, snake) || 
+               (!isHardMode && collision(newHead, obstacleSnake)) || 
+               (isHardMode && obstacleSnakeVisible && collision(newHead, obstacleSnake))) {
                 endGame();
                 return;
             }
 
             snake.unshift(newHead);
+
+            // Move obstacle snake in easy mode
+            if (!isHardMode) {
+                moveObstacleSnake();
+                
+                // Check if obstacle snake ate the food
+                if (isOverlapping(obstacleSnake[0], food)) {
+                    generateFood();
+                }
+            }
         }
 
         function isOverlapping(rect1, rect2) {
@@ -471,8 +490,8 @@
             scoreDiv.textContent = "Score: 0";
             restartBtn.style.display = "none";
             generateFood();
-            if (isHardMode) {
-                createAndShowObstacleSnake();
+            if (!isHardMode) {
+                initObstacleSnake();
             }
 
             // Add countdown functionality
@@ -554,6 +573,8 @@
 
             console.log('Event listeners added');
         });
+
+        initObstacleSnake();
     </script>
 </body>
 </html>
