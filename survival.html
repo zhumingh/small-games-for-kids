@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <title>Ken's Survival Game(beta)</title>
+    <style>
+        #gameTitle {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            color: #fff;
+            font-size: 24px;
+            font-weight: bold;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 5px 0;
+        }
+    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Escape Game</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+        #gameArea {
+            position: relative;
+            width: 500px;
+            height: 500px;
+            background-color: #333;
+            overflow: hidden;
+        }
+        .player, .enemy {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+        }
+        .player {
+            background-color: #00ff00; /* Bright green */
+        }
+        .enemy {
+            background-color: #f00;
+        }
+        #score {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: #fff;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div id="gameArea">
+        <div id="player" class="player"></div>
+        <div id="score">Score: 0</div>
+    </div>
+
+    <script>
+        const gameArea = document.getElementById('gameArea');
+        const player = document.getElementById('player');
+        const scoreDisplay = document.getElementById('score');
+        let score = 0;
+        let enemies = [];
+        let gameInterval;
+        let enemyInterval;
+
+        // Set initial player position
+        let playerPos = { x: 245, y: 245 };
+        player.style.left = `${playerPos.x}px`;
+        player.style.top = `${playerPos.y}px`;
+
+        // Object to track key states
+        let keys = {
+            ArrowUp: false,
+            ArrowDown: false,
+            ArrowLeft: false,
+            ArrowRight: false
+        };
+
+        // Listen for keydown and keyup events
+        document.addEventListener('keydown', (event) => {
+            if (event.key in keys) {
+                keys[event.key] = true;
+            }
+        });
+
+        document.addEventListener('keyup', (event) => {
+            if (event.key in keys) {
+                keys[event.key] = false;
+            }
+        });
+
+        // Function to move player
+        function movePlayer() {
+            const step = 5;
+            let dx = 0;
+            let dy = 0;
+
+            if (keys.ArrowUp) dy -= step;
+            if (keys.ArrowDown) dy += step;
+            if (keys.ArrowLeft) dx -= step;
+            if (keys.ArrowRight) dx += step;
+
+            // Normalize diagonal movement
+            if (dx !== 0 && dy !== 0) {
+                dx /= Math.sqrt(2);
+                dy /= Math.sqrt(2);
+            }
+
+            playerPos.x = Math.max(0, Math.min(gameArea.clientWidth - player.clientWidth, playerPos.x + dx));
+            playerPos.y = Math.max(0, Math.min(gameArea.clientHeight - player.clientHeight, playerPos.y + dy));
+
+            player.style.left = `${playerPos.x}px`;
+            player.style.top = `${playerPos.y}px`;
+        }
+
+        // Create randomly moving enemies
+        function createEnemy() {
+            const enemy = document.createElement('div');
+            enemy.classList.add('enemy');
+            enemy.style.left = `${Math.random() * (gameArea.clientWidth - 10)}px`;
+            enemy.style.top = `${Math.random() * (gameArea.clientHeight - 10)}px`;
+            gameArea.appendChild(enemy);
+            enemies.push({ element: enemy, xSpeed: Math.random() * 4 - 2, ySpeed: Math.random() * 4 - 2 });
+        }
+
+        // Update enemy positions
+        function updateEnemies() {
+            enemies.forEach((enemyObj, index) => {
+                const enemy = enemyObj.element;
+                let newLeft = parseFloat(enemy.style.left) + enemyObj.xSpeed;
+                let newTop = parseFloat(enemy.style.top) + enemyObj.ySpeed;
+
+                // Bounce mechanism
+                if (newLeft <= 0 || newLeft >= gameArea.clientWidth - 10) {
+                    enemyObj.xSpeed = -enemyObj.xSpeed;
+                }
+                if (newTop <= 0 || newTop >= gameArea.clientHeight - 10) {
+                    enemyObj.ySpeed = -enemyObj.ySpeed;
+                }
+
+                enemy.style.left = `${newLeft}px`;
+                enemy.style.top = `${newTop}px`;
+
+                // Collision detection
+                if (isCollision(player, enemy)) {
+                    endGame();
+                }
+            });
+        }
+
+        // Collision detection
+        function isCollision(rect1, rect2) {
+            const rect1Pos = rect1.getBoundingClientRect();
+            const rect2Pos = rect2.getBoundingClientRect();
+
+            return !(
+                rect1Pos.right < rect2Pos.left ||
+                rect1Pos.left > rect2Pos.right ||
+                rect1Pos.bottom < rect2Pos.top ||
+                rect1Pos.top > rect2Pos.bottom
+            );
+        }
+
+        // End game
+        function endGame() {
+            clearInterval(gameInterval);
+            clearInterval(enemyInterval);
+            let finalScore = scoreDisplay.textContent.split(': ')[1];
+            alert(`Game Over! Your score is: ${finalScore}`);
+            location.reload(); // Reload the page to restart the game
+        }
+
+        // Game loop
+        function startGame() {
+            score = 0;
+            enemies = [];
+            
+            // Create initial 20 enemies
+            for (let i = 0; i < 40; i++) {
+                createEnemy();
+            }
+
+            let startTime = Date.now();
+            gameInterval = setInterval(() => {
+                let currentTime = Date.now();
+                let elapsedTime = currentTime - startTime;
+                let seconds = Math.floor(elapsedTime / 1000);
+                let milliseconds = elapsedTime % 1000;
+                scoreDisplay.textContent = `Progress: ${seconds}s${milliseconds.toString().padStart(3, '0')}`;
+                movePlayer();
+                updateEnemies();
+            }, 50);
+
+            // Generate new enemies at intervals
+            enemyInterval = setInterval(createEnemy, 400);
+        }
+
+        // Start game
+        startGame();
+    </script>
+
+<audio id="backgroundMusic" loop>
+    <source src="ken-games-bgmusic-01.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
+</audio>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var backgroundMusic = document.getElementById('backgroundMusic');
+        backgroundMusic.volume = 0.5;
+        backgroundMusic.play().catch(function(error) {
+            console.log('Autoplay failed:', error);
+        });
+    });
+</script>
+</body>
+</html>

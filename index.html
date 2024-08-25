@@ -25,23 +25,32 @@
             display: flex;
             flex-direction: column;
             gap: 20px;
+            max-width: 600px;
+            margin: 0 auto;
         }
         .game-item {
             background-color: #fff;
-            padding: 20px 40px;
+            padding: 20px;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             transition: transform 0.3s, box-shadow 0.3s;
-            text-align: center;
-        }
-        .game-item a {
             text-decoration: none;
-            color: #007BFF;
-            font-size: 18px;
+            color: #333;
         }
         .game-item:hover {
             transform: translateY(-5px);
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+        .game-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #007BFF;
+        }
+        .game-description {
+            font-size: 14px;
+            line-height: 1.4;
+            color: #666;
         }
     </style>
 </head>
@@ -55,13 +64,25 @@
 
     <div class="game-list">
         <a href="test7-mobile.html" class="game-item">
-            <div>Snake Game</div>
+            <div class="game-title">Snake Game</div>
+            <div class="game-description">Control the snake, grow longer, and challenge your reflexes and strategy by avoiding obstacles.</div>
         </a>
         <a href="match-3.html" class="game-item">
-            <div>Match-3 Game</div>
+            <div class="game-title">Match-3 Game</div>
+            <div class="game-description">Swap adjacent elements to match three or more, and enjoy the satisfying chain reactions.</div>
         </a>
         <a href="sudou.html" class="game-item">
-            <div>Sudoku Game</div>
+            <div class="game-title">Sudoku Game</div>
+            <div class="game-description">Fill the 9x9 grid with numbers, testing your logical thinking and puzzle-solving skills.</div>
+        </a>
+        <a href="memory.html" class="game-item">
+            <div class="game-title">Memory Game</div>
+            <div class="game-description">Memorize the positions of numbers in a short time, and challenge your memory and focus.</div>
+        </a>
+
+        <a href="survival.html" class="game-item">
+            <div class="game-title">Dodge Survival Game</div>
+            <div class="game-description">Survive as long as you can in a field of increasing enemies, testing your agility and survival instincts.</div>
         </a>
         <!-- 未来的游戏链接可以在这里添加 -->
     </div>
