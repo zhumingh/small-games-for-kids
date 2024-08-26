@@ -9,6 +9,7 @@
                  diagonal movement, and background music.
 -->
 <head>
+    <link rel="icon" type="image/jpeg" href="index.jpg">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ken's Snake Game (beta)</title>
@@ -104,7 +105,7 @@
     <div id="score">Score: 0</div>
     <div id="message">Press Arrow Keys to Start</div>
     <canvas id="gameCanvas"></canvas>
-    <button id="modeBtn">To Hard Mode</button>
+    
     <button id="restartBtn">Restart Game</button>
 
     <script>
@@ -582,5 +583,26 @@
 
         initObstacleSnake();
     </script>
+
+<audio id="backgroundMusic" loop>
+    <source src="ken-games-bgmusic-01.mp3" type="audio/mpeg">
+    您的浏览器不支持音频元素。
+</audio>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var backgroundMusic = document.getElementById('backgroundMusic');
+        backgroundMusic.volume = 0.5; // 设置音量为50%
+        backgroundMusic.play().catch(function(error) {
+            console.log('自动播放失败：', error);
+            // 在这里可以添加一个按钮让用户手动播放音乐
+        });
+    });
+</script>
+
+<div style="margin-top: 20px; text-align: center;">
+    <a href="index.html" style="text-decoration: none; color: #fff; background-color: #4CAF50; padding: 10px 20px; border-radius: 5px; font-size: 16px;">More Games...</a>
+</div>
+
+
 </body>
 </html>
