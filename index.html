@@ -110,5 +110,61 @@
             });
         });
     </script>
+
+<style>
+    #mini-game {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 100px;
+        height: 100px;
+        background-color: rgba(255, 255, 255, 0.8);
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        font-size: 24px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+    }
+    #mini-game:hover {
+        transform: scale(1.1);
+    }
+</style>
+
+<div id="mini-game">0</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const miniGame = document.getElementById('mini-game');
+        let clickCount = 0;
+        let gameActive = false;
+        let startTime;
+
+        function startGame() {
+            clickCount = 0;
+            gameActive = true;
+            startTime = Date.now();
+            miniGame.textContent = clickCount;
+            setTimeout(endGame, 10000); // 10秒游戏时间
+        }
+        function endGame() {
+            gameActive = false;
+            const score = clickCount;
+            alert(`Game over! You clicked ${score} times in 10 seconds.`);
+            miniGame.textContent = 'Again?';
+        }
+
+        miniGame.addEventListener('click', function() {
+            if (!gameActive) {
+                startGame();
+            } else {
+                clickCount++;
+                miniGame.textContent = clickCount;
+            }
+        });
+    });
+</script>
 </body>
 </html>
