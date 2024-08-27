@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-    <!--
+<!--
     Snake Game
     Author: Ken
     Version: 1.0
@@ -8,6 +8,7 @@
     Description: A classic snake game with additional features like an obstacle snake in easy mode,
                  diagonal movement, and background music.
 -->
+
 <head>
     <link rel="icon" type="image/jpeg" href="index.jpg">
     <meta charset="UTF-8">
@@ -18,9 +19,11 @@
             0% {
                 background-position: 0% 50%;
             }
+
             50% {
                 background-position: 100% 50%;
             }
+
             100% {
                 background-position: 0% 50%;
             }
@@ -36,37 +39,49 @@
             background: linear-gradient(-45deg, #f6d365, #fda085, #a8edea, #d6e9f7);
             background-size: 400% 400%;
             animation: breathe 20s ease infinite;
-            overflow: hidden; /* Prevent scrolling */
-            padding: 20px; /* Add some padding */
-            box-sizing: border-box; /* Ensure padding doesn't increase body size */
-            transition: background 0.5s ease; /* Add transition for background change */
+            overflow: hidden;
+            /* Prevent scrolling */
+            padding: 20px;
+            /* Add some padding */
+            box-sizing: border-box;
+            /* Ensure padding doesn't increase body size */
+            transition: background 0.5s ease;
+            /* Add transition for background change */
         }
+
         body.game-over {
             background: linear-gradient(to bottom, #ffffff, #cccccc);
         }
+
         #title {
             font-size: 32px;
             font-weight: bold;
             margin-bottom: 10px;
             color: #333;
         }
+
         #score {
             font-size: 24px;
             margin-bottom: 10px;
             color: #333;
         }
+
         #message {
             font-size: 20px;
             margin-bottom: 10px;
             color: #333;
         }
+
         canvas {
             background-color: #fff;
-            transition: background-color 0.5s ease; /* Add transition for background change */
+            transition: background-color 0.5s ease;
+            /* Add transition for background change */
         }
+
         canvas.game-over {
             background-color: #e6e6e6;
         }
+
         #restartBtn {
             display: none;
             margin-top: 10px;
@@ -78,11 +93,13 @@
             border: none;
             border-radius: 5px;
         }
+
         #author {
             margin-top: 20px;
             font-size: 14px;
             color: #666;
         }
+
         #modeBtn {
             margin-top: 10px;
             padding: 10px 20px;
@@ -93,6 +110,7 @@
             border: none;
             border-radius: 5px;
         }
+
         #weather {
             font-size: 16px;
             margin-left: 10px;
@@ -100,12 +118,13 @@
         }
     </style>
 </head>
+
 <body>
     <div id="title">Ken's Snake Game (beta) <span id="weather"></span></div>
     <div id="score">Score: 0</div>
     <div id="message">Press Arrow Keys to Start</div>
     <canvas id="gameCanvas"></canvas>
-    
+
     <button id="restartBtn">Restart Game</button>
 
     <script>
@@ -122,7 +141,7 @@
         resizeCanvas();
 
         const box = 30;
-        let snake = [{x: 9 * box, y: 10 * box}];
+        let snake = [{ x: 9 * box, y: 10 * box }];
         let food = {
             x: Math.floor(Math.random() * canvas.width / box) * box,
             y: Math.floor(Math.random() * canvas.height / box) * box
@@ -146,7 +165,7 @@
             const gainNode = audioCtx.createGain();
 
             oscillator.type = "square";
-            oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime); 
+            oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime);
             oscillator.connect(gainNode);
             gainNode.connect(audioCtx.destination);
 
@@ -274,8 +293,8 @@
         let pressedKeys = new Set();
 
         function direction(event) {
-            if(gameOver) return;
-            if(!gameInterval) {
+            if (gameOver) return;
+            if (!gameInterval) {
                 gameInterval = setInterval(draw, 100);
             }
 
@@ -292,10 +311,10 @@
             let newDx = 0;
             let newDy = 0;
 
-            if(pressedKeys.has(37)) newDx -= 1; // LEFT
-            if(pressedKeys.has(39)) newDx += 1; // RIGHT
-            if(pressedKeys.has(38)) newDy -= 1; // UP
-            if(pressedKeys.has(40)) newDy += 1; // DOWN
+            if (pressedKeys.has(37)) newDx -= 1; // LEFT
+            if (pressedKeys.has(39)) newDx += 1; // RIGHT
+            if (pressedKeys.has(38)) newDy -= 1; // UP
+            if (pressedKeys.has(40)) newDy += 1; // DOWN
 
             // If no keys are pressed, maintain the last direction
             if (newDx === 0 && newDy === 0) {
@@ -303,7 +322,7 @@
                 newDy = lastDirection.dy;
             } else {
                 // Prevent 180-degree turns
-                if ((newDx === -lastDirection.dx && newDy === 0) || 
+                if ((newDx === -lastDirection.dx && newDy === 0) ||
                     (newDy === -lastDirection.dy && newDx === 0)) {
                     newDx = lastDirection.dx;
                     newDy = lastDirection.dy;
@@ -346,7 +365,7 @@
 
             // Draw borders
             ctx.lineWidth = 2;
-            
+
             // Top border (red)
             ctx.strokeStyle = "red";
             ctx.beginPath();
@@ -373,7 +392,7 @@
             ctx.lineTo(canvas.width, canvas.height);
             ctx.stroke();
 
-            for(let i = 0; i < snake.length; i++) {
+            for (let i = 0; i < snake.length; i++) {
                 ctx.fillStyle = (i == 0) ? "green" : "lightgreen";
                 ctx.fillRect(snake[i].x, snake[i].y, box, box);
                 ctx.strokeStyle = "white";
@@ -382,7 +401,7 @@
 
             // Draw obstacle snake
             if (!isHardMode) {
-                for(let i = 0; i < obstacleSnake.length; i++) {
+                for (let i = 0; i < obstacleSnake.length; i++) {
                     ctx.fillStyle = (i == 0) ? "purple" : "lavender";
                     ctx.fillRect(obstacleSnake[i].x, obstacleSnake[i].y, box, box);
                     ctx.strokeStyle = "white";
@@ -408,7 +427,7 @@
             };
 
             // Check if snake ate the food
-            if(isOverlapping(newHead, food)) {
+            if (isOverlapping(newHead, food)) {
                 score++;
                 playSound(440, 0.1); // A4 note, 100ms duration
                 const message = messages[Math.floor(Math.random() * messages.length)];
@@ -423,9 +442,9 @@
                 snake.pop();
             }
 
-            if(collision(newHead, snake) || 
-               (!isHardMode && collision(newHead, obstacleSnake)) || 
-               (isHardMode && obstacleSnakeVisible && collision(newHead, obstacleSnake))) {
+            if (collision(newHead, snake) ||
+                (!isHardMode && collision(newHead, obstacleSnake)) ||
+                (isHardMode && obstacleSnakeVisible && collision(newHead, obstacleSnake))) {
                 endGame();
                 return;
             }
@@ -435,7 +454,7 @@
             // Move obstacle snake in easy mode
             if (!isHardMode) {
                 moveObstacleSnake();
-                
+
                 // Check if obstacle snake ate the food
                 if (isOverlapping(obstacleSnake[0], food)) {
                     generateFood();
@@ -445,9 +464,9 @@
 
         function isOverlapping(rect1, rect2) {
             return rect1.x < rect2.x + box &&
-                   rect1.x + box > rect2.x &&
-                   rect1.y < rect2.y + box &&
-                   rect1.y + box > rect2.y;
+                rect1.x + box > rect2.x &&
+                rect1.y < rect2.y + box &&
+                rect1.y + box > rect2.y;
         }
 
         function generateFood() {
@@ -456,7 +475,7 @@
                 y: Math.floor(Math.random() * (canvas.height / box)) * box
             };
             // Ensure food doesn't spawn on snake
-            while(collision(food, snake)) {
+            while (collision(food, snake)) {
                 food = {
                     x: Math.floor(Math.random() * (canvas.width / box)) * box,
                     y: Math.floor(Math.random() * (canvas.height / box)) * box
@@ -467,30 +486,38 @@
         function endGame() {
             clearInterval(gameInterval);
             gameInterval = null;
-            gameOver = true; // Set the game over flag
-            messageDiv.textContent = "Game Over! Your score: " + score;
+            gameOver = true; // 设置游戏结束标志
+            messageDiv.textContent = "游戏结束！你的得分: " + score;
             restartBtn.style.display = "block";
 
-            // Change the background color of the body and canvas
+            // 改变body和canvas的背景颜色
             document.body.classList.add('game-over');
             canvas.classList.add('game-over');
 
-            // Draw a semi-transparent gray overlay on the canvas
+            // 在canvas上绘制半透明灰色遮罩
             ctx.fillStyle = "rgba(200, 200, 200, 0.5)";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Draw game over text in the center of the canvas
+            // 在canvas中央绘制游戏结束文本
             ctx.fillStyle = "black";
             ctx.font = "30px Arial";
             ctx.textAlign = "center";
-            ctx.fillText("Game Over", canvas.width / 2, canvas.height / 2 - 30);
-            ctx.fillText("Score: " + score, canvas.width / 2, canvas.height / 2 + 30);
+            ctx.fillText("游戏结束", canvas.width / 2, canvas.height / 2 - 60);
+            ctx.fillText("得分: " + score, canvas.width / 2, canvas.height / 2);
         }
+
 
         function restartGame() {
             gameOver = false; // Reset the game over flag
+            dx = 0; // Reset the snake's direction
+            dy = 0;
+            lastDirection = { dx: 0, dy: 0 };
+            pressedKeys.clear(); // Clear pressed keys
+            clearInterval(gameInterval); // Ensure any previous game interval is cleared
+            gameInterval = null; // Reset game interval
+
             resizeCanvas();  // Resize the canvas to fit the screen again
-            snake = [{x: 9 * box, y: 10 * box}];
+            snake = [{ x: 9 * box, y: 10 * box }];
             score = 0;
             d = null;
             messageDiv.textContent = "Ready to start";
@@ -522,9 +549,11 @@
             canvas.classList.remove('game-over');
         }
 
+
+
         function collision(head, array) {
-            for(let i = 0; i < array.length; i++) {
-                if(head.x == array[i].x && head.y == array[i].y) {
+            for (let i = 0; i < array.length; i++) {
+                if (head.x == array[i].x && head.y == array[i].y) {
                     return true;
                 }
             }
@@ -558,51 +587,44 @@
         document.addEventListener('DOMContentLoaded', getWeather);
 
         // Modify button click events
-        document.addEventListener('DOMContentLoaded', function() {
-            const modeBtn = document.getElementById("modeBtn");
+        document.addEventListener('DOMContentLoaded', function () {
             const restartBtn = document.getElementById("restartBtn");
 
-            if (!modeBtn || !restartBtn) {
-                console.error('Unable to find button elements');
+            if (!restartBtn) {
+                console.error('Unable to find restart button element');
                 return;
             }
 
-            function toggleMode() {
-                console.log('toggleMode called');
-                isHardMode = !isHardMode;
-                modeBtn.textContent = isHardMode ? "To Easy Mode" : "To Hard Mode";
-                restartGame();
-            }
-
-            // Modify button click events
-            modeBtn.addEventListener(isMobile ? 'touchstart' : 'click', toggleMode);
+            // 为restart按钮添加事件监听
             restartBtn.addEventListener(isMobile ? 'touchstart' : 'click', restartGame);
-
-            console.log('Event listeners added');
         });
+
 
         initObstacleSnake();
     </script>
 
-<audio id="backgroundMusic" loop>
-    <source src="ken-games-bgmusic-01.mp3" type="audio/mpeg">
-    您的浏览器不支持音频元素。
-</audio>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        var backgroundMusic = document.getElementById('backgroundMusic');
-        backgroundMusic.volume = 0.5; // 设置音量为50%
-        backgroundMusic.play().catch(function(error) {
-            console.log('自动播放失败：', error);
-            // 在这里可以添加一个按钮让用户手动播放音乐
+    <audio id="backgroundMusic" loop>
+        <source src="ken-games-bgmusic-01.mp3" type="audio/mpeg">
+        您的浏览器不支持音频元素。
+    </audio>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var backgroundMusic = document.getElementById('backgroundMusic');
+            backgroundMusic.volume = 0.5; // 设置音量为50%
+            backgroundMusic.play().catch(function (error) {
+                console.log('自动播放失败：', error);
+                // 在这里可以添加一个按钮让用户手动播放音乐
+            });
         });
-    });
-</script>
+    </script>
 
-<div style="margin-top: 20px; text-align: center;">
-    <a href="index.html" style="text-decoration: none; color: #fff; background-color: #4CAF50; padding: 10px 20px; border-radius: 5px; font-size: 16px;">More Games...</a>
-</div>
+    <div style="margin-top: 20px; text-align: center;">
+        <a href="index.html"
+            style="text-decoration: none; color: #fff; background-color: #4CAF50; padding: 10px 20px; border-radius: 5px; font-size: 16px;">More
+            Games...</a>
+    </div>
 
 
 </body>
+
 </html>

@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>炫酷随机数生成器</title>
+    <title>Cool Random Number Generator</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -44,7 +44,7 @@
 <body>
     <div class="container">
         <div id="randomNumbers"></div>
-        <button id="generateBtn">生成随机数</button>
+        <button id="generateBtn">Generate Random Number</button>
     </div>
 
 
@@ -63,11 +63,11 @@
             canvas.height = 300;
             const ctx = canvas.getContext('2d');
             
-            // 设置背景
+            // Set background
             ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
-            // 绘制坐标轴
+            // Draw coordinate axes
             ctx.strokeStyle = '#fff';
             ctx.beginPath();
             ctx.moveTo(30, 30);
@@ -75,20 +75,20 @@
             ctx.lineTo(370, 270);
             ctx.stroke();
             
-            // 绘制数据点
+            // Draw data points
             numbers.forEach((number, index) => {
                 const x = 30 + (index + 1) * (340 / numbers.length);
-                const y = 270 - (number / 100) * 240; // 修正y轴方向
+                const y = 270 - (number / 100) * 240; // Correct y-axis direction
                 
                 ctx.fillStyle = index % 2 === 0 ? '#FFD700' : '#00FFFF';
                 ctx.beginPath();
                 ctx.arc(x, y, 3, 0, Math.PI * 2);
                 ctx.fill();
                 
-                // 绘制连线
+                // Draw connecting lines
                 if (index > 0) {
                     const prevX = 30 + index * (340 / numbers.length);
-                    const prevY = 270 - (numbers[index - 1] / 100) * 240; // 修正y轴方向
+                    const prevY = 270 - (numbers[index - 1] / 100) * 240; // Correct y-axis direction
                     ctx.strokeStyle = ctx.fillStyle;
                     ctx.beginPath();
                     ctx.moveTo(prevX, prevY);
@@ -97,11 +97,11 @@
                 }
             });
             
-            // 清除之前的内容并添加新的canvas
+            // Clear previous content and add new canvas
             numbersDisplay.innerHTML = '';
             numbersDisplay.appendChild(canvas);
             
-            // 在canvas下方显示数字列表
+            // Display number list below the canvas
             const numberList = document.createElement('div');
             numberList.innerHTML = numbers.map((number, index) => 
                 `<span style="color: ${index % 2 === 0 ? '#FFD700' : '#00FFFF'}">${number}</span>`
@@ -120,7 +120,7 @@
     </script>
 
 <div style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); text-align: center;">
-    <a href="index.html" style="text-decoration: none; color: #fff; background-color: #4CAF50; padding: 10px 20px; border-radius: 5px; font-size: 16px;">更多游戏...</a>
+    <a href="index.html" style="text-decoration: none; color: #fff; background-color: #4CAF50; padding: 10px 20px; border-radius: 5px; font-size: 16px;">More Games...</a>
 </div>
 </body>
 </html>
