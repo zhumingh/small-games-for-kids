@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>炫酷随机数生成器</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(45deg, #12c2e9, #c471ed, #f64f59);
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+        .container {
+            text-align: center;
+        }
+        #randomNumbers {
+            font-size: 4rem;
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            margin-bottom: 2rem;
+            min-height: 6rem;
+        }
+        #generateBtn {
+            font-size: 1.5rem;
+            padding: 1rem 2rem;
+            background-color: rgba(255,255,255,0.2);
+            border: none;
+            color: #fff;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        #generateBtn:hover {
+            background-color: rgba(255,255,255,0.3);
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="randomNumbers"></div>
+        <button id="generateBtn">生成随机数</button>
+    </div>
+
+
+    <script>
+        const numbersDisplay = document.getElementById('randomNumbers');
+        const generateBtn = document.getElementById('generateBtn');
+        let numbers = [];
+
+        function generateRandomNumber() {
+            return Math.floor(Math.random() * 100) + 1;
+        }
+
+        function updateDisplay() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 400;
+            canvas.height = 300;
+            const ctx = canvas.getContext('2d');
+            
+            // 设置背景
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // 绘制坐标轴
+            ctx.strokeStyle = '#fff';
+            ctx.beginPath();
+            ctx.moveTo(30, 30);
+            ctx.lineTo(30, 270);
+            ctx.lineTo(370, 270);
+            ctx.stroke();
+            
+            // 绘制数据点
+            numbers.forEach((number, index) => {
+                const x = 30 + (index + 1) * (340 / numbers.length);
+                const y = 270 - (number / 100) * 240; // 修正y轴方向
+                
+                ctx.fillStyle = index % 2 === 0 ? '#FFD700' : '#00FFFF';
+                ctx.beginPath();
+                ctx.arc(x, y, 3, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // 绘制连线
+                if (index > 0) {
+                    const prevX = 30 + index * (340 / numbers.length);
+                    const prevY = 270 - (numbers[index - 1] / 100) * 240; // 修正y轴方向
+                    ctx.strokeStyle = ctx.fillStyle;
+                    ctx.beginPath();
+                    ctx.moveTo(prevX, prevY);
+                    ctx.lineTo(x, y);
+                    ctx.stroke();
+                }
+            });
+            
+            // 清除之前的内容并添加新的canvas
+            numbersDisplay.innerHTML = '';
+            numbersDisplay.appendChild(canvas);
+            
+            // 在canvas下方显示数字列表
+            const numberList = document.createElement('div');
+            numberList.innerHTML = numbers.map((number, index) => 
+                `<span style="color: ${index % 2 === 0 ? '#FFD700' : '#00FFFF'}">${number}</span>`
+            ).join(' ');
+            numbersDisplay.appendChild(numberList);
+        }
+
+        generateBtn.addEventListener('click', () => {
+            const newNumber = generateRandomNumber();
+            numbers.push(newNumber);
+            if (numbers.length > 1) {
+                numbers.sort((a, b) => 0.5 - Math.random());
+            }
+            updateDisplay();
+        });
+    </script>
+
+<div style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); text-align: center;">
+    <a href="index.html" style="text-decoration: none; color: #fff; background-color: #4CAF50; padding: 10px 20px; border-radius: 5px; font-size: 16px;">更多游戏...</a>
+</div>
+</body>
+</html>
