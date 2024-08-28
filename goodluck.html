@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Fortune</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        .container {
+            text-align: center;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        #result {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+        #explanation {
+            margin-top: 20px;
+            font-size: 14px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Daily Fortune</h1>
+        <button onclick="getLuck()">Check My Fortune</button>
+        <div id="result"></div>
+        <div id="explanation"></div>
+    </div>
+
+    <script>
+        const luckTypes = [
+            "Great Fortune", "Good Fortune", "Small Fortune", "Fortune", "Future Fortune", "Misfortune", "Great Misfortune",
+            "Super Great Fortune", "Extra Great Fortune", "Excellent Fortune", "Very Good Fortune", "Above Average Fortune",
+            "Tiny Fortune", "Slight Fortune", "Average", "Slight Misfortune", "Small Misfortune", "Medium Misfortune",
+            "Severe Misfortune", "Super Great Misfortune", "Catastrophic Misfortune"
+        ];
+
+        const explanations = {
+            "Great Fortune": "Today is your lucky day! Everything will go smoothly, and your efforts will be rewarded. Don't miss any opportunities, bravely pursue your dreams. Remember, a positive attitude is the key to success.",
+            "Good Fortune": "Today's fortune is good. Although you may encounter some small challenges, you can easily handle them by staying calm and patient. This is a good time to try new things.",
+            "Small Fortune": "Today's fortune is stable, without much ups and downs. While there may not be any particularly exciting events, you won't encounter any troubles either. Maintain a normal mindset, focus on daily tasks, and you'll have a peaceful day.",
+            "Fortune": "Today's fortune leans towards positive. Although you may encounter some small obstacles, as long as you maintain an optimistic attitude, you'll find ways to solve problems. Remember to pay attention to those around you, you might receive unexpected surprises.",
+            "Future Fortune": "Today's fortune seems a bit bland, you might feel bored or tired. Don't be discouraged, this is only temporary. Use this time to reflect and plan, prepare for the future. Stay patient, good luck is just around the corner.",
+            "Misfortune": "Today's fortune is not ideal, you may encounter some difficulties or setbacks. Don't be discouraged, this is an opportunity to learn and grow. Stay alert, act cautiously, and believe in your ability to overcome difficulties.",
+            "Great Misfortune": "Today's fortune is poor, you may encounter some unexpected challenges. Don't panic, staying calm and rational is important. This is a good opportunity to exercise your coping abilities. Remember, after every dark day, the sun will shine again.",
+            "Super Great Fortune": "Today you will have unparalleled good luck! Everything will exceed your imagination, there might be unexpected joys. Boldly pursue your dreams, success is just ahead.",
+            "Extra Great Fortune": "Today's fortune is excellent, you will feel the favor of the universe. Whatever you do will go smoothly, it's the best time to achieve important goals.",
+            "Excellent Fortune": "Today's fortune is extremely good, you will encounter many favorable opportunities. Maintain a positive and optimistic attitude, you will reap unexpected good results.",
+            "Very Good Fortune": "Today's fortune is very good, you will feel full of energy and creativity. This is a good time to start new projects or try new things.",
+            "Above Average Fortune": "Today's fortune leans towards positive. Although there might be small setbacks, overall it's a good day. Stay alert, you will discover hidden opportunities.",
+            "Tiny Fortune": "Today's fortune is slightly good. Although there won't be big surprises, the day will pass smoothly and comfortably. Enjoy the small happinesses in life.",
+            "Slight Fortune": "Today's fortune is slightly positive, there might be some small good things happening. Stay optimistic, good luck might come when you least expect it.",
+            "Average": "Today's fortune is average, neither good nor bad. This is a suitable day for reflection and planning, prepare for the future.",
+            "Slight Misfortune": "Today's fortune leans slightly towards negative, you might encounter some small troubles. Stay alert, act cautiously, and you'll pass through safely.",
+            "Small Misfortune": "Today's fortune is not ideal, you might encounter some setbacks. Don't be discouraged, maintain a positive attitude, keep working hard, and things will eventually turn around.",
+            "Medium Misfortune": "Today's fortune is poor, you might encounter some difficulties. Stay calm, think rationally, believe in your ability to overcome these obstacles.",
+            "Severe Misfortune": "Today's fortune is very unfavorable, you might encounter major challenges. Stay alert, act cautiously, seek help and advice from others when necessary.",
+            "Super Great Misfortune": "Today's fortune is extremely poor, you might encounter severe difficulties or crises. Staying calm and rational is very important, be cautious with every decision, seek professional help if necessary.",
+            "Catastrophic Misfortune": "Today's fortune is shockingly bad, you might encounter unprecedented challenges. But please remember, this is only temporary. Stay strong, believe in yourself, this difficult time will pass. Crisis is also an opportunity, perhaps this is a chance for a complete change."
+        };
+        async function getLuck() {
+            try {
+                // Display progress bar
+                document.getElementById('result').innerHTML = '<progress id="luckProgress" value="0" max="100"></progress>';
+                const progressBar = document.getElementById('luckProgress');
+                
+                // Get current date
+                const today = new Date().toISOString().split('T')[0];
+                progressBar.value = 20;
+                
+                // Get weather
+                const weatherResponse = await fetch('https://wttr.in/?format=%t');
+                const weather = await weatherResponse.text();
+                progressBar.value = 40;
+                
+                // Get IP address
+                const ipResponse = await fetch('https://api.ipify.org?format=json');
+                const ipData = await ipResponse.json();
+                const ip = ipData.ip;
+                progressBar.value = 60;
+                
+                // Combine data and calculate hash
+                const combinedData = today + weather + ip;
+                const hash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(combinedData));
+                const hashArray = Array.from(new Uint8Array(hash));
+                const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+                progressBar.value = 80;
+                
+                // Map to luck array
+                const index = parseInt(hashHex, 16) % luckTypes.length;
+                const luck = luckTypes[index];
+                progressBar.value = 100;
+                
+                // Replace progress bar with result
+                setTimeout(() => {
+                    document.getElementById('result').innerHTML = `
+                        <div class="fortune-result">
+                            <h2>今日运势</h2>
+                            <div class="fortune-type">${luck}</div>
+                            <div class="fortune-icon">🔮</div>
+                        </div>
+                    `;
+                    document.getElementById('explanation').innerHTML = `
+                        <div class="fortune-explanation">
+                            <h3>解释</h3>
+                            <p>${explanations[luck]}</p>
+                        </div>
+                    `;
+                    
+                    // 添加CSS样式
+                    const style = document.createElement('style');
+                    style.textContent = `
+                        .fortune-result {
+                            background: linear-gradient(45deg, #ff9a9e, #fad0c4);
+                            border-radius: 15px;
+                            padding: 20px;
+                            text-align: center;
+                            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+                        }
+                        .fortune-type {
+                            font-size: 24px;
+                            font-weight: bold;
+                            color: #fff;
+                            margin: 10px 0;
+                        }
+                        .fortune-icon {
+                            font-size: 48px;
+                            margin: 10px 0;
+                        }
+                        .fortune-explanation {
+                            background-color: #fff;
+                            border-radius: 15px;
+                            padding: 20px;
+                            margin-top: 20px;
+                            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+                        }
+                    `;
+                    document.head.appendChild(style);
+                }, 500);
+            } catch (error) {
+                console.error('Error getting fortune:', error);
+                document.getElementById('result').innerHTML = 'Unable to get fortune, please try again later.';
+            }
+        }
+    </script>
+</body>
+</html>
