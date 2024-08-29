@@ -6,6 +6,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ken Mini Games via AI</title>
     <style>
+        @keyframes shakeGames {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+            100% { transform: translateX(0); }
+        }
+        
+        #gamesWord {
+            display: inline-block;
+            animation: shakeGames 0.5s ease-in-out 1s;
+        }
+    </style>
+    <script>
+        window.onload = function() {
+            var title = document.querySelector('h1');
+            if (title) {
+                title.innerHTML = title.innerHTML.replace('Games', '<span id="gamesWord">Games</span>');
+            }
+        }
+    </script>
+    <style>
         body {
             font-family: Arial, sans-serif;
             background-color: #f0f0f0;

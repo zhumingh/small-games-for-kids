@@ -53,26 +53,26 @@
         let enemyInterval = 2000;
 
         const negativeEmotions = [
-            "Depressed", "Anxious", "Stressed", "Frustrated", "Angry",
-            "Lonely", "Tired", "Bored", "Overwhelmed", "Insecure",
-            "Jealous", "Guilty", "Ashamed", "Hopeless", "Pessimistic",
-            "Lost", "Fearful", "Melancholic", "Troubled", "Confused",
-            "Disappointed", "Regretful", "Self-conscious", "Irritated", "Hurt",
-            "Sad", "Panicked", "Dissatisfied", "Weary", "Helpless",
-            "Nervous", "Distressed", "Agitated", "Worried", "Terrified",
-            "Gloomy", "Disheartened", "Moody", "Unhappy", "Furious",
-            "Heartbroken", "Dejected", "Heavy-hearted", "Despondent", "Sorrowful",
-            "Wistful", "Grief-stricken", "Apprehensive", "Horrified", "Scared",
-            "Concerned", "Uneasy", "Restless", "Sullen", "Bitter",
-            "Depressed", "Downcast", "Dismal", "Cynical", "Desperate",
-            "Somber", "Oppressed", "Low-spirited", "Negative", "Apathetic",
-            "Powerless", "Exhausted", "Weak", "Fatigued", "Drowsy",
-            "Fed up", "Jaded", "Disgusted", "Averse", "Hateful",
-            "Resentful", "Vengeful", "Hostile", "Antagonistic", "Spiteful",
-            "Enraged", "Infuriated", "Annoyed", "Exasperated", "Outraged",
-            "Livid", "Fuming", "Incensed", "Irate", "Seething",
-            "Troubled", "Perturbed", "Flustered", "Unsettled", "Disquieted",
-            "Dazed", "Distracted", "Preoccupied", "Absent-minded", "Inattentive"
+            "Depressed (沮丧的)", "Anxious (焦虑的)", "Stressed (压力大的)", "Frustrated (沮丧的)", "Angry (愤怒的)",
+            "Lonely (孤独的)", "Tired (疲倦的)", "Bored (无聊的)", "Overwhelmed (不知所措的)", "Insecure (不安全的)",
+            "Jealous (嫉妒的)", "Guilty (内疚的)", "Ashamed (羞愧的)", "Hopeless (绝望的)", "Pessimistic (悲观的)",
+            "Lost (迷失的)", "Fearful (恐惧的)", "Melancholic (忧郁的)", "Troubled (烦恼的)", "Confused (困惑的)",
+            "Disappointed (失望的)", "Regretful (后悔的)", "Self-conscious (自我意识过强的)", "Irritated (恼怒的)", "Hurt (受伤的)",
+            "Sad (悲伤的)", "Panicked (惊慌的)", "Dissatisfied (不满的)", "Weary (疲惫的)", "Helpless (无助的)",
+            "Nervous (紧张的)", "Distressed (苦恼的)", "Agitated (激动的)", "Worried (担心的)", "Terrified (恐惧的)",
+            "Gloomy (阴郁的)", "Disheartened (灰心的)", "Moody (喜怒无常的)", "Unhappy (不快乐的)", "Furious (狂怒的)",
+            "Heartbroken (心碎的)", "Dejected (沮丧的)", "Heavy-hearted (心情沉重的)", "Despondent (沮丧的)", "Sorrowful (悲伤的)",
+            "Wistful (怀念的)", "Grief-stricken (悲痛欲绝的)", "Apprehensive (忧虑的)", "Horrified (惊恐的)", "Scared (害怕的)",
+            "Concerned (担心的)", "Uneasy (不安的)", "Restless (焦躁不安的)", "Sullen (阴郁的)", "Bitter (痛苦的)",
+            "Depressed (抑郁的)", "Downcast (沮丧的)", "Dismal (阴郁的)", "Cynical (愤世嫉俗的)", "Desperate (绝望的)",
+            "Somber (忧郁的)", "Oppressed (压抑的)", "Low-spirited (情绪低落的)", "Negative (消极的)", "Apathetic (冷漠的)",
+            "Powerless (无力的)", "Exhausted (筋疲力尽的)", "Weak (虚弱的)", "Fatigued (疲劳的)", "Drowsy (昏昏欲睡的)",
+            "Fed up (厌烦的)", "Jaded (厌倦的)", "Disgusted (厌恶的)", "Averse (厌恶的)", "Hateful (可恨的)",
+            "Resentful (怨恨的)", "Vengeful (报复心强的)", "Hostile (敌对的)", "Antagonistic (对抗的)", "Spiteful (恶意的)",
+            "Enraged (暴怒的)", "Infuriated (激怒的)", "Annoyed (恼火的)", "Exasperated (恼怒的)", "Outraged (愤怒的)",
+            "Livid (大怒的)", "Fuming (冒火的)", "Incensed (激怒的)", "Irate (发怒的)", "Seething (怒不可遏的)",
+            "Troubled (烦恼的)", "Perturbed (不安的)", "Flustered (慌乱的)", "Unsettled (不安的)", "Disquieted (不安的)",
+            "Dazed (茫然的)", "Distracted (心烦意乱的)", "Preoccupied (心事重重的)", "Absent-minded (心不在焉的)", "Inattentive (不专心的)"
         ];
 
         function drawPlayer() {
@@ -89,19 +89,30 @@
         }
 
         function createBullet() {
-            bullets.push({
-                x: player.x + player.width / 2 - 2,
-                y: player.y,
-                width: 4,
-                height: 10,
-                speed: 15
+            const bulletDirections = [
+                { dx: 0, dy: -1 },    // 垂直向上
+                { dx: -0.5, dy: -0.866 },  // 左前方 (30度)
+                { dx: 0.5, dy: -0.866 }    // 右前方 (30度)
+            ];
+
+            bulletDirections.forEach(direction => {
+                bullets.push({
+                    x: player.x + player.width / 2 - 2,
+                    y: player.y,
+                    width: 4,
+                    height: 10,
+                    speed: 15,
+                    dx: direction.dx,
+                    dy: direction.dy
+                });
             });
         }
 
         function moveBullets() {
             bullets.forEach((bullet, index) => {
-                bullet.y -= bullet.speed;
-                if (bullet.y < 0) {
+                bullet.x += bullet.dx * bullet.speed;
+                bullet.y += bullet.dy * bullet.speed;
+                if (bullet.y < 0 || bullet.x < 0 || bullet.x > canvas.width) {
                     bullets.splice(index, 1);
                 }
             });
@@ -110,7 +121,11 @@
         function drawBullets() {
             ctx.fillStyle = '#ffff00';
             bullets.forEach(bullet => {
-                ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
+                ctx.save();
+                ctx.translate(bullet.x, bullet.y);
+                ctx.rotate(Math.atan2(bullet.dy, bullet.dx) + Math.PI / 2);
+                ctx.fillRect(-bullet.width / 2, -bullet.height / 2, bullet.width, bullet.height);
+                ctx.restore();
             });
         }
 

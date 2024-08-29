@@ -55,85 +55,113 @@
 
     <script>
         const luckTypes = [
-            "Great Fortune", "Good Fortune", "Small Fortune", "Fortune", "Future Fortune", "Misfortune", "Great Misfortune",
-            "Super Great Fortune", "Extra Great Fortune", "Excellent Fortune", "Very Good Fortune", "Above Average Fortune",
-            "Tiny Fortune", "Slight Fortune", "Average", "Slight Misfortune", "Small Misfortune", "Medium Misfortune",
-            "Severe Misfortune", "Super Great Misfortune", "Catastrophic Misfortune"
+            "Super Great Fortune", "Extra Great Fortune", "Excellent Fortune", "Great Fortune", "Very Good Fortune", 
+            "Above Average Fortune", "Good Fortune", "Small Fortune", "Fortune", "Tiny Fortune", "Slight Fortune", 
+            "Average", "Future Fortune", "Slight Misfortune", "Small Misfortune", "Misfortune", 
+            "Medium Misfortune", "Severe Misfortune", "Great Misfortune", "Super Great Misfortune", "Catastrophic Misfortune"
+        ];
+
+        const luckWeights = [
+            10, 10, 10, 10, 10,
+            8, 8, 8, 8, 6, 6,
+            4, 4, 2, 2, 1,
+            1, 1, 0.5, 0.3, 0.2
         ];
 
         const explanations = {
-            "Great Fortune": "Today is your lucky day! Everything will go smoothly, and your efforts will be rewarded. Don't miss any opportunities, bravely pursue your dreams. Remember, a positive attitude is the key to success.",
-            "Good Fortune": "Today's fortune is good. Although you may encounter some small challenges, you can easily handle them by staying calm and patient. This is a good time to try new things.",
-            "Small Fortune": "Today's fortune is stable, without much ups and downs. While there may not be any particularly exciting events, you won't encounter any troubles either. Maintain a normal mindset, focus on daily tasks, and you'll have a peaceful day.",
-            "Fortune": "Today's fortune leans towards positive. Although you may encounter some small obstacles, as long as you maintain an optimistic attitude, you'll find ways to solve problems. Remember to pay attention to those around you, you might receive unexpected surprises.",
-            "Future Fortune": "Today's fortune seems a bit bland, you might feel bored or tired. Don't be discouraged, this is only temporary. Use this time to reflect and plan, prepare for the future. Stay patient, good luck is just around the corner.",
-            "Misfortune": "Today's fortune is not ideal, you may encounter some difficulties or setbacks. Don't be discouraged, this is an opportunity to learn and grow. Stay alert, act cautiously, and believe in your ability to overcome difficulties.",
-            "Great Misfortune": "Today's fortune is poor, you may encounter some unexpected challenges. Don't panic, staying calm and rational is important. This is a good opportunity to exercise your coping abilities. Remember, after every dark day, the sun will shine again.",
-            "Super Great Fortune": "Today you will have unparalleled good luck! Everything will exceed your imagination, there might be unexpected joys. Boldly pursue your dreams, success is just ahead.",
-            "Extra Great Fortune": "Today's fortune is excellent, you will feel the favor of the universe. Whatever you do will go smoothly, it's the best time to achieve important goals.",
-            "Excellent Fortune": "Today's fortune is extremely good, you will encounter many favorable opportunities. Maintain a positive and optimistic attitude, you will reap unexpected good results.",
-            "Very Good Fortune": "Today's fortune is very good, you will feel full of energy and creativity. This is a good time to start new projects or try new things.",
-            "Above Average Fortune": "Today's fortune leans towards positive. Although there might be small setbacks, overall it's a good day. Stay alert, you will discover hidden opportunities.",
-            "Tiny Fortune": "Today's fortune is slightly good. Although there won't be big surprises, the day will pass smoothly and comfortably. Enjoy the small happinesses in life.",
-            "Slight Fortune": "Today's fortune is slightly positive, there might be some small good things happening. Stay optimistic, good luck might come when you least expect it.",
-            "Average": "Today's fortune is average, neither good nor bad. This is a suitable day for reflection and planning, prepare for the future.",
-            "Slight Misfortune": "Today's fortune leans slightly towards negative, you might encounter some small troubles. Stay alert, act cautiously, and you'll pass through safely.",
-            "Small Misfortune": "Today's fortune is not ideal, you might encounter some setbacks. Don't be discouraged, maintain a positive attitude, keep working hard, and things will eventually turn around.",
-            "Medium Misfortune": "Today's fortune is poor, you might encounter some difficulties. Stay calm, think rationally, believe in your ability to overcome these obstacles.",
-            "Severe Misfortune": "Today's fortune is very unfavorable, you might encounter major challenges. Stay alert, act cautiously, seek help and advice from others when necessary.",
-            "Super Great Misfortune": "Today's fortune is extremely poor, you might encounter severe difficulties or crises. Staying calm and rational is very important, be cautious with every decision, seek professional help if necessary.",
-            "Catastrophic Misfortune": "Today's fortune is shockingly bad, you might encounter unprecedented challenges. But please remember, this is only temporary. Stay strong, believe in yourself, this difficult time will pass. Crisis is also an opportunity, perhaps this is a chance for a complete change."
+            "Super Great Fortune": "Today is your lucky day! Everything will go smoothly, and your efforts will be rewarded. Don't miss any opportunities, bravely pursue your dreams. Remember, a positive attitude is the key to success.\n今天是你的幸运日！一切都会顺利进行，你的努力将得到回报。不要错过任何机会，勇敢地追求你的梦想。记住，积极的态度是成功的关键。",
+            "Extra Great Fortune": "Today's fortune is excellent, you will feel the favor of the universe. Whatever you do will go smoothly, it's the best time to achieve important goals.\n今天的运势非常好，你会感受到宇宙的眷顾。无论做什么都会顺利进行，这是实现重要目标的最佳时机。",
+            "Excellent Fortune": "Today's fortune is extremely good, you will encounter many favorable opportunities. Maintain a positive and optimistic attitude, you will reap unexpected good results.\n今天的运势极好，你会遇到许多有利的机会。保持积极乐观的态度，你将收获意想不到的好结果。",
+            "Great Fortune": "Today is your lucky day! Everything will go smoothly, and your efforts will be rewarded. Don't miss any opportunities, bravely pursue your dreams. Remember, a positive attitude is the key to success.\n今天运气很好！一切都会顺利，你的努力将得到回报。不要错过任何机会，勇敢追求梦想。记住，积极态度是成功的关键。",
+            "Very Good Fortune": "Today's fortune is very good, you will feel full of energy and creativity. This is a good time to start new projects or try new things.\n今天的运势很好，你会感到充满能量和创造力。这是开始新项目或尝试新事物的好时机。",
+            "Above Average Fortune": "Today's fortune leans towards positive. Although there might be small setbacks, overall it's a good day. Stay alert, you will discover hidden opportunities.\n今天的运势偏向积极。虽然可能有小挫折，但总体是个好日子。保持警惕，你会发现隐藏的机会。",
+            "Good Fortune": "Today's fortune is good. Although you may encounter some small challenges, you can easily handle them by staying calm and patient. This is a good time to try new things.\n今天运势不错。虽然可能遇到一些小挑战，但保持冷静和耐心就能轻松应对。这是尝试新事物的好时机。",
+            "Small Fortune": "Today's fortune is stable, without much ups and downs. While there may not be any particularly exciting events, you won't encounter any troubles either. Maintain a normal mindset, focus on daily tasks, and you'll have a peaceful day.\n今天运势稳定，没有太大起伏。虽然可能没有特别令人兴奋的事件，但也不会遇到麻烦。保持正常心态，专注日常任务，会度过平和的一天。",
+            "Fortune": "Today's fortune leans towards positive. Although you may encounter some small obstacles, as long as you maintain an optimistic attitude, you'll find ways to solve problems. Remember to pay attention to those around you, you might receive unexpected surprises.\n今天的运势偏向积极。虽然可能遇到一些小障碍，只要保持乐观态度，就能找到解决问题的方法。记得关注身边的人，可能会收到意外惊喜。",
+            "Tiny Fortune": "Today's fortune is slightly good. Although there won't be big surprises, the day will pass smoothly and comfortably. Enjoy the small happinesses in life.\n今天的运势略微向好。虽然不会有大惊喜，但一天会平���舒适地度过。享受生活中的小幸福吧。",
+            "Slight Fortune": "Today's fortune is slightly positive, there might be some small good things happening. Stay optimistic, good luck might come when you least expect it.\n今天的运势略微积极，可能会发生一些小好事。保持乐观，好运可能在你最意想不到的时候到来。",
+            "Average": "Today's fortune is average, neither good nor bad. This is a suitable day for reflection and planning, prepare for the future.\n今天的运势平平，既不好也不坏。这是适合反思和规划的一天，为未来做准备。",
+            "Future Fortune": "Today's fortune seems a bit bland, you might feel bored or tired. Don't be discouraged, this is only temporary. Use this time to reflect and plan, prepare for the future. Stay patient, good luck is just around the corner.\n今天的运势看起来有点平淡，你可能会感到无聊或疲倦。不要灰心，这只是暂时的。利用这段时间反思和计划，为未来做准备。保持耐心，好运就在眼前。",
+            "Slight Misfortune": "Today's fortune leans slightly towards negative, you might encounter some small troubles. Stay alert, act cautiously, and you'll pass through safely.\n今天的运势略微偏向负面，可能会遇到一些小麻烦。保持警惕，谨慎行事，就能安全度过。",
+            "Small Misfortune": "Today's fortune is not ideal, you might encounter some setbacks. Don't be discouraged, maintain a positive attitude, keep working hard, and things will eventually turn around.\n今天的运势不太理想，可能会遇到一些挫折。不要灰心，保持积极态度，继续努力，事情最终会好转。",
+            "Misfortune": "Today's fortune is not ideal, you may encounter some difficulties or setbacks. Don't be discouraged, this is an opportunity to learn and grow. Stay alert, act cautiously, and believe in your ability to overcome difficulties.\n今天运势不佳，可能遇到一些困难或挫折。不要灰心，这是学习和成长的机会。保持警惕，谨慎行事，相信自己有能力克服困难。",
+            "Medium Misfortune": "Today's fortune is poor, you might encounter some difficulties. Stay calm, think rationally, believe in your ability to overcome these obstacles.\n今天的运势不好，你可能会遇到一些困难。保持冷静，理性思考，相信自己有能力克服这些障碍。",
+            "Severe Misfortune": "Today's fortune is very unfavorable, you might encounter major challenges. Stay alert, act cautiously, seek help and advice from others when necessary.\n今天的运势���不利，你可能会遇到重大挑战。保持警惕，谨慎行事，必要时寻求他人的帮助和建议。",
+            "Great Misfortune": "Today's fortune is poor, you may encounter some unexpected challenges. Don't panic, staying calm and rational is important. This is a good opportunity to exercise your coping abilities. Remember, after every dark day, the sun will shine again.\n今天运势不佳，可能遇到一些意外挑战。不要慌张，保持冷静和理性很重要。这是锻炼应对能力的好机会。记住，每个黑暗的日子过后，阳光总会再次照耀。",
+            "Super Great Misfortune": "Today's fortune is extremely poor, you might encounter severe difficulties or crises. Staying calm and rational is very important, be cautious with every decision, seek professional help if necessary.\n今天的运势极差，你可能会遇到严重的困难或危机。保持冷静和理性非常重要，每个决定都要谨慎，必要时寻求专业帮助。",
+            "Catastrophic Misfortune": "Today's fortune is shockingly bad, you might encounter unprecedented challenges. But please remember, this is only temporary. Stay strong, believe in yourself, this difficult time will pass. Crisis is also an opportunity, perhaps this is a chance for a complete change.\n今天的运��糟糕到令人震惊，你可能会遇到前所未有的挑战。但请记住，这只是暂时的。保持坚强，相信自己，这个困难时期终将过去。危机也是机遇，也许这是一个彻底改变的机会。"
         };
+
         async function getLuck() {
             try {
-                // Display progress bar
+                // Display progress bar 显示进度条
                 document.getElementById('result').innerHTML = '<progress id="luckProgress" value="0" max="100"></progress>';
                 const progressBar = document.getElementById('luckProgress');
                 
-                // Get current date
+                // Get current date 获取当前日期
                 const today = new Date().toISOString().split('T')[0];
                 progressBar.value = 20;
                 
-                // Get weather
+                // Get weather 获取天气
                 const weatherResponse = await fetch('https://wttr.in/?format=%t');
                 const weather = await weatherResponse.text();
                 progressBar.value = 40;
                 
-                // Get IP address
+                // Get IP address 获取IP地址
                 const ipResponse = await fetch('https://api.ipify.org?format=json');
                 const ipData = await ipResponse.json();
                 const ip = ipData.ip;
                 progressBar.value = 60;
                 
-                // Combine data and calculate hash
+                // Combine data and calculate hash 合并���据并计算哈希
                 const combinedData = today + weather + ip;
                 const hash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(combinedData));
                 const hashArray = Array.from(new Uint8Array(hash));
                 const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
                 progressBar.value = 80;
                 
-                // Map to luck array
-                const index = parseInt(hashHex, 16) % luckTypes.length;
-                const luck = luckTypes[index];
+                // Use weighted random selection for fortune 使用加权随机选择运势
+                let luck;
+                try {
+                    const totalWeight = luckWeights.reduce((a, b) => a + b, 0);
+                    let randomValue = (parseInt(hashHex.substr(0, 8), 16) / 0xffffffff) * totalWeight;
+                    let cumulativeWeight = 0;
+                    let selectedIndex = 0;
+
+                    for (let i = 0; i < luckWeights.length; i++) {
+                        cumulativeWeight += luckWeights[i];
+                        if (randomValue <= cumulativeWeight) {
+                            selectedIndex = i;
+                            break;
+                        }
+                    }
+
+                    luck = luckTypes[selectedIndex];
+                } catch (weightError) {
+                    console.error('Error in weight calculation:', weightError);
+                    // Fallback to simple random selection
+                    luck = luckTypes[Math.floor(Math.random() * luckTypes.length)];
+                }
+
                 progressBar.value = 100;
                 
-                // Replace progress bar with result
+                // Replace progress bar with result 替换进度条为结果
                 setTimeout(() => {
                     document.getElementById('result').innerHTML = `
                         <div class="fortune-result">
-                            <h2>今日运势</h2>
+                            <h2>Today's Fortune 今日运势</h2>
                             <div class="fortune-type">${luck}</div>
                             <div class="fortune-icon">🔮</div>
                         </div>
                     `;
                     document.getElementById('explanation').innerHTML = `
                         <div class="fortune-explanation">
-                            <h3>解释</h3>
+                            <h3>Explanation 解释</h3>
                             <p>${explanations[luck]}</p>
                         </div>
                     `;
                     
-                    // 添加CSS样式
+                    // Add CSS styles 添加CSS样式
                     const style = document.createElement('style');
                     style.textContent = `
                         .fortune-result {
@@ -164,8 +192,8 @@
                     document.head.appendChild(style);
                 }, 500);
             } catch (error) {
-                console.error('Error getting fortune:', error);
-                document.getElementById('result').innerHTML = 'Unable to get fortune, please try again later.';
+                console.error('Error getting fortune 获取运势时出错:', error);
+                document.getElementById('result').innerHTML = 'Unable to get fortune, please try again later. 无法获取运势，请稍后再试。';
             }
         }
     </script>
