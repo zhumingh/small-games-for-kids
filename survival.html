@@ -59,6 +59,19 @@
     </style>
 </head>
 <body>
+    <style>
+        body {
+            background: linear-gradient(135deg, #87CEEB, #E0F7FA, #B2EBF2);
+            background-size: 400% 400%;
+            animation: gradientAnimation 15s ease infinite;
+        }
+
+        @keyframes gradientAnimation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+    </style>
     <div id="gameArea">
         <div id="player" class="player"></div>
         <div id="score">Score: 0</div>
@@ -173,11 +186,52 @@
 
         // End game
         function endGame() {
+
+            
             clearInterval(gameInterval);
             clearInterval(enemyInterval);
             let finalScore = scoreDisplay.textContent.split(': ')[1];
-            alert(`Game Over! Your score is: ${finalScore}`);
-            location.reload(); // Reload the page to restart the game
+            const gameOverMessage = document.createElement('div');
+            gameOverMessage.textContent = `游戏结束！您的得分是：${finalScore}`;
+            gameOverMessage.style.position = 'absolute';
+            gameOverMessage.style.top = '50%';
+            gameOverMessage.style.left = '50%';
+            gameOverMessage.style.transform = 'translate(-50%, -50%)';
+            gameOverMessage.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+            gameOverMessage.style.color = 'white';
+            gameOverMessage.style.padding = '20px';
+            gameOverMessage.style.borderRadius = '10px';
+            gameOverMessage.style.fontSize = '24px';
+            gameOverMessage.style.textAlign = 'center';
+            document.body.appendChild(gameOverMessage);
+
+            setTimeout(() => {
+                const restartMessage = document.createElement('div');
+                restartMessage.textContent = '按任意键重新开始游戏';
+                restartMessage.style.position = 'absolute';
+                restartMessage.style.top = '60%';
+                restartMessage.style.left = '50%';
+                restartMessage.style.transform = 'translate(-50%, -50%)';
+                restartMessage.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+                restartMessage.style.color = 'white';
+                restartMessage.style.padding = '10px';
+                restartMessage.style.borderRadius = '5px';
+                restartMessage.style.fontSize = '18px';
+                document.body.appendChild(restartMessage);
+                // 清除所有现有的敌人
+            enemies.forEach(enemy => {
+                gameArea.removeChild(enemy.element);
+            });
+            enemies = [];
+
+                document.addEventListener('keydown', function restartGame() {
+                    document.body.removeChild(gameOverMessage);
+                    document.body.removeChild(restartMessage);
+                    document.removeEventListener('keydown', restartGame);
+                    startGame();
+                });
+            }, 3000);
+            //location.reload(); // Reload the page to restart the game
         }
 
         // Game loop
