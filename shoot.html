@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Minimalist Shooting Game</title>
+    <title>Positive Emotion Shooter</title>
     <style>
         body {
             margin: 0;
@@ -42,13 +42,38 @@
             y: canvas.height - 50,
             width: 20,
             height: 20,
-            speed: 7,
-            dx: 0
+            baseSpeed: 7,
+            maxSpeed: 14,
+            dx: 0,
+            accelerationRate: 0.2
         };
 
         let bullets = [];
-        let enemies = [];
+        let negativeWords = [];
         let enemyInterval = 2000;
+
+        const negativeEmotions = [
+            "Depressed", "Anxious", "Stressed", "Frustrated", "Angry",
+            "Lonely", "Tired", "Bored", "Overwhelmed", "Insecure",
+            "Jealous", "Guilty", "Ashamed", "Hopeless", "Pessimistic",
+            "Lost", "Fearful", "Melancholic", "Troubled", "Confused",
+            "Disappointed", "Regretful", "Self-conscious", "Irritated", "Hurt",
+            "Sad", "Panicked", "Dissatisfied", "Weary", "Helpless",
+            "Nervous", "Distressed", "Agitated", "Worried", "Terrified",
+            "Gloomy", "Disheartened", "Moody", "Unhappy", "Furious",
+            "Heartbroken", "Dejected", "Heavy-hearted", "Despondent", "Sorrowful",
+            "Wistful", "Grief-stricken", "Apprehensive", "Horrified", "Scared",
+            "Concerned", "Uneasy", "Restless", "Sullen", "Bitter",
+            "Depressed", "Downcast", "Dismal", "Cynical", "Desperate",
+            "Somber", "Oppressed", "Low-spirited", "Negative", "Apathetic",
+            "Powerless", "Exhausted", "Weak", "Fatigued", "Drowsy",
+            "Fed up", "Jaded", "Disgusted", "Averse", "Hateful",
+            "Resentful", "Vengeful", "Hostile", "Antagonistic", "Spiteful",
+            "Enraged", "Infuriated", "Annoyed", "Exasperated", "Outraged",
+            "Livid", "Fuming", "Incensed", "Irate", "Seething",
+            "Troubled", "Perturbed", "Flustered", "Unsettled", "Disquieted",
+            "Dazed", "Distracted", "Preoccupied", "Absent-minded", "Inattentive"
+        ];
 
         function drawPlayer() {
             ctx.fillStyle = '#00ff00';
@@ -56,15 +81,11 @@
         }
 
         function movePlayer() {
+            updatePlayerSpeed();
             player.x += player.dx;
 
-            // Boundary detection
-            if (player.x < 0) {
-                player.x = 0;
-            }
-            if (player.x + player.width > canvas.width) {
-                player.x = canvas.width - player.width;
-            }
+            if (player.x < 0) player.x = 0;
+            if (player.x + player.width > canvas.width) player.x = canvas.width - player.width;
         }
 
         function createBullet() {
@@ -73,7 +94,7 @@
                 y: player.y,
                 width: 4,
                 height: 10,
-                speed: 10
+                speed: 15
             });
         }
 
@@ -93,44 +114,45 @@
             });
         }
 
-        function createEnemy() {
-            enemies.push({
-                x: Math.random() * (canvas.width - 20),
+        function createNegativeWord() {
+            const word = negativeEmotions[Math.floor(Math.random() * negativeEmotions.length)];
+            negativeWords.push({
+                word: word,
+                x: Math.random() * (canvas.width - 100),
                 y: 0,
-                width: 20,
-                height: 20,
-                speed: 3 + Math.random() * 3
+                speed: 1 + Math.random() * 2
             });
         }
 
-        function moveEnemies() {
-            enemies.forEach((enemy, index) => {
-                enemy.y += enemy.speed;
-                if (enemy.y > canvas.height) {
-                    enemies.splice(index, 1);
+        function moveNegativeWords() {
+            negativeWords.forEach((word, index) => {
+                word.y += word.speed;
+                if (word.y > canvas.height) {
+                    negativeWords.splice(index, 1);
                 }
             });
         }
 
-        function drawEnemies() {
+        function drawNegativeWords() {
+            ctx.font = '20px Arial';
             ctx.fillStyle = '#ff0000';
-            enemies.forEach(enemy => {
-                ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
+            negativeWords.forEach(word => {
+                ctx.fillText(word.word, word.x, word.y);
             });
         }
 
         function detectCollision() {
             bullets.forEach((bullet, bIndex) => {
-                enemies.forEach((enemy, eIndex) => {
+                negativeWords.forEach((word, wIndex) => {
                     if (
-                        bullet.x < enemy.x + enemy.width &&
-                        bullet.x + bullet.width > enemy.x &&
-                        bullet.y < enemy.y + enemy.height &&
-                        bullet.height + bullet.y > enemy.y
+                        bullet.x < word.x + ctx.measureText(word.word).width &&
+                        bullet.x + bullet.width > word.x &&
+                        bullet.y < word.y &&
+                        bullet.y + bullet.height > word.y - 20
                     ) {
                         setTimeout(() => {
                             bullets.splice(bIndex, 1);
-                            enemies.splice(eIndex, 1);
+                            negativeWords.splice(wIndex, 1);
                             score += 10;
                             document.getElementById('score').textContent = 'Score: ' + score;
                         }, 0);
@@ -144,29 +166,58 @@
 
             movePlayer();
             moveBullets();
-            moveEnemies();
+            moveNegativeWords();
 
             drawPlayer();
             drawBullets();
-            drawEnemies();
+            drawNegativeWords();
 
             detectCollision();
 
             requestAnimationFrame(update);
         }
 
+        let keyPressTime = {
+            left: 0,
+            right: 0
+        };
+
         function keyDown(e) {
             if (e.key === 'ArrowRight' || e.key === 'd') {
-                player.dx = player.speed;
+                if (keyPressTime.right === 0) {
+                    keyPressTime.right = Date.now();
+                }
             } else if (e.key === 'ArrowLeft' || e.key === 'a') {
-                player.dx = -player.speed;
+                if (keyPressTime.left === 0) {
+                    keyPressTime.left = Date.now();
+                }
             } else if (e.key === ' ') {
                 createBullet();
             }
         }
 
         function keyUp(e) {
-            if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'ArrowLeft' || e.key === 'a') {
+            if (e.key === 'ArrowRight' || e.key === 'd') {
+                keyPressTime.right = 0;
+                player.dx = 0;
+            } else if (e.key === 'ArrowLeft' || e.key === 'a') {
+                keyPressTime.left = 0;
+                player.dx = 0;
+            }
+        }
+
+        function updatePlayerSpeed() {
+            let currentTime = Date.now();
+            let rightElapsedTime = keyPressTime.right ? currentTime - keyPressTime.right : 0;
+            let leftElapsedTime = keyPressTime.left ? currentTime - keyPressTime.left : 0;
+            
+            if (rightElapsedTime > 0 && leftElapsedTime > 0) {
+                player.dx = 0;
+            } else if (rightElapsedTime > 0) {
+                player.dx = Math.min(player.maxSpeed, player.baseSpeed + rightElapsedTime * player.accelerationRate);
+            } else if (leftElapsedTime > 0) {
+                player.dx = -Math.min(player.maxSpeed, player.baseSpeed + leftElapsedTime * player.accelerationRate);
+            } else {
                 player.dx = 0;
             }
         }
@@ -174,7 +225,7 @@
         document.addEventListener('keydown', keyDown);
         document.addEventListener('keyup', keyUp);
 
-        setInterval(createEnemy, enemyInterval);
+        setInterval(createNegativeWord, enemyInterval);
 
         update();
     </script>
