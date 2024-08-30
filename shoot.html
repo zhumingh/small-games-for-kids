@@ -52,7 +52,8 @@
 
         let bullets = [];
         let negativeWords = [];
-        let enemyInterval = 2000;
+        let positiveWords = [];
+        let wordInterval = 1000; // Interval for creating new words
 
         const negativeEmotions = [
             "Depressed (沮丧的)", "Anxious (焦虑的)", "Stressed (压力大的)", "Frustrated (沮丧的)", "Angry (愤怒的)",
@@ -75,6 +76,31 @@
             "Livid (大怒的)", "Fuming (冒火的)", "Incensed (激怒的)", "Irate (发怒的)", "Seething (怒不可遏的)",
             "Troubled (烦恼的)", "Perturbed (不安的)", "Flustered (慌乱的)", "Unsettled (不安的)", "Disquieted (不安的)",
             "Dazed (茫然的)", "Distracted (心烦意乱的)", "Preoccupied (心事重重的)", "Absent-minded (心不在焉的)", "Inattentive (不专心的)"
+        ];
+
+
+        const positiveEmotions = [
+            "Happy (快乐的)", "Joyful (欢乐的)", "Excited (兴奋的)", "Grateful (感恩的)", "Peaceful (平和的)",
+            "Confident (自信的)", "Inspired (受启发的)", "Energetic (充满活力的)", "Optimistic (乐观的)", "Loving (充满爱的)",
+            "Calm (平静的)", "Content (满足的)", "Hopeful (充满希望的)", "Proud (自豪的)", "Enthusiastic (热情的)",
+            "Relaxed (放松的)", "Cheerful (愉快的)", "Motivated (有动力的)", "Brave (勇敢的)", "Fulfilled (充实的)",
+            "Serene (宁静的)", "Blissful (幸福的)", "Elated (兴高采烈的)", "Empowered (被赋予力量的)", "Determined (坚定的)",
+            "Compassionate (富有同情心的)", "Grateful (感激的)", "Blessed (幸运的)", "Balanced (平衡的)", "Radiant (容光焕发的)",
+            "Vibrant (充满活力的)", "Accomplished (成就感的)", "Satisfied (满意的)", "Ecstatic (狂喜的)", "Thankful (感谢的)",
+            "Appreciated (被欣赏的)", "Valued (有价值的)", "Respected (受尊重的)", "Admired (被钦佩的)", "Accepted (被接受的)",
+            "Supported (被支持的)", "Encouraged (受鼓舞的)", "Empathetic (富有同理心的)", "Generous (慷慨的)", "Kind (善良的)",
+            "Forgiving (宽恕的)", "Understanding (理解的)", "Patient (耐心的)", "Tolerant (宽容的)", "Humble (谦逊的)",
+            "Sincere (真诚的)", "Honest (诚实的)", "Trustworthy (值得信赖的)", "Reliable (可靠的)", "Loyal (忠诚的)",
+            "Dedicated (专注的)", "Committed (承诺的)", "Passionate (热情的)", "Zealous (热忱的)", "Eager (渴望的)",
+            "Curious (好奇的)", "Inquisitive (好问的)", "Fascinated (着迷的)", "Amazed (惊奇的)", "Awed (敬畏的)",
+            "Impressed (印象深刻的)", "Astonished (惊讶的)", "Wonderstruck (惊叹的)", "Marveled (惊叹的)", "Captivated (被吸引的)",
+            "Enchanted (被迷住的)", "Charmed (被迷住的)", "Delighted (高兴的)", "Pleased (愉悦的)", "Glad (欣喜的)",
+            "Jubilant (欢欣的)", "Triumphant (胜利的)", "Victorious (胜利的)", "Successful (成功的)", "Thriving (兴旺的)",
+            "Flourishing (繁荣的)", "Prosperous (繁荣的)", "Abundant (丰富的)", "Wealthy (富裕的)", "Rich (富有的)",
+            "Fortunate (幸运的)", "Lucky (幸运的)", "Favored (受青睐的)", "Privileged (有特权的)", "Honored (荣幸的)",
+            "Esteemed (受尊敬的)", "Revered (受崇敬的)", "Venerated (受尊崇的)", "Exalted (被高度赞扬的)", "Celebrated (被庆祝的)",
+            "Acclaimed (受赞誉的)", "Praised (被赞扬的)", "Commended (被表扬的)", "Recognized (被认可的)", "Acknowledged (被承认的)",
+            "Validated (被验证的)", "Affirmed (被肯定的)", "Approved (被批准的)", "Endorsed (被认可的)", "Supported (被支持的)"
         ];
 
         function drawPlayer() {
@@ -131,51 +157,88 @@
             });
         }
 
-        function createNegativeWord() {
-            const word = negativeEmotions[Math.floor(Math.random() * negativeEmotions.length)];
-            negativeWords.push({
-                word: word,
-                x: Math.random() * (canvas.width - 100),
-                y: 0,
-                speed: 1 + Math.random() * 2
-            });
+        function createWord() {
+            if (Math.random() < 0.7) { // 70% chance for negative word
+                const word = negativeEmotions[Math.floor(Math.random() * negativeEmotions.length)];
+                negativeWords.push({
+                    word: word,
+                    x: Math.random() * (canvas.width - 100),
+                    y: 0,
+                    speed: 1 + Math.random() * 2
+                });
+            } else { // 30% chance for positive word
+                const word = positiveEmotions[Math.floor(Math.random() * positiveEmotions.length)];
+                positiveWords.push({
+                    word: word,
+                    x: Math.random() * (canvas.width - 100),
+                    y: 0,
+                    speed: 1 + Math.random() * 2
+                });
+            }
         }
 
-        function moveNegativeWords() {
-            negativeWords.forEach((word, index) => {
+        function moveWords() {
+            negativeWords = negativeWords.filter(word => {
                 word.y += word.speed;
-                if (word.y > canvas.height) {
-                    negativeWords.splice(index, 1);
-                }
+                return word.y <= canvas.height;
+            });
+
+            positiveWords = positiveWords.filter(word => {
+                word.y += word.speed;
+                return word.y <= canvas.height;
             });
         }
 
-        function drawNegativeWords() {
+        function drawWords() {
             ctx.font = '20px Arial';
+            
             ctx.fillStyle = '#ff0000';
             negativeWords.forEach(word => {
+                ctx.fillText(word.word, word.x, word.y);
+            });
+
+            ctx.fillStyle = '#ffff00';
+            positiveWords.forEach(word => {
                 ctx.fillText(word.word, word.x, word.y);
             });
         }
 
         function detectCollision() {
-            bullets.forEach((bullet, bIndex) => {
-                negativeWords.forEach((word, wIndex) => {
-                    if (
-                        bullet.x < word.x + ctx.measureText(word.word).width &&
-                        bullet.x + bullet.width > word.x &&
-                        bullet.y < word.y &&
-                        bullet.y + bullet.height > word.y - 20
-                    ) {
-                        setTimeout(() => {
-                            bullets.splice(bIndex, 1);
-                            negativeWords.splice(wIndex, 1);
-                            score += 10;
-                            document.getElementById('score').textContent = 'Score: ' + score;
-                        }, 0);
+            for (let bIndex = bullets.length - 1; bIndex >= 0; bIndex--) {
+                let bulletHit = false;
+
+                for (let wIndex = negativeWords.length - 1; wIndex >= 0; wIndex--) {
+                    if (checkCollision(bullets[bIndex], negativeWords[wIndex])) {
+                        bullets.splice(bIndex, 1);
+                        negativeWords.splice(wIndex, 1);
+                        score += 10;
+                        bulletHit = true;
+                        break;
                     }
-                });
-            });
+                }
+
+                if (!bulletHit) {
+                    for (let wIndex = positiveWords.length - 1; wIndex >= 0; wIndex--) {
+                        if (checkCollision(bullets[bIndex], positiveWords[wIndex])) {
+                            bullets.splice(bIndex, 1);
+                            positiveWords.splice(wIndex, 1);
+                            score += 20; // More points for hitting positive words
+                            break;
+                        }
+                    }
+                }
+            }
+
+            document.getElementById('score').textContent = 'Score: ' + score;
+        }
+
+        function checkCollision(bullet, word) {
+            return (
+                bullet.x < word.x + ctx.measureText(word.word).width &&
+                bullet.x + bullet.width > word.x &&
+                bullet.y < word.y &&
+                bullet.y + bullet.height > word.y - 20
+            );
         }
 
         function update() {
@@ -183,11 +246,11 @@
 
             movePlayer();
             moveBullets();
-            moveNegativeWords();
+            moveWords();
 
             drawPlayer();
             drawBullets();
-            drawNegativeWords();
+            drawWords();
 
             detectCollision();
 
@@ -242,7 +305,7 @@
         document.addEventListener('keydown', keyDown);
         document.addEventListener('keyup', keyUp);
 
-        setInterval(createNegativeWord, enemyInterval);
+        setInterval(createWord, wordInterval);
 
         update();
     </script>
