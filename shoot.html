@@ -120,7 +120,9 @@
             const bulletDirections = [
                 { dx: 0, dy: -1 },    // 垂直向上
                 { dx: -0.5, dy: -0.866 },  // 左前方 (30度)
-                { dx: 0.5, dy: -0.866 }    // 右前方 (30度)
+                { dx: 0.5, dy: -0.866 },   // 右前方 (30度)
+                { dx: -0.866, dy: -0.5 },  // 左前方 (60度)
+                { dx: 0.866, dy: -0.5 }    // 右前方 (60度)
             ];
 
             bulletDirections.forEach(direction => {
@@ -164,7 +166,7 @@
                     word: word,
                     x: Math.random() * (canvas.width - 100),
                     y: 0,
-                    speed: 1 + Math.random() * 2
+                    speed: 1 + Math.random() * 4
                 });
             } else { // 30% chance for positive word
                 const word = positiveEmotions[Math.floor(Math.random() * positiveEmotions.length)];
