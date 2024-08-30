@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>禅修木鱼游戏</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        #woodenFish {
+            width: 150px;
+            height: 150px;
+            background-image: url('wooden-fish.png');
+            background-size: cover;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        #woodenFish:active {
+            transform: scale(0.95);
+        }
+        #quote {
+            margin: 20px 0;
+            font-size: 18px;
+            text-align: center;
+            max-width: 80%;
+        }
+        #counter {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        #stopButton {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #ff4d4d;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="counter">0</div>
+    <div id="woodenFish">
+
+    <div id="woodenFishContainer">
+        <svg width="150" height="150" viewBox="0 0 150 150">
+            <circle cx="75" cy="75" r="70" fill="#8B4513" />
+            <ellipse cx="75" cy="75" rx="60" ry="30" fill="#D2691E" />
+            <path d="M 30 75 Q 75 30 120 75" stroke="#4B2F1B" stroke-width="5" fill="none" />
+        </svg>
+    </div>
+    <style>
+        #woodenFishContainer {
+            width: 150px;
+            height: 150px;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        #woodenFishContainer:active {
+            transform: scale(0.95);
+        }
+    </style>
+
+    </div>
+    <div id="quote"></div>
+    <button id="stopButton">停止</button>
+
+    <script>
+        const quotes = [
+            {
+                cn: "心如工画师，能画诸世间。",
+                en: "The mind is like a painter, it can paint all worlds.",
+                sa: "चित्तं चित्रकारः सर्वलोकचित्रकारः।"
+            },
+            {
+                cn: "万法皆空，因果不空。",
+                en: "All phenomena are empty, but cause and effect are not empty.",
+                sa: "सर्वधर्माः शून्याः, कर्मफलं न शून्यम्।"
+            },
+            {
+                cn: "一花一世界，一叶一如来。",
+                en: "A flower is a world, a leaf is a Buddha.",
+                sa: "एकं पुष्पं एकं जगत्, एकं पत्रं एकं तथागतः।"
+            },
+            {
+                cn: "行亦禅，坐亦禅，语默动静体安然。",
+                en: "Walking is Zen, sitting is Zen; speaking or silent, moving or still, the essence is at peace.",
+                sa: "चलने ध्यानं, आसने ध्यानं, भाषणे मौने गतौ स्थितौ च सारः शान्तः।"
+            },
+            {
+                cn: "菩提本无树，明镜亦非台。",
+                en: "Bodhi is fundamentally without any tree; The bright mirror is not a stand.",
+                sa: "बोधिर्मूले न वृक्षः, स्वच्छदर्पणो न स्थानकम्।"
+            },
+            {
+                cn: "若以色见我，以音声求我，是人行邪道，不能见如来。",
+                en: "If you use appearance to see me, or use sound to search for me, you're on the wrong path, unable to see the Tathagata.",
+                sa: "यदि रूपेण मां पश्येत्, शब्देन मां मृगयेत, स मिथ्यामार्गे चरति, न स तथागतं द्रष्टुं शक्नोति।"
+            },
+            {
+                cn: "心若不生，法无所住。",
+                en: "If the mind is not born, the dharma has nowhere to abide.",
+                sa: "यदि चित्तं नोत्पद्यते, धर्मस्य स्थानं नास्ति।"
+            },
+            {
+                cn: "不以物喜，不以己悲。",
+                en: "Do not be joyful over things, do not be sorrowful over self.",
+                sa: "न वस्तुभिः प्रमोदते, नात्मना शोचति।"
+            },
+            {
+                cn: "众生畏果，菩萨畏因。",
+                en: "Ordinary beings fear effects, bodhisattvas fear causes.",
+                sa: "सत्त्वाः फलं बिभ्यति, बोधिसत्त्वाः कारणं बिभ्यति।"
+            },
+            {
+                cn: "心似已灰之木，身如不系之舟。",
+                en: "The mind is like burnt wood, the body like an unmoored boat.",
+                sa: "चित्तं दग्धकाष्ठमिव, कायोऽबद्धनौकेव।"
+            },
+            {
+                cn: "放下屠刀，立地成佛。",
+                en: "Put down the butcher's knife and become a Buddha on the spot.",
+                sa: "मांसच्छेदनीं त्यक्त्वा, तत्क्षणे बुद्धो भवति।"
+            },
+            {
+                cn: "佛在灵山莫远求，灵山只在汝心头。",
+                en: "Don't seek far for Buddha at Vulture Peak, Vulture Peak is just in your mind.",
+                sa: "गृध्रकूटे बुद्धं मा दूरं मृगय, गृध्रकूटस्तव हृदये एव।"
+            },
+            {
+                cn: "静坐常思己过，闲谈莫论人非。",
+                en: "In quiet sitting, often reflect on your own faults; In idle talk, don't discuss others' wrongs.",
+                sa: "शान्तासने स्वदोषं चिन्तयेत्, व्यर्थालापे परदोषं न वदेत्।"
+            },
+            {
+                cn: "心中有佛，处处是佛。",
+                en: "With Buddha in the heart, Buddha is everywhere.",
+                sa: "हृदये बुद्धे सति, सर्वत्र बुद्धः।"
+            },
+            {
+                cn: "无心可得，无法可说。",
+                en: "No mind to attain, no dharma to speak.",
+                sa: "न चित्तं लब्धुं शक्यं, न धर्मो वक्तुं शक्यः।"
+            },
+            {
+                cn: "心净则国土净。",
+                en: "When the mind is pure, the land is pure.",
+                sa: "चित्ते शुद्धे क्षेत्रं शुद्धम्।"
+            },
+            {
+                cn: "不怕念起，只怕觉迟。",
+                en: "Don't fear thoughts arising, only fear awakening too late.",
+                sa: "न चिन्तोत्पत्तिं बिभेति, केवलं जागरणविलम्बं बिभेति।"
+            },
+            {
+                cn: "心若无事，便是功夫。",
+                en: "If the mind is without affairs, that itself is the practice.",
+                sa: "यदि चित्तं निःकार्यं, तदेव साधना।"
+            },
+            {
+                cn: "万法归一，一归何处？",
+                en: "All dharmas return to one, where does the one return to?",
+                sa: "सर्वधर्मा एकं गच्छन्ति, एकं कुत्र गच्छति?"
+            },
+            {
+                cn: "心平何劳持戒，行直不需修禅。",
+                en: "With a balanced mind, why bother keeping precepts? With upright conduct, no need to practice meditation.",
+                sa: "चित्ते समे सति किं शीलपालनेन, आचारे ऋजौ सति किं ध्यानाभ्यासेन।"
+            },
+            {
+                cn: "但自怀中解垢衣，莫向他人说是非。",
+                en: "Just remove the stained clothes from your own bosom, don't speak of others' rights and wrongs.",
+                sa: "स्वस्य वक्षसः मलिनवस्त्रं निष्कासय, परेषां गुणदोषान् मा वद।"
+            },
+            {
+                cn: "心若不异，万法一如。",
+                en: "If the mind is not different, all dharmas are the same.",
+                sa: "यदि चित्तं न भिन्नं, सर्वधर्माः समानाः।"
+            },
+            {
+                cn: "随缘消旧业，更莫造新殃。",
+                en: "Follow conditions to dissolve old karma, create no new calamities.",
+                sa: "प्रत्ययानुसारेण पुराणकर्म क्षपयेत्, नवं विपत्तिं मा कुर्यात्।"
+            },
+            {
+                cn: "心似明镜台，时时勤拂拭。",
+                en: "The mind is like a bright mirror stand, diligently polish it at all times.",
+                sa: "चित्तं स्वच्छदर्पणस्थानकमिव, सर्वदा यत्नेन मार्जयेत्।"
+            },
+            {
+                cn: "不是风动，不是幡动，仁者心动。",
+                en: "It is not the wind that moves, not the flag that moves, it is your mind that moves.",
+                sa: "न वायुः चलति, न ध्वजः चलति, भवतः चित्तं चलति।"
+            },
+            {
+                cn: "若真修道人，不见世间过。",
+                en: "A true practitioner of the Way does not see the faults of the world.",
+                sa: "यदि सत्यं मार्गसाधकः, स लोकदोषान् न पश्यति।"
+            },
+            {
+                cn: "心中有佛，见佛不拜；心中无佛，拜佛无用。",
+                en: "With Buddha in the heart, seeing Buddha, no need to bow; Without Buddha in the heart, bowing to Buddha is useless.",
+                sa: "हृदये बुद्धे सति, बुद्धं दृष्ट्वा न नमति; हृदये बुद्धे नास्ति चेत्, बुद्धं नत्वा किं फलम्।"
+            },
+            {
+                cn: "心有所念，念念不空。",
+                en: "If the mind has thoughts, no thought is empty.",
+                sa: "यदि चित्ते चिन्ता अस्ति, न का अपि चिन्ता शून्या।"
+            },
+            {
+                cn: "不取不舍，不垢不净。",
+                en: "Neither grasping nor rejecting, neither defiled nor pure.",
+                sa: "नादत्ते न त्यजति, न मलिनं न विशुद्धम्।"
+            },
+            {
+                cn: "心无挂碍，无挂碍故，无有恐怖。",
+                en: "The mind without hindrance. Because without hindrance, no fear exists.",
+                sa: "चित्तं निरावरणम्, निरावरणत्वात् न भयं विद्यते।"
+            },
+            {
+                cn: "心若无事，事事无心。",
+                en: "If the mind is without affairs, in all affairs there is no mind.",
+                sa: "यदि चित्तं निःकार्यं, सर्वकार्येषु न चित्तम्।"
+            },
+            {
+                cn: "心无所住，行亦无处。",
+                en: "When the mind abides nowhere, action has no place.",
+                sa: "चित्तं न कुत्रचित् तिष्ठति, क्रिया अपि न कुत्रचित्।"
+            },
+            {
+                cn: "心无所住，行亦无处。",
+                en: "When the mind abides nowhere, action has no place.",
+                sa: "चित्तं न कुत्रचित् तिष्ठति, क्रिया अपि न कुत्रचित्।"
+            } ,
+            {
+                cn: "一花一世界，一叶一如来。",
+                en: "One flower, one world; one leaf, one Buddha.",
+                sa: "एकं पुष्पं एकं जगत्, एकं पर्णं एकः तथागतः।"
+            },
+            {
+                cn: "万法归一，一归何处？",
+                en: "All things return to one, where does the one return to?",
+                sa: "सर्वं धर्माः एकं प्रति गच्छन्ति, एकं कुत्र गच्छति?"
+            },
+            {
+                cn: "菩提本无树，明镜亦非台。",
+                en: "Bodhi originally has no tree, the bright mirror is not a stand.",
+                sa: "बोधेः मूले न वृक्षः, स्वच्छदर्पणस्य न स्थानकम्।"
+            },
+            {
+                cn: "行亦禅，坐亦禅，语默动静体安然。",
+                en: "Walking is Zen, sitting is Zen; speaking or silent, moving or still, the essence is at peace.",
+                sa: "गमनमपि ध्यानं, आसनमपि ध्यानं, भाषणं मौनं चलनं स्थिरत्वं च सर्वं शान्तम्।"
+            },
+            {
+                cn: "心如止水，澄澈见底。",
+                en: "The mind is like still water, clear to the bottom.",
+                sa: "चित्तं स्थिरजलवत्, स्वच्छं तलं दृश्यते।"
+            },
+            {
+                cn: "放下屠刀，立地成佛。",
+                en: "Put down the butcher's knife and become a Buddha on the spot.",
+                sa: "मांसच्छेदनीं त्यक्त्वा, तत्क्षणे बुद्धो भवति।"
+            },
+            {
+                cn: "心似莲花开，清净自在来。",
+                en: "The mind blooms like a lotus, purity and freedom naturally arise.",
+                sa: "चित्तं पद्मवत् विकसति, शुद्धिः स्वातन्त्र्यं च स्वयमेव आगच्छति।"
+            },
+            {
+                cn: "随缘不变，不变随缘。",
+                en: "Following conditions without changing, unchanging while following conditions.",
+                sa: "परिस्थितिमनुसृत्य न परिवर्तते, अपरिवर्तमानः परिस्थितिमनुसरति।"
+            },
+            {
+                cn: "心中无事便是禅，禅中无心即是道。",
+                en: "No affairs in the mind is Zen, no mind in Zen is the Way.",
+                sa: "चित्ते निःकार्यं तदेव ध्यानम्, ध्याने निश्चित्तं तदेव मार्गः।"
+            },
+            {
+                cn: "万法皆空，因果不空。",
+                en: "All phenomena are empty, but cause and effect are not empty.",
+                sa: "सर्वे धर्माः शून्याः, कार्यकारणं तु न शून्यम्।"
+            },
+            {
+                cn: "心若不生，万法无咎。",
+                en: "If the mind does not arise, the myriad dharmas are without blame.",
+                sa: "यदि चित्तं नोत्पद्यते, सर्वे धर्माः निर्दोषाः।"
+            },
+            {
+                cn: "无心可得，是名真得。",
+                en: "No mind to attain is called true attainment.",
+                sa: "निश्चित्तं लब्धुं शक्यते, तदेव सत्यं लाभः।"
+            },
+            {
+                cn: "心净则国土净。",
+                en: "When the mind is pure, the land is pure.",
+                sa: "चित्ते शुद्धे सति, देशोऽपि शुद्धः।"
+            },
+            {
+                cn: "不以物喜，不以己悲。",
+                en: "Do not be joyful over things, do not be sorrowful over self.",
+                sa: "न वस्तुभिः प्रहृष्यति, न आत्मना विषीदति।"
+            },
+            {
+                cn: "心平何劳持戒，行直何用修禅。",
+                en: "With a balanced mind, why bother keeping precepts? With upright conduct, what need is there to practice meditation?",
+                sa: "चित्ते समे सति किं शीलपालनेन, आचारे ऋजौ सति किं ध्यानाभ्यासेन।"
+            }
+            // ... 添加更多引用，直到总数达到100
+        ];
+
+        let count = 0;
+        const woodenFish = document.getElementById('woodenFish');
+        const quoteElement = document.getElementById('quote');
+        const counterElement = document.getElementById('counter');
+        const stopButton = document.getElementById('stopButton');
+
+        function updateQuote() {
+            const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+            quoteElement.innerHTML = `
+                <p class="fade-in">${randomQuote.cn}</p>
+                <p class="fade-in">${randomQuote.en}</p>
+                <p class="fade-in">${randomQuote.sa}</p>
+            `;
+            
+            // 添加CSS动画
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes fadeIn {
+                    from { opacity: 0; }
+                    to { opacity: 1; }
+                }
+                .fade-in {
+                    opacity: 0;
+                    animation: fadeIn 2s forwards;
+                }
+                .fade-in:nth-child(2) {
+                    animation-delay: 0.5s;
+                }
+                .fade-in:nth-child(3) {
+                    animation-delay: 1s;
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+
+ // Create audio context
+ const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+function playMatchSound() {
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(440, audioContext.currentTime); // A4 note
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+
+    gainNode.gain.setValueAtTime(0.5, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+
+    oscillator.start();
+    oscillator.stop(audioContext.currentTime + 0.5);
+}
+
+        woodenFish.addEventListener('click', () => {
+            count++;
+            counterElement.textContent = ` ${count}`;
+            updateQuote();
+            // 播放系统的midi音效，模拟木鱼敲击声
+            //const woodenFishSound = new Audio('data:audio/midi;base64,TVRoZAAAAAYAAQACAQBNVHJrAAAACwD/UQMHoSAA/y8ATVRyawAAABkA/1EDB6EgAP9YBAQCGAgA/1gEBAIYCAD/LwA=');
+            //woodenFishSound.volume = 1; // 设置音量为50%
+            //woodenFishSound.play().catch(error => console.log('播放音频失败:', error));
+            playMatchSound();
+            // 播放木鱼声音（如果有音频文件）
+            // new Audio('wooden-fish-sound.mp3').play();
+        });
+
+        stopButton.addEventListener('click', () => {
+            const message = `恭喜您完成了${count}次木鱼敲击和禅机参悟！愿您内心平静，法喜充满。`;
+            const resultDiv = document.createElement('div');
+            resultDiv.textContent = message;
+            resultDiv.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background-color: rgba(255, 255, 255, 0.9);
+                padding: 20px;
+                border-radius: 10px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                font-size: 18px;
+                text-align: center;
+                max-width: 80%;
+                opacity: 0;
+                transition: opacity 0.5s ease-in-out;
+            `;
+            document.body.appendChild(resultDiv);
+            setTimeout(() => {
+                resultDiv.style.opacity = '1';
+            }, 100);
+            setTimeout(() => {
+                resultDiv.style.opacity = '0';
+                setTimeout(() => {
+                    document.body.removeChild(resultDiv);
+                }, 500);
+            }, 3000);
+
+            // 清零敲击次数
+            count = 0;
+            counterElement.textContent = ` ${count}`;
+            
+            // 更新引用
+            updateQuote();
+            
+            
+            setTimeout(() => {
+                restartMessage.style.opacity = '1';
+            }, 100);
+            setTimeout(() => {
+                restartMessage.style.opacity = '0';
+                setTimeout(() => {
+                    document.body.removeChild(restartMessage);
+                }, 500);
+            }, 2000);
+            // 这里可以添加分享功能
+        });
+
+        updateQuote(); // 初始化显示一条引用
+    </script>
+</body>
+</html>
