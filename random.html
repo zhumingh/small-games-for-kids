@@ -61,7 +61,7 @@
 
         function updateDisplay() {
             const canvas = document.createElement('canvas');
-            canvas.width = 400;
+            canvas.width = 600;
             canvas.height = 300;
             const ctx = canvas.getContext('2d');
             
@@ -74,12 +74,12 @@
             ctx.beginPath();
             ctx.moveTo(30, 30);
             ctx.lineTo(30, 270);
-            ctx.lineTo(370, 270);
+            ctx.lineTo(600, 270);
             ctx.stroke();
             
             // Draw data points
             numbers.forEach((number, index) => {
-                const x = 30 + (index + 1) * (340 / numbers.length);
+                const x = 30 + (index + 1) * (560 / numbers.length);
                 const y = 270 - (number / 100) * 240; // Correct y-axis direction
                 
                 ctx.fillStyle = index % 2 === 0 ? '#FFD700' : '#00FFFF';
@@ -89,7 +89,7 @@
                 
                 // Draw connecting lines
                 if (index > 0) {
-                    const prevX = 30 + index * (340 / numbers.length);
+                    const prevX = 30 + index * (560 / numbers.length);
                     const prevY = 270 - (numbers[index - 1] / 100) * 240; // Correct y-axis direction
                     ctx.strokeStyle = ctx.fillStyle;
                     ctx.beginPath();
@@ -114,9 +114,9 @@
         generateBtn.addEventListener('click', () => {
             const newNumber = generateRandomNumber();
             numbers.push(newNumber);
-            if (numbers.length > 1) {
-                numbers.sort((a, b) => 0.5 - Math.random());
-            }
+            // if (numbers.length > 1) {
+            //     numbers.sort((a, b) => 0.5 - Math.random());
+            // }
             updateDisplay();
         });
     </script>
