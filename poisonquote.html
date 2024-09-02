@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>毒鸡汤 | Poison Quotes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div class="container mx-auto p-4">
+        <div class="bg-white p-6 rounded-lg shadow-lg text-center">
+            <h1 class="text-2xl md:text-4xl font-bold text-gray-800 mb-4">以毒攻毒 Poison Quotes</h1>
+            <div id="quote" class="text-lg md:text-2xl text-gray-700 mb-6"></div>
+            <button onclick="getRandomQuote()" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                换一条 | Change Quote
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const quotes = [
+            {
+                cn: "你以为只要长得漂亮就有男生喜欢？你以为只要有了钱就能过的开心？你以为只要努力就能得到回报？别傻了，这个世界没有这么简单。",
+                en: "You think being pretty is enough to make boys like you? You think having money is enough to be happy? You think working hard is enough to be rewarded? Don't be naive, the world isn't that simple."
+            },
+            {
+                cn: "你以为你是谁？凭什么别人要帮你？",
+                en: "Who do you think you are? Why should anyone help you?"
+            },
+            {
+                cn: "不要轻易向别人介绍你的女朋友，因为每个人都有自己的审美观。",
+                en: "Don't easily introduce your girlfriend to others, because everyone has their own aesthetic standards."
+            },
+            {
+                cn: "有些人出现在你的生命里，是为了告诉你，你真好骗。",
+                en: "Some people appear in your life just to show you how gullible you are."
+            },
+            {
+                cn: "你以为他是喜欢你才对你好？只是因为你刚好在他无聊的时候出现了而已。",
+                en: "You think he's nice to you because he likes you? It's just because you happened to appear when he was bored."
+            },
+            {
+                cn: "别总是抱怨社会不公平，因为它从来就没答应过要公平。",
+                en: "Don't always complain about society being unfair, because it never promised to be fair."
+            },
+            {
+                cn: "你的努力和实力决定了你的上限，你的出身决定了你的下限。",
+                en: "Your efforts and abilities determine your upper limit, your background determines your lower limit."
+            },
+            {
+                cn: "不要轻易相信网上的话，因为你不知道对方是一个人还是一条狗。",
+                en: "Don't easily believe what's said online, because you don't know if the other party is a person or a dog."
+            },
+            {
+                cn: "你以为自己是特别的？在这个世界上，你不过是沧海一粟。",
+                en: "You think you're special? In this world, you're just a drop in the ocean."
+            },
+            {
+                cn: "别人说你是傻子，你不要不高兴，至少说明他还是关注你的。",
+                en: "Don't be upset when others call you stupid, at least it shows they're paying attention to you."
+            },
+            {
+                cn: "你以为你很了不起吗？别忘了，你也只是别人眼中的路人甲。",
+                en: "You think you're so great? Don't forget, you're just an extra in someone else's eyes."
+            },
+            {
+                cn: "不要总是期待别人对你好，因为没有人有义务满足你的期望。",
+                en: "Don't always expect others to be nice to you, because no one is obligated to meet your expectations."
+            },
+            {
+                cn: "你的自以为是，恰恰证明了你的无知。",
+                en: "Your self-righteousness precisely proves your ignorance."
+            },
+            {
+                cn: "别人夸你漂亮，只是因为他们没见过真正漂亮的人。",
+                en: "Others compliment you as beautiful only because they haven't seen truly beautiful people."
+            },
+            {
+                cn: "你以为你很有才华？可能只是你身边的人水平太低。",
+                en: "You think you're talented? Maybe it's just that the people around you have low standards."
+            },
+            {
+                cn: "不要总是抱怨生活不如意，因为它本来就不是为了让你满意而存在的。",
+                en: "Don't always complain about life not going your way, because it doesn't exist to satisfy you."
+            },
+            {
+                cn: "你的付出不一定会有回报，也许只是证明你很傻。",
+                en: "Your efforts may not be rewarded, maybe they just prove you're foolish."
+            },
+            {
+                cn: "别人对你好，可能只是因为你刚好有他们需要的东西。",
+                en: "Others are nice to you, possibly just because you happen to have something they need."
+            },
+            {
+                cn: "你以为你很重要？别自作多情了，没有你地球照样转。",
+                en: "You think you're important? Don't flatter yourself, the Earth will keep spinning without you."
+            },
+            {
+                cn: "不要总是羡慕别人的生活，因为你不知道他们私下里哭过多少次。",
+                en: "Don't always envy others' lives, because you don't know how many times they've cried in private."
+            },
+            {
+                cn: "你以为你很聪明？其实你只是运气好而已。",
+                en: "You think you're smart? Actually, you're just lucky."
+            },
+            {
+                cn: "不要总是想着改变别人，先改变自己吧。",
+                en: "Don't always think about changing others, change yourself first."
+            },
+            {
+                cn: "你以为你很坚强？只是因为你还没有遇到真正的挫折。",
+                en: "You think you're strong? It's just because you haven't faced real setbacks yet."
+            },
+            {
+                cn: "别人对你的赞美，可能只是为了得到你的好感。",
+                en: "Others' compliments to you might just be to gain your favor."
+            },
+            {
+                cn: "你以为你很有魅力？可能只是别人懒得揭穿你。",
+                en: "You think you're charming? Maybe others are just too lazy to expose you."
+            },
+            {
+                cn: "不要总是抱怨工作辛苦，因为没有人逼你做这份工作。",
+                en: "Don't always complain about your hard work, because no one forced you to do this job."
+            },
+            {
+                cn: "你以为你很有见识？可能只是你见过的东西太少。",
+                en: "You think you're knowledgeable? Maybe it's just that you've seen too little."
+            },
+            {
+                cn: "别人对你的关心，可能只是出于礼貌。",
+                en: "Others' concern for you might just be out of politeness."
+            },
+            {
+                cn: "你以为你很有钱？可能只是因为你还没有遇到真正的富人。",
+                en: "You think you're rich? Maybe it's just because you haven't met truly wealthy people."
+            },
+            {
+                cn: "不要总是羡慕别人的成功，因为你不知道他们付出了多少努力。",
+                en: "Don't always envy others' success, because you don't know how much effort they've put in."
+            },
+            {
+                cn: "你以为你很有品味？可能只是因为你身边的人没有品味。",
+                en: "You think you have good taste? Maybe it's just because the people around you don't."
+            },
+            {
+                cn: "别人对你的帮助，可能只是为了以后向你索取更多。",
+                en: "Others' help to you might just be to ask for more from you in the future."
+            },
+            {
+                cn: "你以为你很有影响力？可能只是因为你身边的人太少。",
+                en: "You think you're influential? Maybe it's just because there are too few people around you."
+            },
+            {
+                cn: "不要总是抱怨生活不公平，因为它本来就不公平。",
+                en: "Don't always complain about life being unfair, because it was never meant to be fair."
+            },
+            {
+                cn: "你以为你很有价值？可能只是因为你还没有被淘汰。",
+                en: "You think you're valuable? Maybe it's just because you haven't been eliminated yet."
+            },
+            {
+                cn: "别人对你的尊重，可能只是因为他们需要你的帮助。",
+                en: "Others' respect for you might just be because they need your help."
+            },
+            {
+                cn: "你以为你很有成就？可能只是因为你还没有遇到真正的挑战。",
+                en: "You think you're accomplished? Maybe it's just because you haven't faced real challenges yet."
+            },
+            {
+                cn: "不要总是羡慕别人的幸福，因为你不知道他们背后的辛酸。",
+                en: "Don't always envy others' happiness, because you don't know the bitterness behind it."
+            },
+            {
+                cn: "你以为你很有魅力？可能只是因为别人懒得理你。",
+                en: "You think you're attractive? Maybe it's just because others are too lazy to deal with you."
+            },
+            {
+                cn: "别人对你的赞美，可能只是为了掩饰他们的嫉妒。",
+                en: "Others' compliments to you might just be to hide their jealousy."
+            }
+        ];
+
+        function getRandomQuote() {
+            const randomIndex = Math.floor(Math.random() * quotes.length);
+            const quote = quotes[randomIndex];
+            document.getElementById('quote').innerHTML = `
+                <p class="mb-2">${quote.cn}</p>
+                <p>${quote.en}</p>
+            `;
+        }
+
+        // Load a random quote when the page loads
+        window.onload = getRandomQuote;
+    </script>
+</body>
+</html>

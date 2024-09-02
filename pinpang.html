@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ping Pong Game</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-800 flex flex-col items-center justify-center h-screen">
+    <h1 class="text-4xl font-bold text-white mb-4">Ping Pong</h1>
+    <div class="w-[600px] h-[400px] bg-gray-900 relative overflow-hidden rounded-lg shadow-lg" id="gameArea">
+        <div class="w-4 h-20 bg-blue-500 absolute left-2 rounded" id="paddle1"></div>
+        <div class="w-4 h-20 bg-red-500 absolute right-2 rounded" id="paddle2"></div>
+        <div class="w-4 h-4 bg-white absolute rounded-full" id="ball"></div>
+        <div class="text-white absolute top-2 left-2 text-2xl font-bold" id="score1">0</div>
+        <div class="text-white absolute top-2 right-2 text-2xl font-bold" id="score2">0</div>
+    </div>
+    <div class="mt-4 text-white text-xl">
+        <span id="gameStatus">Press Space to Start</span>
+    </div>
+    <div class="mt-2 text-white">
+        Controls: Move mouse up/down | Pause: P | Restart: R
+    </div>
+
+    <script>
+        const gameArea = document.getElementById('gameArea');
+        const paddle1 = document.getElementById('paddle1');
+        const paddle2 = document.getElementById('paddle2');
+        const ball = document.getElementById('ball');
+        const score1 = document.getElementById('score1');
+        const score2 = document.getElementById('score2');
+
+        let ballX = 300;
+        let ballY = 200;
+        let ballSpeedX = 5;
+        let ballSpeedY = 2;
+        let paddle1Y = 180;
+        let paddle2Y = 180;
+        let player1Score = 0;
+        let player2Score = 0;
+        let gameRunning = false;
+        let gamePaused = false;
+        let difficulty = 0.1;
+        const maxScore = 5;
+
+        function update() {
+            if (!gameRunning || gamePaused) return;
+
+            ballX += ballSpeedX;
+            ballY += ballSpeedY;
+
+            if (ballY <= 0 || ballY >= 396) ballSpeedY = -ballSpeedY;
+
+            if (ballX >= 592 && ballY > paddle2Y && ballY < paddle2Y + 80) {
+                ballSpeedX = -ballSpeedX;
+            } else if (ballX <= 4 && ballY > paddle1Y && ballY < paddle1Y + 80) {
+                ballSpeedX = -ballSpeedX;
+            }
+
+            if (ballX >= 596) {
+                player2Score++;
+                score2.textContent = player2Score;
+                reset();
+            } else if (ballX <= 0) {
+                player1Score++;
+                score1.textContent = player1Score;
+                reset();
+            }
+
+            ball.style.left = ballX + 'px';
+            ball.style.top = ballY + 'px';
+            paddle1.style.top = paddle1Y + 'px';
+            paddle2.style.top = paddle2Y + 'px';
+
+            difficulty += 0.0001;
+            
+            const aiSpeed = 5 * difficulty;
+            const diff = ballY - (paddle2Y + 40);
+            if (Math.abs(diff) > 5) {
+                paddle2Y += diff > 0 ? aiSpeed : -aiSpeed;
+                paddle2Y = Math.max(0, Math.min(320, paddle2Y));
+            }
+
+            if (player1Score >= maxScore || player2Score >= maxScore) {
+                endGame();
+            } else {
+                requestAnimationFrame(update);
+            }
+        }
+
+        function reset() {
+            ballX = 300;
+            ballY = 200;
+            ballSpeedX = (Math.random() > 0.5 ? 5 : -5) * difficulty;
+            ballSpeedY = (Math.random() * 4 - 2) * difficulty;
+        }
+
+        function startGame() {
+            gameRunning = true;
+            gamePaused = false;
+            player1Score = 0;
+            player2Score = 0;
+            score1.textContent = '0';
+            score2.textContent = '0';
+            difficulty = 0.1;
+            reset();
+            document.getElementById('gameStatus').textContent = 'Game On!';
+            update();
+        }
+
+        function endGame() {
+            gameRunning = false;
+            const winner = player1Score > player2Score ? 'Player 1' : 'Player 2';
+            document.getElementById('gameStatus').textContent = `${winner} Wins! Press Space to Restart`;
+        }
+
+        function togglePause() {
+            gamePaused = !gamePaused;
+            document.getElementById('gameStatus').textContent = gamePaused ? 'Paused' : 'Game On!';
+            if (!gamePaused) update();
+        }
+
+        document.addEventListener('mousemove', (e) => {
+            if (!gameRunning || gamePaused) return;
+            const rect = gameArea.getBoundingClientRect();
+            const mouseY = e.clientY - rect.top - 40;
+            paddle1Y = Math.max(0, Math.min(320, mouseY));
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                if (!gameRunning) startGame();
+            } else if (e.code === 'KeyP') {
+                if (gameRunning) togglePause();
+            } else if (e.code === 'KeyR') {
+                startGame();
+            }
+        });
+
+        update();
+    </script>
+</body>
+</html>

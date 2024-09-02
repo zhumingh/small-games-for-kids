@@ -11,22 +11,167 @@
     <title>基本HTML页面</title>
 </head>
 <body class="bg-gray-100">
-    <header class="bg-blue-500 text-white p-4">
-        <h1 class="text-2xl font-bold">欢迎来到我的网页</h1>
+     
+    <header class="bg-gradient-to-r from-purple-500 to-pink-500 text-white py-8 shadow-lg">
+        <div class="container mx-auto px-4">
+            <h1 class="text-4xl font-bold mb-2 animate-pulse">Tailwind CSS 魅力展示</h1>
+            <p class="text-xl opacity-75">体验现代化的实用优先CSS框架</p>
+        </div>
     </header>
-    
-    <div class="bg-blue-500 text-white font-bold p-4">
-        Hello, Tailwind CSS!
-    </div>
-    
 
-    <main class="container mx-auto mt-8 p-4">
-        <section class="bg-white rounded-lg shadow-md p-6">
-            <h2 class="text-xl font-semibold mb-4">主要内容</h2>
-            <p class="text-gray-700">这是一个使用Tailwind CSS样式的基本HTML页面。您可以根据需要自定义和扩展此结构。</p>
+    <main class="container mx-auto px-4 py-8">
+        <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="bg-white rounded-lg shadow-md hover:shadow-xl transition duration-300 p-6">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">响应式设计</h2>
+                <p class="text-gray-600">轻松创建适应各种屏幕尺寸的布局</p>
+            </div>
+            <div class="bg-white rounded-lg shadow-md hover:shadow-xl transition duration-300 p-6">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">丰富的组件</h2>
+                <p class="text-gray-600">快速构建常见UI元素，提高开发效率</p>
+            </div>
+            <div class="bg-white rounded-lg shadow-md hover:shadow-xl transition duration-300 p-6">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">自定义主题</h2>
+                <p class="text-gray-600">轻松定制颜色、字体和其他设计元素</p>
+            </div>
+        </section>
+
+        <section class="mt-12">
+            <h2 class="text-3xl font-bold text-center text-gray-800 mb-8">功能展示</h2>
+            <div class="flex flex-wrap justify-center gap-4">
+                <button class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-full transition duration-300 transform hover:scale-105">
+                    悬停效果
+                </button>
+                <div class="bg-yellow-300 p-4 rounded-lg animate-bounce">
+                    动画效果
+                </div>
+                <div class="bg-green-500 text-white p-4 rounded-lg transform hover:rotate-6 transition duration-300">
+                    变换效果
+                </div>
+            </div>
+        </section>
+
+        <section class="mt-12 bg-gray-800 text-white p-8 rounded-lg">
+            <h2 class="text-3xl font-bold mb-4">深色模式</h2>
+            <p class="mb-4">Tailwind CSS 让切换深色模式变得简单</p>
+            <div class="flex space-x-4">
+                <div class="bg-gray-700 p-4 rounded-lg">卡片 1</div>
+                <div class="bg-gray-700 p-4 rounded-lg">卡片 2</div>
+                <div class="bg-gray-700 p-4 rounded-lg">卡片 3</div>
+            </div>
+        </section>
+
+
+        <section class="mt-12">
+            <h2 class="text-3xl font-bold text-center text-gray-800 mb-8">更多样式效果</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="bg-gradient-to-br from-purple-400 to-indigo-600 p-6 rounded-xl shadow-lg hover:shadow-2xl transition duration-300 transform hover:-translate-y-1">
+                    <h3 class="text-xl font-semibold text-white mb-2">渐变背景</h3>
+                    <p class="text-white opacity-80">使用渐变色创造吸引眼球的背景效果</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl border-2 border-dashed border-blue-500 hover:border-solid transition duration-300">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">边框效果</h3>
+                    <p class="text-gray-600">悬停时改变边框样式，增加交互感</p>
+                </div>
+                <div class="bg-yellow-100 p-6 rounded-xl shadow-inner">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">内阴影</h3>
+                    <p class="text-gray-600">使用内阴影创造凹陷效果</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl overflow-hidden group">
+                    <div class="transform group-hover:scale-110 transition duration-300">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">群组悬停</h3>
+                        <p class="text-gray-600">整体放大效果，增强用户体验</p>
+                    </div>
+                </div>
+                <div class="bg-green-500 p-6 rounded-xl text-white relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-full bg-black opacity-0 hover:opacity-20 transition duration-300"></div>
+                    <h3 class="text-xl font-semibold mb-2 relative z-10">悬停遮罩</h3>
+                    <p class="relative z-10">鼠标悬停时显示半透明遮罩层</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-lg">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">打字机效果</h3>
+                    <p class="text-gray-600 typewriter overflow-hidden whitespace-nowrap border-r-4 border-gray-800 animate-typing">
+                        这是一个打字机效果的演示...
+                    </p>
+                </div>
+            </div>
         </section>
     </main>
+
+
+    <section class="mt-12">
+        <h2 class="text-3xl font-bold text-center text-gray-800 mb-8">更多高级样式效果</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="bg-white p-6 rounded-xl shadow-lg transform hover:rotate-3 transition duration-300">
+                <h3 class="text-xl font-semibold text-gray-800 mb-2">3D 旋转</h3>
+                <p class="text-gray-600">悬停时轻微旋转，增加立体感</p>
+            </div>
+            <div class="bg-blue-500 p-6 rounded-xl text-white overflow-hidden relative">
+                <div class="absolute inset-0 bg-white transform -skew-x-12 -translate-x-full hover:translate-x-0 transition-transform duration-700 ease-in-out"></div>
+                <h3 class="text-xl font-semibold mb-2 relative z-10">滑动效果</h3>
+                <p class="relative z-10">悬停时展现滑动动画</p>
+            </div>
+            <div class="bg-purple-600 p-6 rounded-xl text-white relative overflow-hidden group">
+                <div class="absolute inset-0 bg-gradient-to-r from-yellow-400 to-pink-500 opacity-0 group-hover:opacity-75 transition-opacity duration-300"></div>
+                <h3 class="text-xl font-semibold mb-2 relative z-10">渐变叠加</h3>
+                <p class="relative z-10">悬停时显示彩色渐变效果</p>
+            </div>
+            <div class="bg-gray-100 p-6 rounded-xl shadow-md hover:shadow-2xl transition-shadow duration-300">
+                <h3 class="text-xl font-semibold text-gray-800 mb-2">阴影过渡</h3>
+                <p class="text-gray-600">悬停时增强阴影效果</p>
+            </div>
+            <div class="bg-red-500 p-6 rounded-xl text-white relative overflow-hidden">
+                <div class="absolute inset-0 bg-black opacity-0 hover:opacity-50 transition-opacity duration-300 flex items-center justify-center">
+                    <span class="text-white text-lg font-bold">查看详情</span>
+                </div>
+                <h3 class="text-xl font-semibold mb-2">悬停信息</h3>
+                <p>鼠标悬停时显示额外信息</p>
+            </div>
+            <div class="bg-green-400 p-6 rounded-xl text-white relative overflow-hidden group">
+                <div class="absolute inset-0 bg-green-600 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+                <h3 class="text-xl font-semibold mb-2 relative z-10">上滑效果</h3>
+                <p class="relative z-10">背景色从底部上滑</p>
+            </div>
+        </div>
+    </section>
     
+    <section class="mt-12 bg-gray-100 py-12">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center text-gray-800 mb-8">交互式动画效果</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="bg-white p-6 rounded-xl shadow-lg transform hover:scale-105 transition duration-300">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">缩放效果</h3>
+                    <p class="text-gray-600">悬停时轻微放大，增加视觉吸引力</p>
+                </div>
+                <div class="bg-blue-500 p-6 rounded-xl text-white overflow-hidden relative group">
+                    <div class="absolute inset-0 bg-blue-600 transform translate-x-full group-hover:translate-x-0 transition-transform duration-300"></div>
+                    <h3 class="text-xl font-semibold mb-2 relative z-10">滑入效果</h3>
+                    <p class="relative z-10">背景色从右侧滑入</p>
+                </div>
+                <div class="bg-yellow-400 p-6 rounded-xl text-gray-800 relative overflow-hidden group">
+                    <div class="absolute inset-0 bg-yellow-500 transform rotate-180 scale-0 group-hover:scale-100 transition-transform duration-300 origin-center"></div>
+                    <h3 class="text-xl font-semibold mb-2 relative z-10">旋转缩放</h3>
+                    <p class="relative z-10">背景旋转并放大显示</p>
+                </div>
+                <div class="bg-purple-500 p-6 rounded-xl text-white relative overflow-hidden group">
+                    <div class="absolute inset-0 bg-gradient-to-br from-purple-600 to-pink-500 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+                    <h3 class="text-xl font-semibold mb-2 relative z-10">渐变上滑</h3>
+                    <p class="relative z-10">渐变背景从底部上滑</p>
+                </div>
+                <div class="bg-gray-800 p-6 rounded-xl text-white relative overflow-hidden group">
+                    <div class="absolute inset-0 bg-opacity-0 group-hover:bg-opacity-50 bg-white transition-all duration-300 flex items-center justify-center">
+                        <span class="text-gray-800 font-bold opacity-0 group-hover:opacity-100 transition-opacity duration-300">点击查看</span>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">悬停遮罩</h3>
+                    <p>显示半透明遮罩和文字</p>
+                </div>
+                <div class="bg-green-500 p-6 rounded-xl text-white relative overflow-hidden group">
+                    <div class="absolute inset-0 bg-green-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
+                    <h3 class="text-xl font-semibold mb-2 relative z-10">横向展开</h3>
+                    <p class="relative z-10">背景从左向右展开</p>
+                </div>
+            </div>
+        </div>
+    </section>
     <footer class="bg-gray-200 text-center p-4 mt-8">
         <p class="text-sm text-gray-600">&copy; 2023 我的网站。保留所有权利。</p>
     </footer>
