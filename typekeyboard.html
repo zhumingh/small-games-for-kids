@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+     <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DJM7SC6MTC"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-DJM7SC6MTC');
+</script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QWERTY Typing Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        #game-container {
+            width: 500px;
+            height: 400px;
+            border: 2px solid #333;
+            position: relative;
+            overflow: hidden;
+            background-color: #fff;
+        }
+        .word {
+            position: absolute;
+            font-size: 20px;
+            color: #333;
+            transition: top 0.5s linear;
+        }
+        #input {
+            width: 100%;
+            padding: 10px;
+            font-size: 18px;
+            margin-top: 10px;
+        }
+        #score {
+            font-size: 24px;
+            margin-top: 10px;
+        }
+        #timer {
+            font-size: 24px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <style>
+        body {
+            background-color: #e6f3ff; /* Light blue background */
+            background-image: linear-gradient(to bottom right, #e6f3ff, #b3d9ff);
+            transition: background-color 0.5s ease;
+        }
+        #game-container {
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+        .word {
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        #input {
+            border: 2px solid #4a90e2;
+            border-radius: 5px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+        #input:focus {
+            border-color: #2c3e50;
+        }
+        #score, #timer {
+            color: #2c3e50;
+            font-weight: bold;
+        }
+    </style>
+    <div>
+        <div id="game-container"></div>
+        <input type="text" id="input" placeholder="Type here...">
+        <div id="score">Score: 0</div>
+        <div id="timer">Time: 60s</div>
+    </div>
+
+    <script>
+        const gameContainer = document.getElementById('game-container');
+        const input = document.getElementById('input');
+        const scoreElement = document.getElementById('score');
+        const timerElement = document.getElementById('timer');
+
+        let score = 0;
+        let timeLeft = 60;
+        let words = [];
+        let gameInterval;
+        let timerInterval;
+        let wordCreationInterval;
+        let difficulty = 1;
+
+        const wordList = ['the', 'be', 'to', 'of', 'and', 'a', 'in', 'that', 'have', 'I', 'it', 'for', 'not', 'on', 'with', 'he', 'as', 'you', 'do', 'at', 'this', 'but', 'his', 'by', 'from', 'they', 'we', 'say', 'her', 'she', 'or', 'an', 'will', 'my', 'one', 'all', 'would', 'there', 'their', 'what', 'so', 'up', 'out', 'if', 'about', 'who', 'get', 'which', 'go', 'me', 'when', 'make', 'can', 'like', 'time', 'no', 'just', 'him', 'know', 'take', 'people', 'into', 'year', 'your', 'good', 'some', 'could', 'them', 'see', 'other', 'than', 'then', 'now', 'look', 'only', 'come', 'its', 'over', 'think', 'also', 'back', 'after', 'use', 'two', 'how', 'our', 'work', 'first', 'well', 'way', 'even', 'new', 'want', 'because', 'any', 'these', 'give', 'day', 'most', 'us', 'serendipity', 'ephemeral', 'ubiquitous', 'mellifluous', 'quintessential', 'surreptitious', 'perspicacious', 'idiosyncratic', 'labyrinthine', 'cacophonous', 'juxtaposition', 'paradigm', 'enigmatic', 'esoteric', 'paradoxical', 'clandestine', 'euphoria', 'eloquent', 'ambiguous', 'meticulous', 'resilient', 'diligent', 'tenacious', 'innovative', 'eccentric', 'benevolent', 'nostalgia', 'intricate', 'ethereal', 'synchronicity'];
+
+        function createWord() {
+            if (words.length >= 5) return; // Limit the number of words on screen
+
+            const word = wordList[Math.floor(Math.random() * wordList.length)];
+            const wordElement = document.createElement('div');
+            wordElement.textContent = word;
+            wordElement.className = 'word';
+            wordElement.style.left = `${Math.random() * (gameContainer.offsetWidth - 50)}px`;
+            wordElement.style.top = '-30px';
+            gameContainer.appendChild(wordElement);
+            words.push({ element: wordElement, word: word, top: -30, speed: 1 * difficulty });
+        }
+
+        function moveWords() {
+            words.forEach((wordObj, index) => {
+                wordObj.top += wordObj.speed;
+                wordObj.element.style.top = `${wordObj.top}px`;
+                if (wordObj.top > gameContainer.offsetHeight) {
+                    gameContainer.removeChild(wordObj.element);
+                    words.splice(index, 1);
+                }
+            });
+        }
+
+        function checkInput() {
+            const typedWord = input.value.trim().toLowerCase();
+            if (typedWord === '') return;
+
+            const matchedIndex = words.findIndex(wordObj => wordObj.word === typedWord);
+            if (matchedIndex !== -1) {
+                gameContainer.removeChild(words[matchedIndex].element);
+                words.splice(matchedIndex, 1);
+                score++;
+                scoreElement.textContent = `Score: ${score}`;
+                input.value = '';
+            }
+        }
+
+        function updateTimer() {
+            timeLeft--;
+            timerElement.textContent = `Time: ${timeLeft}s`;
+            difficulty += 0.08; // Increase difficulty every second
+            if (timeLeft <= 0) {
+                endGame();
+            }
+        }
+
+        function endGame() {
+            clearInterval(gameInterval);
+            clearInterval(timerInterval);
+            clearInterval(wordCreationInterval);
+            input.removeEventListener('input', checkInput);
+            alert(`Game Over! Your score: ${score}`);
+        }
+
+        function startGame() {
+            score = 0;
+            timeLeft = 60;
+            words = [];
+            difficulty = 1;
+            gameContainer.innerHTML = '';
+            scoreElement.textContent = 'Score: 0';
+            timerElement.textContent = 'Time: 60s';
+
+            gameInterval = setInterval(moveWords, 50);  // Update word positions every 50ms
+
+            wordCreationInterval = setInterval(createWord, 2000);  // Create a new word every 2 seconds
+
+            timerInterval = setInterval(updateTimer, 1000);  // Update timer every second
+
+            input.addEventListener('input', checkInput);
+        }
+
+        startGame();
+    </script>
+</body>
+</html>
