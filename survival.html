@@ -43,8 +43,8 @@
         }
         #gameArea {
             position: relative;
-            width: 500px;
-            height: 500px;
+            width: 80%;
+            height: 80%;
             background-color: #333;
             overflow: hidden;
         }
@@ -109,6 +109,10 @@
             ArrowRight: false
         };
 
+        // Add touch event variables
+        let touchStartX = 0;
+        let touchStartY = 0;
+
         // Listen for keydown and keyup events
         document.addEventListener('keydown', (event) => {
             if (event.key in keys) {
@@ -121,6 +125,53 @@
                 keys[event.key] = false;
             }
         });
+
+        // Add touch event listeners
+        gameArea.addEventListener('touchstart', handleTouchStart, false);
+        gameArea.addEventListener('touchmove', handleTouchMove, false);
+        gameArea.addEventListener('touchend', handleTouchEnd, false);
+
+        // Touch event handlers
+        function handleTouchStart(evt) {
+            const firstTouch = evt.touches[0];
+            touchStartX = firstTouch.clientX;
+            touchStartY = firstTouch.clientY;
+        }
+
+        function handleTouchMove(evt) {
+            if (!touchStartX || !touchStartY) {
+                return;
+            }
+
+            const touchEndX = evt.touches[0].clientX;
+            const touchEndY = evt.touches[0].clientY;
+
+            const dx = touchEndX - touchStartX;
+            const dy = touchEndY - touchStartY;
+
+            // Determine swipe direction
+            if (Math.abs(dx) > Math.abs(dy)) {
+                keys.ArrowLeft = dx < 0;
+                keys.ArrowRight = dx > 0;
+            } else {
+                keys.ArrowUp = dy < 0;
+                keys.ArrowDown = dy > 0;
+            }
+
+            // Prevent default behavior to avoid scrolling
+            evt.preventDefault();
+        }
+
+        function handleTouchEnd() {
+            // Reset all keys when touch ends
+            keys.ArrowUp = false;
+            keys.ArrowDown = false;
+            keys.ArrowLeft = false;
+            keys.ArrowRight = false;
+
+            touchStartX = 0;
+            touchStartY = 0;
+        }
 
         // Function to move player
         function movePlayer() {
@@ -266,7 +317,7 @@
             }, 50);
 
             // Generate new enemies at intervals
-            enemyInterval = setInterval(createEnemy, 400);
+            enemyInterval = setInterval(createEnemy, 200);
         }
 
         // Start game
