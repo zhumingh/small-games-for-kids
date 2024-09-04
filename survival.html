@@ -149,13 +149,33 @@
             const dx = touchEndX - touchStartX;
             const dy = touchEndY - touchStartY;
 
-            // Determine swipe direction
-            if (Math.abs(dx) > Math.abs(dy)) {
-                keys.ArrowLeft = dx < 0;
-                keys.ArrowRight = dx > 0;
-            } else {
-                keys.ArrowUp = dy < 0;
-                keys.ArrowDown = dy > 0;
+            // Calculate angle of swipe
+            const angle = Math.atan2(dy, dx);
+
+            // Convert angle to degrees and normalize to 0-360
+            const degrees = (angle * 180 / Math.PI + 360) % 360;
+
+            // Determine direction based on angle
+            if (degrees >= 337.5 || degrees < 22.5) {
+                keys.ArrowRight = true;
+            } else if (degrees >= 22.5 && degrees < 67.5) {
+                keys.ArrowRight = true;
+                keys.ArrowDown = true;
+            } else if (degrees >= 67.5 && degrees < 112.5) {
+                keys.ArrowDown = true;
+            } else if (degrees >= 112.5 && degrees < 157.5) {
+                keys.ArrowDown = true;
+                keys.ArrowLeft = true;
+            } else if (degrees >= 157.5 && degrees < 202.5) {
+                keys.ArrowLeft = true;
+            } else if (degrees >= 202.5 && degrees < 247.5) {
+                keys.ArrowLeft = true;
+                keys.ArrowUp = true;
+            } else if (degrees >= 247.5 && degrees < 292.5) {
+                keys.ArrowUp = true;
+            } else if (degrees >= 292.5 && degrees < 337.5) {
+                keys.ArrowUp = true;
+                keys.ArrowRight = true;
             }
 
             // Prevent default behavior to avoid scrolling
