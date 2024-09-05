@@ -15,6 +15,25 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <style>
+        body {
+            background: linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%);
+            animation: gradientAnimation 10s ease infinite;
+            background-size: 200% 200%;
+        }
+
+        @keyframes gradientAnimation {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+    </style>
     <div class="container mx-auto p-4">
         <div class="bg-white p-6 rounded-lg shadow-lg text-center">
             <h1 class="text-2xl md:text-4xl font-bold text-gray-800 mb-4">以毒攻毒 Poison Quotes</h1>
@@ -28,6 +47,83 @@
 
     <script>
         const quotes = [
+        {
+    cn: "你以为你的梦想会成真？可能只是你还没被现实打醒。",
+    en: "You think your dreams will come true? Maybe you just haven't been hit by reality yet."
+},
+{
+    cn: "你以为你努力会被人看到？其实大多数人根本不在乎你在干什么。",
+    en: "You think people notice your hard work? In fact, most people don't care what you're doing."
+},
+{
+    cn: "不要总是想着让别人理解你，因为他们有自己的烦恼。",
+    en: "Don't always expect others to understand you, because they have their own problems."
+},
+{
+    cn: "你以为你有选择？其实所有的选择都是别人给你的假象。",
+    en: "You think you have choices? Actually, all choices are just illusions given by others."
+},
+{
+    cn: "你以为你在追求自由？可能只是你不愿面对责任。",
+    en: "You think you're pursuing freedom? Maybe you're just avoiding responsibility."
+},
+{
+    cn: "你以为你能改变世界？其实世界根本不在意你。",
+    en: "You think you can change the world? The world doesn't care about you."
+},
+{
+    cn: "别人对你的沉默，不是因为尊重你，而是因为懒得和你说话。",
+    en: "Others' silence towards you isn't out of respect, it's because they can't be bothered to talk to you."
+},
+{
+    cn: "你以为你是例外？你不过是在重复别人的路而已。",
+    en: "You think you're the exception? You're just following the same path as everyone else."
+},
+{
+    cn: "不要以为你可以摆脱平庸，平庸才是大多数人的常态。",
+    en: "Don't think you can escape mediocrity, mediocrity is the norm for most people."
+},
+{
+    cn: "你以为你在前进？其实你只是被推着走而已。",
+    en: "You think you're moving forward? Actually, you're just being pushed along."
+},
+{
+    cn: "不要期待别人会记住你，时间会让所有人忘记一切。",
+    en: "Don't expect others to remember you, time will make everyone forget everything."
+},
+{
+    cn: "你以为你是主角？其实你只是配角中的配角。",
+    en: "You think you're the protagonist? You're actually just a side character among side characters."
+},
+{
+    cn: "别人对你的妥协，不是因为你重要，而是因为他们懒得和你争辩。",
+    en: "Others' compromises aren't because you're important, but because they're too lazy to argue with you."
+},
+{
+    cn: "你以为你找到了真理？那只是你还没见过其他的谎言。",
+    en: "You think you've found the truth? That's only because you haven't seen other lies yet."
+},
+{
+    cn: "不要总想着站在人生的巅峰，因为大部分时间你只是在爬坡。",
+    en: "Don't always aim to stand at the peak of life, most of the time you're just climbing uphill."
+},
+{
+    cn: "你以为你的痛苦是独特的？其实大家的痛苦都差不多。",
+    en: "You think your suffering is unique? In fact, everyone's suffering is more or less the same."
+},
+{
+    cn: "别人对你的宽容，不是因为你值得，而是因为他们懒得计较。",
+    en: "Others' tolerance towards you isn't because you're worth it, but because they can't be bothered to care."
+},
+{
+    cn: "你以为你在走捷径？其实你只是在绕远路。",
+    en: "You think you're taking a shortcut? Actually, you're just going the long way around."
+},
+{
+    cn: "不要以为你特别努力就能成功，成功也有很多运气成分。",
+    en: "Don't think you'll succeed just because you're working hard, success also involves a lot of luck."
+},
+
             {
                 cn: "你以为只要长得漂亮就有男生喜欢？你以为只要有了钱就能过的开心？你以为只要努力就能得到回报？别傻了，这个世界没有这么简单。",
                 en: "You think being pretty is enough to make boys like you? You think having money is enough to be happy? You think working hard is enough to be rewarded? Don't be naive, the world isn't that simple."
@@ -129,7 +225,7 @@
                 en: "You think you're charming? Maybe others are just too lazy to expose you."
             },
             {
-                cn: "���要总是抱怨工作辛苦，因为没有人逼你做这份工作。",
+                cn: "要总是抱怨工作辛苦，因为没有人逼你做这份工作。",
                 en: "Don't always complain about your hard work, because no one forced you to do this job."
             },
             {
@@ -190,13 +286,29 @@
             }
         ];
 
+        let usedQuotes = [];
         function getRandomQuote() {
-            const randomIndex = Math.floor(Math.random() * quotes.length);
+            if (usedQuotes.length === quotes.length) {
+                usedQuotes = []; // Reset when all quotes have been used
+            }
+
+            let randomIndex;
+            do {
+                randomIndex = Math.floor(Math.random() * quotes.length);
+            } while (usedQuotes.includes(randomIndex));
+
+            usedQuotes.push(randomIndex);
             const quote = quotes[randomIndex];
             document.getElementById('quote').innerHTML = `
                 <p class="mb-2">${quote.cn}</p>
                 <p>${quote.en}</p>
             `;
+
+            // Change background color
+            const hue = Math.floor(Math.random() * 360);
+            const saturation = 30 + Math.random() * 20; // 30-50%
+            const lightness = 80 + Math.random() * 10; // 80-90%
+            document.body.style.background = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
         }
 
          

@@ -23,12 +23,12 @@
             font-family: 'Consolas', 'Monaco', monospace;
             background-color: #1e1e1e;
             color: #d4d4d4;
-            overflow: hidden;
+            overflow-y: auto; /* Changed from hidden to auto */
         }
         .container {
             display: flex;
             flex-direction: column;
-            height: 100%;
+            min-height: 100%; /* Changed from height to min-height */
             padding: 15px;
             box-sizing: border-box;
         }
@@ -50,7 +50,7 @@
             flex-wrap: wrap;
             justify-content: center;
             gap: 10px;
-            overflow-y: auto;
+            /* Removed overflow-y: auto; */
         }
         .game-item {
             background-color: #252526;
@@ -146,7 +146,7 @@
 
    
     
-    <div class="social-links" style="text-align: center; margin-top: 20px; position: fixed; bottom: 20px; left: 0; right: 0;">
+    <div class="social-links" style="text-align: center; margin-top: 20px; padding-bottom: 20px;"> <!-- Changed from fixed positioning to relative -->
         <a href="https://x.com/zhumingh" target="_blank" class="social-link" style="display: inline-block; margin: 0 10px; text-decoration: none; color: #569cd6; font-size: 1.0em;">
             <i class="fab fa-twitter"></i> X (ken) 
         </a>
