@@ -287,6 +287,7 @@
         ];
 
         let usedQuotes = [];
+        let quoteCount = 0;
         function getRandomQuote() {
             if (usedQuotes.length === quotes.length) {
                 usedQuotes = []; // Reset when all quotes have been used
@@ -299,10 +300,20 @@
 
             usedQuotes.push(randomIndex);
             const quote = quotes[randomIndex];
-            document.getElementById('quote').innerHTML = `
-                <p class="mb-2">${quote.cn}</p>
-                <p>${quote.en}</p>
-            `;
+            quoteCount++;
+
+            if (quoteCount === 20) {
+                document.getElementById('quote').innerHTML = `
+                    <p class="mb-2">你已经喝了这么多毒鸡汤了，怎么还活着呢，命真大！</p>
+                    <p>You've drunk so much poison chicken soup, how are you still alive? You've got a strong constitution!</p>
+                `;
+                quoteCount = 0; // Reset the count
+            } else {
+                document.getElementById('quote').innerHTML = `
+                    <p class="mb-2">${quote.cn}</p>
+                    <p>${quote.en}</p>
+                `;
+            }
 
             // Change background color
             const hue = Math.floor(Math.random() * 360);
