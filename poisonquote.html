@@ -286,6 +286,29 @@
             }
         ];
 
+        const funnyComments = [
+            {
+                cn: "你已经喝了这么多毒鸡汤了，怎么还活着呢，命真大！",
+                en: "You've drunk so much poison chicken soup, how are you still alive? You've got a strong constitution!"
+            },
+            {
+                cn: "继续喝啊，看看你能不能把自己毒到升仙！",
+                en: "Keep drinking! Let's see if you can poison yourself to enlightenment!"
+            },
+            {
+                cn: "喝毒鸡汤上瘾了？要不要考虑开个毒鸡汤连锁店？",
+                en: "Addicted to poison chicken soup? Have you considered opening a poison chicken soup franchise?"
+            },
+            {
+                cn: "恭喜你！你已经成功免疫了99%的毒鸡汤！",
+                en: "Congratulations! You've successfully become immune to 99% of poison chicken soup!"
+            },
+            {
+                cn: "再喝一碗，说不定你就能获得超能力了呢！",
+                en: "Drink one more bowl, and you might just gain superpowers!"
+            }
+        ];
+
         let usedQuotes = [];
         let quoteCount = 0;
         function getRandomQuote() {
@@ -302,12 +325,12 @@
             const quote = quotes[randomIndex];
             quoteCount++;
 
-            if (quoteCount === 20) {
+            if (quoteCount % 10 === 0) {
+                const randomFunnyComment = funnyComments[Math.floor(Math.random() * funnyComments.length)];
                 document.getElementById('quote').innerHTML = `
-                    <p class="mb-2">你已经喝了这么多毒鸡汤了，怎么还活着呢，命真大！</p>
-                    <p>You've drunk so much poison chicken soup, how are you still alive? You've got a strong constitution!</p>
+                    <p class="mb-2">${randomFunnyComment.cn}</p>
+                    <p>${randomFunnyComment.en}</p>
                 `;
-                quoteCount = 0; // Reset the count
             } else {
                 document.getElementById('quote').innerHTML = `
                     <p class="mb-2">${quote.cn}</p>
