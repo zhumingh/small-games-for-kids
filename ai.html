@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+     <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DJM7SC6MTC"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-DJM7SC6MTC');
+</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Evolution: The Path to AGI</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 font-sans min-h-screen flex items-center justify-center">
+    <div id="game-container" class="w-full max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md">
+        <h1 class="text-3xl font-bold text-center mb-6 text-blue-600">AI Evolution: The Path to AGI</h1>
+        <div id="game-text" class="text-lg mb-6 text-gray-700"></div>
+        <div id="ai-capabilities" class="mb-6">
+            <h2 class="text-xl font-semibold mb-2">AI Capabilities:</h2>
+            <div id="capability-bars" class="space-y-2"></div>
+        </div>
+        <div id="choices" class="flex flex-col space-y-4"></div>
+    </div>
+
+    <script>
+        const gameState = {
+            year: 2023,
+            aiLevel: 1,
+            funding: 1000000,
+            publicTrust: 50,
+            capabilities: {
+                nlp: 10,
+                computerVision: 10,
+                robotics: 5,
+                dataAnalysis: 15,
+                creativity: 5
+            }
+        };
+
+        const scenarios = [
+            {
+                text: "Your AI startup is gaining traction. What area do you want to focus on?",
+                choices: [
+                    { text: "Natural Language Processing", effect: { nlp: 10, funding: 200000 } },
+                    { text: "Computer Vision", effect: { computerVision: 10, funding: 200000 } },
+                    { text: "Robotics", effect: { robotics: 10, funding: 150000 } }
+                ]
+            },
+            {
+                text: "A big tech company offers to buy your startup. What do you do?",
+                choices: [
+                    { text: "Accept the offer", effect: { funding: 5000000, publicTrust: -10 } },
+                    { text: "Decline and continue independently", effect: { publicTrust: 10, funding: -200000 } }
+                ]
+            },
+            {
+                text: "Your AI has shown signs of emergent behavior. How do you proceed?",
+                choices: [
+                    { text: "Publish your findings", effect: { publicTrust: 15, funding: 300000 } },
+                    { text: "Keep it secret and continue research", effect: { aiLevel: 1, publicTrust: -5 } }
+                ]
+            }
+        ];
+
+        function updateGame() {
+            document.getElementById('game-text').innerText = `Year: ${gameState.year}, AI Level: ${gameState.aiLevel}, Funding: $${gameState.funding.toLocaleString()}, Public Trust: ${gameState.publicTrust}%`;
+            
+            const capabilityBars = document.getElementById('capability-bars');
+            capabilityBars.innerHTML = '';
+            for (const [capability, value] of Object.entries(gameState.capabilities)) {
+                const bar = document.createElement('div');
+                bar.className = 'flex items-center';
+                bar.innerHTML = `
+                    <span class="w-32 text-right mr-2">${capability}:</span>
+                    <div class="w-full bg-gray-200 rounded">
+                        <div class="bg-blue-600 rounded h-4" style="width: ${value}%"></div>
+                    </div>
+                    <span class="ml-2">${value}%</span>
+                `;
+                capabilityBars.appendChild(bar);
+            }
+
+            const choicesContainer = document.getElementById('choices');
+            choicesContainer.innerHTML = '';
+            const scenario = scenarios[Math.floor(Math.random() * scenarios.length)];
+            document.getElementById('game-text').innerText += `\n\n${scenario.text}`;
+            scenario.choices.forEach(choice => {
+                const button = document.createElement('button');
+                button.className = 'px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition duration-200';
+                button.textContent = choice.text;
+                button.onclick = () => makeChoice(choice.effect);
+                choicesContainer.appendChild(button);
+            });
+        }
+
+        function makeChoice(effect) {
+            for (const [key, value] of Object.entries(effect)) {
+                if (key in gameState) {
+                    gameState[key] += value;
+                } else if (key in gameState.capabilities) {
+                    gameState.capabilities[key] = Math.min(100, gameState.capabilities[key] + value);
+                }
+            }
+            gameState.year++;
+            gameState.aiLevel = Math.floor((Object.values(gameState.capabilities).reduce((a, b) => a + b) / 500) * 10);
+            checkGameEnd();
+            updateGame();
+        }
+
+        function checkGameEnd() {
+            if (gameState.year >= 2030 || gameState.aiLevel >= 10) {
+                alert(`Game Over! ${gameState.aiLevel >= 10 ? "You've achieved AGI!" : "Time's up!"} Final AI Level: ${gameState.aiLevel}`);
+                location.reload();
+            }
+        }
+
+        updateGame();
+    </script>
+</body>
+</html>
