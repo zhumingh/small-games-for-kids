@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<meta charset="UTF-8">
+<head>
+    <meta charset="viewport" content="width=device-width, initial-scale=1.0">
+    <title>如果你是足协主席，你怎么做？</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+
+</head>
+<body class="bg-gray-100 font-sans">
+
+<div id="game-container" class="max-w-2xl mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
+    <h1 class="text-3xl font-bold text-center mb-6 text-blue-600">国足重建</h1>
+    <div id="game-text" class="text-lg mb-8 text-gray-700"></div>
+    <div class="flex justify-center space-x-4">
+      <button class="decision px-6 py-3 bg-blue-500 text-white rounded hover:bg-blue-600 transition duration-200" onclick="chooseCoach('international')">选择有国际经验的教练</button>
+      <button class="decision px-6 py-3 bg-green-500 text-white rounded hover:bg-green-600 transition duration-200" onclick="chooseCoach('domestic')">选择本土教练</button>
+    </div>
+</div>
+
+<script>
+// 初始化游戏状态
+let gameState = {
+    coach: null,
+    youthSystem: null,
+    funds: 10000000,
+    fanSupport: 50,
+    teamPerformance: 0,
+    mediaReaction: '',
+    nextStep: '',
+    year: 2024
+};
+
+// 选择教练逻辑
+function chooseCoach(type) {
+    if (type === 'international') {
+        gameState.coach = '国际经验丰富的教练';
+        gameState.mediaReaction = '媒体：这是一个大胆的决定，球迷们期待看到国际水平的足球风格！';
+        gameState.fanSupport = getFanSupport(10);
+        gameState.funds -= 4000000;
+        gameState.nextStep = '你现在需要决定是否投资于青训系统或与欧洲俱乐部合作。';
+        updateGame('你选择了国际经验丰富的教练。', ['投资青训系统', '与欧洲俱乐部合作'], ['investYouth', 'europeCooperation']);
+    } else if (type === 'domestic') {
+        gameState.coach = '本土教练';
+        gameState.mediaReaction = '媒体：这是一位备受尊敬的本土教练，球迷们期待他带领中国队走向复兴！';
+        gameState.fanSupport = getFanSupport(5);
+        gameState.funds -= 2000000;
+        gameState.nextStep = '你现在需要决定是否提升本土球员待遇或提升教练培训系统。';
+        updateGame('你选择了本土教练。', ['提升本土球员待遇', '提升教练培训系统'], ['domesticPlayerWelfare', 'domesticCoachTraining']);
+    }
+}
+
+// 投资青训系统
+function investYouth() {
+    if (gameState.funds >= 5000000) {
+        gameState.funds -= 5000000;
+        gameState.fanSupport = getFanSupport(10);
+        gameState.youthSystem = '已投资';
+        gameState.teamPerformance += 5;
+        gameState.mediaReaction = '媒体：足协大手笔投资青训，期待未来之星的崛起！';
+        gameState.nextStep = '青训系统已建立，是否扩大青训范围？';
+        updateGame('你投资了青训系统。', ['扩大青训范围', '保持现有规模'], ['expandYouthSystem', 'focusOnCurrentYouth']);
+    } else {
+        gameState.mediaReaction = '媒体：足协资金不足，青训计划搁浅，令人担忧。';
+        updateGame('资金不足，无法投资青训系统。', ['寻求赞助', '削减其他开支'], ['seekSponsorship', 'cutExpenses']);
+    }
+}
+
+//寻求赞助
+function seekSponsorship() {
+    gameState.funds += 1000000;
+    gameState.fanSupport = getFanSupport(5); 
+    gameState.teamPerformance = getTeamPerformance(3);
+    gameState.mediaReaction = '媒体：足协积极寻求赞助，显示出振兴中国足球的决心。';
+    gameState.nextStep = '你寻求了赞助，获得了额外资金支持。是否扩大青训范围？';
+    updateGame('你寻求了赞助。', ['扩大青训范围', '保持现有规模'], ['expandYouthSystem', 'focusOnCurrentYouth']);
+}
+
+// 削减开支
+function cutExpenses() {
+    gameState.funds += 1000000;
+    gameState.fanSupport = getFanSupport(5);
+    gameState.teamPerformance = getTeamPerformance(3);
+    gameState.mediaReaction = '媒体：足协开源节流，但球迷担心会影响球队发展。';
+    gameState.nextStep = '削减了开支，资金更加集中于足球发展。是否扩大青训范围？';
+    updateGame('你削减了开支。', ['扩大青训范围', '保持现有规模'], ['expandYouthSystem', 'focusOnCurrentYouth']);
+}
+
+//专注现有青训
+function focusOnCurrentYouth() {
+    gameState.funds -= 1000000;
+    gameState.fanSupport = getFanSupport(5);
+    gameState.teamPerformance = getTeamPerformance(3);
+    gameState.mediaReaction = '媒体：足协专注现有青训，期待看到更多本土新星的崛起。';
+    gameState.nextStep = '专注现有青训，年轻球员表现提升。是否扩大青训范围？';
+    updateGame('你专注了现有青训。', ['扩大青训范围', '保持现有规模'], ['expandYouthSystem', 'focusOnCurrentYouth']);
+}
+
+// 扩大青训范围
+function expandYouthSystem() {
+    if (gameState.funds >= 3000000) {
+        gameState.funds -= 3000000;
+        gameState.fanSupport = getFanSupport(15);
+        gameState.teamPerformance = getTeamPerformance(10);
+        gameState.mediaReaction = '媒体：足协大幅扩大青训范围，这是振兴中国足球的关键一步！';
+        gameState.nextStep = '青训范围扩大，更多年轻球员加入。是否与欧洲俱乐部建立合作关系？';
+        updateGame('你扩大了青训系统。', ['与欧洲俱乐部合作', '专注国内发展'], ['europeCooperation', 'focusOnDomesticDevelopment']);
+    } else {
+        gameState.mediaReaction = '媒体：足协资金不足，扩大青训计划受阻，令人遗憾。';
+        updateGame('资金不足，无法扩大青训系统。', ['寻求政府支持', '组织筹款活动'], ['seekGovernmentSupport', 'organizeFundraising']);
+    }
+}
+
+// 与欧洲俱乐部合作
+function europeCooperation() {
+    if (gameState.funds >= 7000000) {
+        gameState.funds -= 7000000;
+        gameState.fanSupport = getFanSupport(20);
+        gameState.teamPerformance = getTeamPerformance(15);
+        gameState.mediaReaction = '媒体：中国足协与欧洲顶级俱乐部建立合作，这将为中国足球带来质的飞跃！';
+        gameState.nextStep = '与欧洲俱乐部建立了合作关系，球队战术和水平大幅提高。是否派遣年轻球员到欧洲培训？';
+        updateGame('你与欧洲俱乐部建立了合作。', ['派遣年轻球员到欧洲', '引进欧洲教练团队'], ['sendYouthToEurope', 'bringEuropeanCoaches']);
+    } else {
+        gameState.mediaReaction = '媒体：足协资金不足，与欧洲俱乐部的合作计划搁浅，令人失望。';
+        updateGame('资金不足，无法与欧洲俱乐部合作。', ['寻求商业赞助', '申请足协特别基金'], ['seekCommercialSponsorship', 'applyForSpecialFund']);
+    }
+}
+
+//寻求商业赞助
+function seekCommercialSponsorship() {
+    if (gameState.funds >= 3000000) {
+        gameState.funds += 5000000; // 获得赞助资金
+        gameState.fanSupport = getFanSupport(10);
+        gameState.teamPerformance = getTeamPerformance(5);
+        gameState.mediaReaction = '媒体：足协成功获得商业赞助，这将为中国足球带来更多资源和机会！';
+        gameState.nextStep = '你成功获得了商业赞助。是否将资金用于球员培训还是基础设施建设？';
+        updateGame('你寻求了商业赞助，获得了额外资金。', ['投资球员培训', '改善基础设施'], ['investInPlayerTraining', 'improveInfrastructure']);
+    } else {
+        gameState.fanSupport -= 5;
+        gameState.mediaReaction = '媒体：足协寻求商业赞助遭到拒绝，这可能会影响中国足球的发展。';
+        gameState.nextStep = '由于资金不足，赞助商对你的提议不感兴趣。是否尝试其他融资方式？';
+        updateGame('资金不足，无法吸引商业赞助。', ['寻求银行贷款', '发起众筹活动'], ['seekBankLoan', 'launchCrowdfunding']);
+    }
+}
+
+//寻求银行贷款
+function seekBankLoan() {
+    gameState.funds += 1000000;
+    gameState.fanSupport = getFanSupport(5);
+    gameState.teamPerformance = getTeamPerformance(3);
+    gameState.mediaReaction = '媒体：足协成功获得银行贷款，这将为中国足球带来一些资金支持。';
+    gameState.nextStep = '你成功获得了银行贷款。是否将资金用于球员培训还是基础设施建设？';
+    updateGame('你寻求了银行贷款，获得了额外资金。', ['投资球员培训', '改善基础设施'], ['investInPlayerTraining', 'improveInfrastructure']);
+}
+
+//发起众筹活动
+function launchCrowdfunding() {
+    gameState.funds += 1000000;
+    gameState.fanSupport = getFanSupport(5);
+    gameState.teamPerformance = getTeamPerformance(3);
+    gameState.mediaReaction = '媒体：足协发起众筹活动，这显示出了对中国足球的热爱和支持。';
+    gameState.nextStep = '你成功发起了众筹活动。是否将资金用于球员培训还是基础设施建设？';
+    updateGame('你发起了众筹活动，获得了额外资金。', ['投资球员培训', '改善基础设施'], ['investInPlayerTraining', 'improveInfrastructure']);
+}
+
+//派遣年轻球员到欧洲
+function sendYouthToEurope() {
+    if (gameState.funds >= 5000000) {
+        gameState.funds -= 5000000;
+        gameState.fanSupport = getFanSupport(15);
+        gameState.teamPerformance = getTeamPerformance(20);
+        gameState.mediaReaction = '媒体：中国足协派遣年轻球员到欧洲培训，这是一个重要的决策，将为中国足球带来更多国际经验。';
+        gameState.nextStep = '年轻球员在欧洲得到了很好的培训。是否召回部分球员参加国家队比赛？';
+        updateGame('你派遣了年轻球员到欧洲培训。', ['召回部分球员', '让球员继续在欧洲发展'], ['recallPlayers', 'keepPlayersInEurope']);
+    } else {
+        gameState.mediaReaction = '媒体：足协资金不足，无法派遣年轻球员到欧洲培训，这可能会影响中国足球的国际发展。';
+        updateGame('资金不足，无法派遣球员到欧洲。', ['寻求欧洲俱乐部资助', '调整培训计划'], ['seekEuropeanClubSupport', 'adjustTrainingPlan']);
+    }
+}
+
+// 提升本土球员待遇
+function domesticPlayerWelfare() {
+    if (gameState.funds >= 3000000) {
+        gameState.funds -= 3000000;
+        gameState.fanSupport = getFanSupport(5);
+        gameState.teamPerformance = getTeamPerformance(5);
+        gameState.mediaReaction = '媒体：足协提升本土球员待遇，显示出对本土人才的重视，球员士气大振！';
+        gameState.nextStep = '本土球员待遇提升，士气提高。是否投资后备力量？';
+        updateGame('你提升了本土球员待遇。', ['投资后备力量', '专注当前阵容'], ['investBackupPlayers', 'focusOnCurrentSquad']);
+    } else {
+        gameState.mediaReaction = '媒体：足协资金不足，无法提升本土球员待遇，球员失望情绪蔓延。';
+        updateGame('资金不足，无法提升球员待遇。', ['调整薪资结构', '寻求球员理解'], ['adjustSalaryStructure', 'seekPlayerUnderstanding']);
+    }
+}
+
+// 提升教练培训系统
+function domesticCoachTraining() {
+    if (gameState.funds >= 4000000) {
+        gameState.funds -= 4000000;
+        gameState.fanSupport = getFanSupport(5);
+        gameState.teamPerformance = getTeamPerformance(10);
+        gameState.mediaReaction = '媒体：足协大力投资教练培训系统，这将为中国足球培养出更多优秀的本土教练！';
+        gameState.nextStep = '教练培训系统提升，战术水平提高。是否与国际足联合作？';
+        updateGame('你提升了教练培训系统。', ['与国际足联合作', '专注本土教练发展'], ['cooperateWithFIFA', 'focusOnDomesticCoaches']);
+    } else {
+        gameState.mediaReaction = '媒体：足协资金不足，教练培训系统升级计划受阻，令人担忧。';
+        updateGame('资金不足，无法提升教练培训系统。', ['申请足协培训基金', '组织教练交流会'], ['applyForTrainingFund', 'organizeCoachExchange']);
+    }
+}
+
+//与国际足联合作
+function cooperateWithFIFA() {
+    gameState.funds += 1000000;
+    gameState.fanSupport = getFanSupport(5);
+    gameState.teamPerformance = getTeamPerformance(3);
+    gameState.mediaReaction = '媒体：足协与国际足联建立合作关系，这将为中国足球带来更多国际交流和机会！';
+    gameState.nextStep = '与国际足联的合作关系建立，获得了更多国际交流机会。是否继续深化合作？';
+    updateGame('你与国际足联建立了合作关系。', ['继续深化合作', '保持独立发展'], ['deepenCooperation', 'maintainIndependence']);
+}
+
+// 申请足协特别基金
+function applyForSpecialFund() {
+    gameState.funds += 1000000;
+    gameState.fanSupport = getFanSupport(5);
+    gameState.teamPerformance = getTeamPerformance(3);
+    gameState.mediaReaction = '媒体：足协成功申请了特别基金，这将为中国足球带来更多资金支持。';
+    gameState.nextStep = '申请足协特别基金成功，获得了额外资金支持。是否继续投资青训系统？';
+    updateGame('你申请了足协特别基金。', ['继续投资青训系统', '调整预算分配'], ['continueInvestment', 'adjustBudget']);
+}
+
+//继续投资青训系统  
+function continueInvestment() {
+    gameState.funds -= 2000000;
+    gameState.fanSupport = getFanSupport(10);
+    gameState.teamPerformance = getTeamPerformance(15);
+    gameState.mediaReaction = '媒体：足协继续投资青训系统，这将为中国足球带来更多年轻球员的培养。';
+    gameState.nextStep = '青训系统投资增加，年轻球员表现提升。是否与欧洲俱乐部合作？';
+    updateGame('你继续投资了青训系统。', ['与欧洲俱乐部合作', '专注本土球员'], ['europeCooperation', 'focusOnDomesticPlayers']);
+}
+
+//调整预算分配
+function adjustBudget() {
+    gameState.funds -= 1000000;
+    gameState.fanSupport = getFanSupport(5);
+    gameState.teamPerformance = getTeamPerformance(3);
+    gameState.mediaReaction = '媒体：足协调整了预算分配，这将为中国足球的发展带来更加合理的资金分配。';
+    gameState.nextStep = '预算调整，资金分配更加合理。是否投资球员培训？';
+    updateGame('你调整了预算分配。', ['投资球员培训', '改善基础设施'], ['investInPlayerTraining', 'improveInfrastructure']);
+}
+
+//投资球员培训
+function investInPlayerTraining() {
+    if (gameState.funds >= 2000000) {
+        gameState.funds -= 2000000;
+        gameState.fanSupport = getFanSupport(10);
+        gameState.teamPerformance = getTeamPerformance(15);
+        gameState.mediaReaction = '媒体：足协投资了球员培训，这将为中国足球带来更多优秀的球员。';
+        gameState.nextStep = '球员培训投资增加，球员表现提升。是否与欧洲俱乐部合作？';
+        updateGame('你投资了球员培训。', ['与欧洲俱乐部合作', '专注本土球员'], ['europeCooperation', 'focusOnDomesticPlayers']);
+    }
+    else {
+        gameState.mediaReaction = '媒体：足协资金不足，无法投资球员培训，这可能会影响中国足球的发展。';
+        updateGame('资金不足，无法投资球员培训。', ['调整预算分配', '寻求球员理解'], ['adjustBudget', 'seekPlayerUnderstanding']);
+    }
+}
+
+// 专注本土球员
+function focusOnDomesticPlayers() {
+    gameState.funds -= 1000000;
+    gameState.fanSupport = getFanSupport(5);
+    gameState.teamPerformance = getTeamPerformance(3);
+    gameState.mediaReaction = '媒体：足协专注于本土球员，这将为中国足球带来更多本土球员的参与和发展。';
+    gameState.nextStep = '专注本土球员，球队表现有所提升。是否改善基础设施？';
+    updateGame('你专注了本土球员。', ['改善基础设施', '专注国内发展'], ['improveInfrastructure', 'focusOnDomesticDevelopment']);
+}
+
+//寻求球员理解
+function seekPlayerUnderstanding() {
+    gameState.funds -= 1000000;
+    gameState.fanSupport = getFanSupport(5);
+    gameState.teamPerformance = getTeamPerformance(3);
+    gameState.mediaReaction = '媒体：足协寻求球员理解，这将为中国足球带来更好的沟通和协作。';
+    gameState.nextStep = '球员理解提升，士气提高。是否改善基础设施？';
+    updateGame('你寻求了球员理解。', ['改善基础设施', '专注国内发展'], ['improveInfrastructure', 'focusOnDomesticDevelopment']);
+}
+
+// 改善基础设施
+function improveInfrastructure() {
+    if (gameState.funds >= 6000000) {
+        gameState.funds -= 6000000;
+        gameState.fanSupport = getFanSupport(15); 
+        gameState.teamPerformance = getTeamPerformance(10);
+        gameState.mediaReaction = '媒体：足协改善了基础设施，这将为中国足球带来更好的训练条件和环境。';
+        gameState.nextStep = '基础设施得到改善，训练条件提升。是否继续投资高科技设备？';
+        updateGame('你改善了基础设施。', ['投资高科技设备', '专注于现有设施维护'], ['investInTechnology', 'maintainCurrentFacilities']);
+    } else {
+        gameState.mediaReaction = '媒体：足协资金不足，无法改善基础设施，这可能会影响中国足球的发展。';
+        updateGame('资金不足，无法改善基础设施。', ['申请政府支持', '寻求私人投资'], ['seekGovernmentSupport', 'seekPrivateInvestment']);
+    }
+}
+
+//申请政府支持
+function seekGovernmentSupport() {
+    gameState.funds += 1000000;
+    gameState.fanSupport = getFanSupport(5);
+    gameState.teamPerformance = getTeamPerformance(3);
+    gameState.mediaReaction = '媒体：足协申请了政府支持，这将为中国足球带来更多资金和政策支持。';
+    gameState.nextStep = '申请政府支持成功，获得了额外资金支持。是否继续投资高科技设备？';
+    updateGame('你申请了政府支持。', ['继续投资高科技设备', '调整预算分配'], ['investInTechnology', 'adjustBudget']);
+}
+
+//寻求私人投资
+function seekPrivateInvestment() {
+    gameState.funds += 1000000;
+    gameState.fanSupport = getFanSupport(5);
+    gameState.teamPerformance = getTeamPerformance(3);
+    gameState.mediaReaction = '媒体：足协寻求了私人投资，这将为中国足球带来更多资金和支持。';
+    gameState.nextStep = '你寻求了私人投资，获得了额外资金支持。是否继续投资高科技设备？';
+    updateGame('你寻求了私人投资。', ['继续投资高科技设备', '调整预算分配'], ['investInTechnology', 'adjustBudget']);
+}
+
+//投资高科技设备
+function investInTechnology() {
+    if (gameState.funds >= 4000000) {
+        gameState.funds -= 4000000;
+        gameState.fanSupport = getFanSupport(10);
+        gameState.teamPerformance = getTeamPerformance(15);
+        gameState.mediaReaction = '媒体：足协投资了高科技设备，这将为中国足球带来更先进的训练和分析工具。';
+        gameState.nextStep = '引入了高科技设备，球员训练效果显著提升。是否开展国际交流？';
+        updateGame('你投资了高科技设备。', ['开展国际交流', '专注国内发展'], ['initiateInternationalExchange', 'focusOnDomesticDevelopment']);
+    } else {
+        gameState.mediaReaction = '媒体：足协资金不足，无法投资高科技设备，这可能会影响中国足球的发展。';
+        updateGame('资金不足，无法投资高科技设备。', ['调整预算分配', '寻求技术合作'], ['adjustBudget', 'seekTechnicalCooperation']);
+    }
+}
+
+// 寻求技术合作
+function seekTechnicalCooperation() {
+    gameState.funds += 1000000;
+    gameState.fanSupport = getFanSupport(5);
+    gameState.teamPerformance = getTeamPerformance(3);
+    gameState.mediaReaction = '媒体：足协寻求了技术合作，这将为中国足球带来更多国际交流和技术支持。';
+    gameState.nextStep = '你寻求了技术合作，获得了额外资金支持。是否继续寻求技术合作？';
+    updateGame('你寻求了技术合作。', ['继续寻求技术合作', '调整预算分配'], ['seekTechnicalCooperation', 'adjustBudget']);
+}
+
+// 维护现有设施
+function maintainCurrentFacilities() {
+    if (gameState.funds >= 2000000) {
+        gameState.funds -= 2000000;
+        gameState.fanSupport = getFanSupport(5);
+        gameState.teamPerformance = getTeamPerformance(5);
+        gameState.mediaReaction = '媒体：足协维护了现有设施，这将为中国足球带来稳定的训练环境和条件。';
+        gameState.nextStep = '现有设施得到良好维护，确保了稳定的训练环境。是否考虑扩建训练基地？';
+        updateGame('你维护了现有设施。', ['扩建训练基地', '优化现有资源利用'], ['expandTrainingBase', 'optimizeResourceUtilization']);
+    } else {
+        gameState.mediaReaction = '媒体：足协资金不足，无法进行设施维护，这可能会影响中国足球的发展。';
+        updateGame('资金不足，无法进行设施维护。', ['削减其他开支', '寻求志愿者支持'], ['cutOtherExpenses', 'seekVolunteerSupport']);
+    }
+}
+
+//寻求欧洲俱乐部资助
+function seekEuropeanClubSupport() {
+    if (gameState.funds >= 1000000) {
+        gameState.funds -= 1000000;
+        let supportChance = Math.random();
+        if (supportChance > 0.5) {
+            gameState.funds += 8000000;
+            gameState.fanSupport = getFanSupport(20);
+            gameState.teamPerformance = getTeamPerformance(15);
+            gameState.mediaReaction = '媒体：足协成功获得了欧洲俱乐部的资助，这将为中国足球带来更多资金和技术支持。';
+            gameState.nextStep = '成功获得欧洲俱乐部的资助，资金和技术支持显著提升。是否继续深化合作？';
+            updateGame('你成功获得了欧洲俱乐部的资助。', ['深化合作关系', '保持独立发展'], ['deepenCooperation', 'maintainIndependence']);
+        } else {
+            gameState.fanSupport = getFanSupport(-5);
+            gameState.mediaReaction = '媒体：足协未能获得欧洲俱乐部的资助，这可能会影响中国足球的国际发展。';
+            gameState.nextStep = '未能获得欧洲俱乐部的资助，但建立了初步联系。是否继续寻求其他合作机会？';
+            updateGame('你未能获得欧洲俱乐部的资助。', ['寻求其他合作机会', '专注国内发展'], ['seekOtherOpportunities', 'focusOnDomesticDevelopment']);
+        }
+    } else {
+        gameState.mediaReaction = '媒体：足协资金不足，无法开展寻求资助的活动，这可能会影响中国足球的发展。';
+        updateGame('资金不足，无法开展寻求资助的活动。', ['削减其他开支', '寻求国内赞助'], ['cutOtherExpenses', 'seekDomesticSponsorship']);
+    }
+}
+
+//深化合作关系
+function deepenCooperation() {
+    gameState.funds += 1000000;
+    gameState.fanSupport = getFanSupport(5);
+    gameState.teamPerformance = getTeamPerformance(3);
+    gameState.mediaReaction = '媒体：足协与欧洲俱乐部深化了合作关系，这将为中国足球带来更多国际交流和机会。';
+    gameState.nextStep = '深化了与欧洲俱乐部的合作关系，获得了更多国际交流机会。是否继续深化合作？';
+    updateGame('你深化了与欧洲俱乐部的合作关系。', ['继续深化合作', '保持独立发展'], ['deepenCooperation', 'maintainIndependence']);
+}
+
+//保持独立发展  
+function maintainIndependence() {
+    gameState.funds += 1000000;
+    gameState.fanSupport = getFanSupport(5);
+    gameState.teamPerformance = getTeamPerformance(3);
+    gameState.mediaReaction = '媒体：足协保持了独立发展，这将为中国足球带来更多国内发展的机会。';
+    gameState.nextStep = '保持独立发展，专注于国内足球的提升。是否继续寻求合作机会？';
+    updateGame('你保持了独立发展。', ['寻求合作机会', '专注国内发展'], ['seekCooperation', 'focusOnDomesticDevelopment']);
+}
+
+//削减其他开支
+function cutOtherExpenses() {
+    gameState.funds -= 1000000;
+    gameState.fanSupport = getFanSupport(5);
+    gameState.teamPerformance = getTeamPerformance(3);
+    gameState.mediaReaction = '媒体：足协削减了其他开支，这将为中国足球带来更加集中的资金和发展。';
+    gameState.nextStep = '削减了其他开支，资金更加集中于足球发展。是否继续寻求合作机会？';
+    updateGame('你削减了其他开支。', ['寻求合作机会', '专注国内发展'], ['seekCooperation', 'focusOnDomesticDevelopment']);
+}
+
+//寻求合作机会
+function seekCooperation() {
+    gameState.funds += 1000000;
+    gameState.fanSupport = getFanSupport(5);
+    gameState.teamPerformance = getTeamPerformance(3);
+    gameState.mediaReaction = '媒体：足协寻求了合作机会，这将为中国足球带来更多资金和支持。';
+    gameState.nextStep = '你寻求了合作机会，获得了额外资金支持。是否继续寻求合作机会？';
+    updateGame('你寻求了合作机会。', ['继续寻求合作机会', '专注国内发展'], ['seekCooperation', 'focusOnDomesticDevelopment']);
+}
+
+//寻求国内赞助
+function seekDomesticSponsorship() {
+    gameState.funds += 1000000;
+    gameState.fanSupport = getFanSupport(5);
+    gameState.teamPerformance = getTeamPerformance(3);
+    gameState.mediaReaction = '媒体：足协寻求了国内赞助，这将为中国足球带来更多资金和支持。';
+    gameState.nextStep = '你寻求了国内赞助，获得了额外资金支持。是否继续寻求合作机会？';
+    updateGame('你寻求了国内赞助。', ['继续寻求合作机会', '专注国内发展'], ['seekOtherOpportunities', 'focusOnDomesticDevelopment']);
+}
+
+//寻求其他合作机会
+function seekOtherOpportunities() {
+    let opportunityChance = Math.random();
+    if (opportunityChance > 0.9) {
+        gameState.funds += 2000000;
+        gameState.fanSupport = getFanSupport(5);
+        gameState.teamPerformance = getTeamPerformance(5);
+        gameState.mediaReaction = '媒体：足协找到了一个小型合作机会，这将为中国足球带来一些收获。';
+        gameState.nextStep = '意外获得了一个小型合作机会，略有收获。是否继续寻求更多机会？';
+        updateGame('你找到了一个小型合作机会。', ['继续寻求机会', '专注国内发展'], ['seekOtherOpportunities', 'focusOnDomesticDevelopment']);
+    } else {
+        gameState.funds -= 500000;
+        gameState.fanSupport = getFanSupport(-2);
+        gameState.mediaReaction = '媒体：足协寻求合作机会的过程中消耗了资金，但没有实质性进展。';
+        gameState.nextStep = '寻求合作机会的过程中消耗了资金，但没有实质性进展。是否调整策略？';
+        updateGame('你未能找到新的合作机会。', ['调整合作策略', '专注国内发展'], ['adjustCooperationStrategy', 'focusOnDomesticDevelopment']);
+    }
+}
+
+//调整合作策略
+function adjustCooperationStrategy() {
+    gameState.fanSupport = getFanSupport(3);
+    gameState.mediaReaction = '媒体：足协重新评估了合作策略，决定更加谨慎地寻求机会。';
+    gameState.nextStep = '重新评估了合作策略，决定更加谨慎地寻求机会。下一步如何行动？';
+    updateGame('你调整了合作策略。', ['尝试亚洲范围合作', '专注国内发展'], ['exploreAsianCooperation', 'focusOnDomesticDevelopment']);
+}
+
+//尝试亚洲范围合作
+function exploreAsianCooperation() {
+    if (gameState.funds >= 1000000) {
+        gameState.funds -= 1000000;
+        gameState.fanSupport = getFanSupport(8);
+        gameState.teamPerformance = getTeamPerformance(7);
+        gameState.mediaReaction = '媒体：足协与亚洲足球联盟建立了更紧密的合作关系，这将为中国足球带来更多国际交流和机会。';
+        gameState.nextStep = '与亚洲足球联盟建立了更紧密的合作关系。是否继续深化这一方向？';
+        updateGame('你成功开展了亚洲范围的合作。', ['深化亚洲合作', '平衡国内外发展'], ['deepenAsianCooperation', 'balanceDevelopment']);
+    } else {
+        gameState.mediaReaction = '媒体：足协资金不足，无法开展亚洲范围的合作，这可能会影响中国足球的国际发展。';
+        updateGame('资金不足，无法开展亚洲范围的合作。', ['寻求国内赞助', '调整预算分配'], ['seekDomesticSponsorship', 'adjustBudget']);
+    }
+}
+
+//平衡国内外发展
+function balanceDevelopment() {
+    gameState.funds += 1000000;
+    gameState.fanSupport = getFanSupport(5); 
+    gameState.teamPerformance = getTeamPerformance(3);
+    gameState.mediaReaction = '媒体：足协深化了与亚洲足球联盟的合作关系，这将为中国足球带来更多国际交流和机会。';
+    gameState.nextStep = '深化了与亚洲足球联盟的合作关系，获得了更多国际交流机会。是否继续深化合作？';
+    updateGame('你深化了与亚洲足球联盟的合作关系。', ['继续深化合作', '保持独立发展'], ['deepenAsianCooperation', 'maintainIndependence']);
+}
+
+//调整预算分配
+function adjustBudget() {
+    gameState.funds -= 1000000;
+    gameState.fanSupport = getFanSupport(5);
+    gameState.teamPerformance = getTeamPerformance(3);
+    gameState.mediaReaction = '媒体：足协调整了预算分配，这将为中国足球带来更加合理的资金分配。';
+    gameState.nextStep = '预算调整，资金分配更加合理。是否投资球员培训？';
+    updateGame('你调整了预算分配。', ['投资球员培训', '改善基础设施'], ['investInPlayerTraining', 'improveInfrastructure']);
+}
+
+//专注国内发展
+function focusOnDomesticDevelopment() {
+    gameState.funds += 1000000;
+    gameState.fanSupport = getFanSupport(5);
+    gameState.teamPerformance = getTeamPerformance(3);
+    gameState.mediaReaction = '媒体：足协专注于国内发展，这将为中国足球带来更多国内发展的机会。';
+    gameState.nextStep = '你决定专注于国内发展，这提高了国内球迷的支持度，但可能会影响国际竞争力。下一步如何行动？';
+    updateGame('你选择了专注国内发展。', ['加强青训体系', '改革职业联赛'], ['enhanceYouthTraining', 'reformProfessionalLeague']);
+}
+
+//加强青训体系  
+function enhanceYouthTraining() {
+    if (gameState.funds >= 2000000) {
+        gameState.funds -= 2000000;
+        gameState.fanSupport = getFanSupport(8);
+        gameState.teamPerformance = getTeamPerformance(10);
+        gameState.mediaReaction = '媒体：足协加强了青训体系，这将为中国足球带来更多年轻球员的培养。';
+        gameState.nextStep = '加强青训体系初见成效，新一代年轻球员正在崭露头角。如何进一步发展？';
+        updateGame('你加强了青训体系。', ['扩大青训规模', '引进先进教练理念'], ['expandYouthProgram', 'introduceAdvancedCoaching']);
+    } else {
+        gameState.mediaReaction = '媒体：足协资金不足，无法全面加强青训体系，这可能会影响中国足球的发展。';
+        updateGame('资金不足，无法全面加强青训体系。', ['寻求政府支持', '调整预算分配'], ['seekGovernmentSupport', 'adjustBudget']);
+    }
+}
+
+//职业联赛改革  
+function reformProfessionalLeague() {
+    gameState.fanSupport = getFanSupport(7);
+    gameState.teamPerformance = getTeamPerformance(5);
+    gameState.mediaReaction = '媒体：足协启动了职业联赛改革，这将为中国足球带来更好的比赛质量和观赏性。';
+    gameState.nextStep = '职业联赛改革提高了比赛质量和观赏性。下一步如何深化改革？';
+    updateGame('你启动了职业联赛改革。', ['引入更多商业元素', '加强俱乐部管理'], ['introduceCommercialElements', 'strengthenClubManagement']);
+}
+
+//引入更多商业元素
+function introduceCommercialElements() {
+    gameState.funds += 1000000;
+    gameState.fanSupport = getFanSupport(5);
+    gameState.teamPerformance = getTeamPerformance(3);
+    gameState.mediaReaction = '媒体：足协引入了更多商业元素，这将为中国足球带来更多经济效益。';
+    gameState.nextStep = '引入更多商业元素，提高了俱乐部的经济效益。下一步如何深化改革？';
+    updateGame('你引入了更多商业元素。', ['加强俱乐部管理', '扩大球迷基础'], ['strengthenClubManagement', 'expandFanBase']);
+}
+
+//加强俱乐部管理
+function strengthenClubManagement() {
+    gameState.funds += 1000000;
+    gameState.fanSupport = getFanSupport(5);
+    gameState.teamPerformance = getTeamPerformance(3);
+    gameState.mediaReaction = '媒体：足协加强了俱乐部管理，这将为中国足球带来更好的管理和发展。';
+    gameState.nextStep = '加强了俱乐部管理，提高了球队表现。下一步如何深化改革？';
+    updateGame('你加强了俱乐部管理。', ['扩大球迷基础', '深化职业联赛改革'], ['expandFanBase', 'deepenProfessionalLeague']);
+}
+
+// 扩大青训规模
+function expandYouthProgram() {
+    gameState.funds -= 2000000;
+    gameState.fanSupport = getFanSupport(10);
+    gameState.teamPerformance = getTeamPerformance(15);
+    gameState.mediaReaction = '媒体：足协扩大了青训规模，这将为中国足球带来更多年轻球员的培养。';
+    gameState.nextStep = '扩大了青训规模，年轻球员表现提升。是否继续在欧洲培训更多年轻球员？';
+    updateGame('你扩大了青训规模。', ['继续培训年轻球员', '专注现有球员发展'], ['sendYouthToEurope', 'focusOnCurrentSquad']);
+}
+
+// 引进先进教练理念
+function introduceAdvancedCoaching() {
+    gameState.funds -= 1000000;
+    gameState.fanSupport = getFanSupport(10);
+    gameState.teamPerformance = getTeamPerformance(15);
+    gameState.mediaReaction = '媒体：足协引进了先进教练理念，这将为中国足球带来更好的战术和战略。';
+    gameState.nextStep = '引进了先进教练理念，球队战术水平显著提升。是否继续在欧洲培训更多年轻球员？';
+    updateGame('你引进了先进教练理念。', ['继续培训年轻球员', '专注现有球员发展'], ['sendYouthToEurope', 'focusOnCurrentSquad']);
+}
+
+
+
+
+
+// 召回部分球员
+function recallPlayers() {
+    gameState.funds -= 1000000;
+    gameState.fanSupport = getFanSupport(10);
+    gameState.teamPerformance = getTeamPerformance(15);
+    gameState.mediaReaction = '媒体：足协召回了部分球员参加国家队比赛，这将为中国足球带来更好的表现。';
+    gameState.nextStep = '你召回了部分球员参加国家队比赛，球队表现有所提升。是否继续在欧洲培训更多年轻球员？';
+    updateGame('你召回了部分球员。', ['继续培训年轻球员', '专注现有球员发展'], ['sendYouthToEurope', 'focusOnCurrentSquad']);
+}
+
+// 让球员继续在欧洲发展
+function keepPlayersInEurope() {
+    gameState.teamPerformance = getTeamPerformance(20);
+    gameState.fanSupport = getFanSupport(5);
+    gameState.mediaReaction = '媒体：足协让球员继续在欧洲发展，这将为中国足球带来更多国际经验和成长。';
+    gameState.nextStep = '球员们继续在欧洲获得更好的训练，表现日益提升。是否召回部分球员参赛？';
+    updateGame('球员继续在欧洲发展。', ['召回部分球员', '继续留在欧洲发展'], ['recallPlayers', 'keepPlayersInEurope']);
+}
+
+// 引进欧洲教练团队
+function bringEuropeanCoaches() {
+    if (gameState.funds >= 6000000) {
+        gameState.funds -= 6000000;
+        gameState.fanSupport = getFanSupport(15);
+        gameState.teamPerformance = getTeamPerformance(20);
+        gameState.mediaReaction = '媒体：足协引进了欧洲教练团队，这将为中国足球带来更多国际经验和战术。';
+        gameState.nextStep = '欧洲教练团队加入，球队战术水平显著提升。是否开展教练交流活动？';
+        updateGame('你引进了欧洲教练团队。', ['开展教练交流', '专注球队训练'], ['initiateInternationalExchange', 'focusOnCurrentSquad']);
+    } else {
+        gameState.mediaReaction = '媒体：足协资金不足，无法引进欧洲教练团队，这可能会影响中国足球的发展。';
+        updateGame('资金不足，无法引进欧洲教练团队。', ['寻求政府支持', '削减其他开支'], ['seekGovernmentSupport', 'cutExpenses']);
+    }
+}
+
+// 组织球迷活动
+function organizeFanEvent() {
+    gameState.funds -= 500000;
+    gameState.fanSupport = getFanSupport(20);
+    gameState.mediaReaction = '媒体：足协组织了一场成功的球迷活动，这将为中国足球带来更多球迷支持和关注。';
+    gameState.nextStep = '你成功组织了球迷活动，增加了球迷支持率。是否进一步扩大球迷基础？';
+    updateGame('你成功组织了球迷活动。', ['扩大球迷基础', '专注于比赛'], ['expandFanBase', 'focusOnMatches']);
+}
+
+// 专注比赛
+function focusOnMatches() {
+    gameState.funds += 1000000;
+    gameState.fanSupport = getFanSupport(5);
+    gameState.teamPerformance = getTeamPerformance(3);
+    gameState.mediaReaction = '媒体：足协专注于比赛，这将为中国足球带来更好的表现和成绩。';
+    gameState.nextStep = '你专注于比赛，球队表现有所提升。是否进一步扩大球迷基础？';
+    updateGame('你专注于比赛。', ['扩大球迷基础', '专注于球员培养'], ['expandFanBase', 'focusOnCurrentSquad']);
+}
+
+
+// 投资后备力量
+function investBackupPlayers() {
+    gameState.funds -= 4000000;
+    gameState.fanSupport = getFanSupport(10); 
+    gameState.teamPerformance = getTeamPerformance(10);
+    gameState.mediaReaction = '媒体：足协投资了后备力量，这将为中国足球带来更好的成长基础。';
+    gameState.nextStep = '后备力量投资增加，未来球队有了更好的成长基础。是否专注当前阵容？';
+    updateGame('你投资了后备力量。', ['专注当前阵容', '继续培养年轻球员'], ['focusOnCurrentSquad', 'sendYouthToEurope']);
+}
+
+// 专注国内发展
+function focusOnDomesticDevelopment() {
+    gameState.funds += 2000000;
+    gameState.fanSupport = getFanSupport(10);
+    gameState.teamPerformance = getTeamPerformance(5);
+    gameState.mediaReaction = '媒体：足协专注于国内足球的发展，这将为中国足球带来更多国内发展的机会。';
+    gameState.nextStep = '你决定专注于国内足球的发展，球迷支持率有所提升。下一步是继续发展国内联赛还是进一步改革？';
+    updateGame('你专注于国内发展。', ['加强国内联赛', '深化国内足球改革'], ['enhanceDomesticLeague', 'reformDomesticFootball']);
+}
+
+// 深化国内足球改革
+function reformDomesticFootball() {
+    gameState.funds -= 1000000;
+    gameState.fanSupport = getFanSupport(5);
+    gameState.teamPerformance = getTeamPerformance(3);
+    gameState.mediaReaction = '媒体：足协深化了国内足球改革，这将为中国足球带来更好的发展和表现。';
+    gameState.nextStep = '深化了国内足球改革，提高了球队表现。是否加强国内联赛？';
+    updateGame('你深化了国内足球改革。', ['加强国内联赛', '专注于球员培养'], ['enhanceDomesticLeague', 'focusOnCurrentSquad']);
+}   
+
+function getTeamPerformance(n) {
+    gameState.teamPerformance += n;
+    return gameState.teamPerformance;
+}
+// 加强国内联赛
+function enhanceDomesticLeague() {
+    gameState.funds += 1000000;
+    gameState.fanSupport = getFanSupport(5); 
+    gameState.teamPerformance = getTeamPerformance(3);
+    gameState.mediaReaction = '媒体：足协加强了国内联赛，这将为中国足球带来更好的比赛质量和观赏性。';
+    gameState.nextStep = '加强了国内联赛，提高了球队表现。是否扩建训练基地？';
+    updateGame('你加强了国内联赛。', ['扩建训练基地', '专注于球员培养'], ['expandTrainingBase', 'focusOnCurrentSquad']);
+}
+
+
+
+// 优化现有资源利用
+function optimizeResourceUtilization() {
+    gameState.funds += 1000000;
+    gameState.fanSupport = getFanSupport(5);
+    gameState.teamPerformance = getTeamPerformance(5);
+    gameState.mediaReaction = '媒体：足协优化了现有资源的利用，这将为中国足球带来更好的表现和效益。';
+    gameState.nextStep = '现有资源得到了更好的利用，球队表现有所提升。是否扩建训练基地？';
+    updateGame('你优化了现有资源的利用。', ['扩建训练基地', '专注于球员培养'], ['expandTrainingBase', 'focusOnCurrentSquad']);
+}
+
+// 扩建训练基地
+function expandTrainingBase() {
+    if (gameState.funds >= 5000000) {
+        gameState.funds -= 5000000;
+        gameState.fanSupport = getFanSupport(15);
+        gameState.teamPerformance += 10;
+        gameState.mediaReaction = '媒体：足协扩建了训练基地，这将为中国足球带来更好的训练环境和条件。';
+        gameState.nextStep = '训练基地扩建完成，球队的训练环境得到显著改善。是否继续改善其他设施？';
+        updateGame('你扩建了训练基地。', ['继续改善设施', '专注于现有设施'], ['improveInfrastructure', 'maintainCurrentFacilities']);
+    } else {
+        gameState.mediaReaction = '媒体：足协资金不足，无法扩建训练基地，这可能会影响中国足球的发展。';
+        updateGame('资金不足，无法扩建训练基地。', ['申请政府支持', '寻求商业赞助'], ['seekGovernmentSupport', 'seekCommercialSponsorship']);
+    }
+}
+
+// 开展国际交流
+function initiateInternationalExchange() {
+    gameState.funds -= 3000000;
+    gameState.fanSupport = getFanSupport(10);
+    gameState.teamPerformance += 15;
+    gameState.mediaReaction = '媒体：足协成功组织了国际交流活动，这将为中国足球带来宝贵的经验和机会。';
+    gameState.nextStep = '你成功开展了国际交流活动，球队获得了宝贵的经验。是否继续扩大国际合作？';
+    updateGame('你成功开展了国际交流。', ['扩大国际合作', '专注国内发展'], ['expandInternationalCooperation', 'focusOnDomesticDevelopment']);
+}
+
+// 扩大国际合作
+function expandInternationalCooperation() {
+    gameState.funds += 2000000;
+    gameState.fanSupport = getFanSupport(10);
+    gameState.teamPerformance += 5;
+    gameState.mediaReaction = '媒体：足协扩大了国际合作，这将为中国足球带来更多国际交流和机会。';
+    gameState.nextStep = '你扩大了国际合作，球队表现有所提升。是否继续深化职业联赛改革？';
+    updateGame('你扩大了国际合作。', ['深化职业联赛改革', '专注国内发展'], ['deepenProfessionalLeague', 'focusOnDomesticDevelopment']);
+}
+
+// 深化职业联赛改革
+function deepenProfessionalLeague() {
+    gameState.funds += 3000000;
+    gameState.fanSupport = getFanSupport(10);
+    gameState.teamPerformance += 15;
+    gameState.mediaReaction = '媒体：足协深化了职业联赛改革，这将为中国足球带来更好的比赛质量和观赏性。';
+    gameState.nextStep = '职业联赛改革取得了显著成效，球队整体水平有所提升。是否引入更多商业元素？';
+    updateGame('你深化了职业联赛改革。', ['引入商业元素', '加强俱乐部管理'], ['introduceCommercialElements', 'strengthenClubManagement']);
+}
+
+// 扩大球迷基础
+function expandFanBase() {
+    gameState.funds -= 2000000;
+    gameState.fanSupport = getFanSupport(20);
+    gameState.teamPerformance += 5;
+    gameState.mediaReaction = '媒体：足协扩大了球迷基础，这将为中国足球带来更多球迷支持和关注。';
+    gameState.nextStep = '球迷基础大幅扩大，球队的关注度和支持度都有所提升。是否继续强化球迷参与？';
+    updateGame('你成功扩大了球迷基础。', ['继续强化球迷参与', '专注球队发展'], ['enhanceFanEngagement', 'focusOnCurrentSquad']);
+}
+
+// 继续强化球迷参与
+function enhanceFanEngagement() {
+    gameState.funds -= 1000000;
+    gameState.fanSupport = getFanSupport(15);
+    gameState.teamPerformance += 5;
+    gameState.mediaReaction = '媒体：足协继续强化了球迷参与，这将为中国足球带来更多球迷支持和关注。';
+    gameState.nextStep = '球迷参与度进一步提升，球队的表现和士气更高。是否继续投资青训体系？';
+    updateGame('你继续强化了球迷参与。', ['投资青训体系', '专注球队管理'], ['investYouth', 'focusOnCurrentSquad']);
+}
+
+
+function triggerRandomEvent() {
+    let randomChance = Math.random();
+    if (randomChance > 0.8) {
+        let randomEvent = Math.random();
+        if (randomEvent > 0.5) {
+            gameState.funds += 2000000;
+            gameState.fanSupport = getFanSupport(5);
+            gameState.mediaReaction = '媒体：足协意外获得了一笔商业赞助，这将为中国足球带来更多资金和支持。';
+            gameState.nextStep += ' 意外获得了一笔商业赞助，资金和支持率提升！';
+        } else {
+            // 避免资金变为负数
+            let deduction = Math.min(gameState.funds, 2000000);
+            gameState.funds -= deduction;
+            gameState.fanSupport = getFanSupport(-5);
+            gameState.mediaReaction = '媒体：足协经济危机导致赞助商撤资，这将为中国足球带来资金和支持率的减少。';
+            gameState.nextStep += ' 经济危机导致赞助商撤资，资金和支持率减少。';
+        }
+    }
+}
+
+// getFanSupport
+function getFanSupport(n) {
+
+    gameState.fanSupport = Math.min(gameState.fanSupport + n, 100);
+
+    return gameState.fanSupport;
+}
+
+
+// 更新游戏界面
+function updateGame(choiceText, options, functions) {
+    const gameContainer = document.getElementById('game-container');
+    const gameText = document.getElementById('game-text');
+    
+    gameState.year++;
+    
+    // 更新游戏说明
+    gameText.innerHTML = `${choiceText}<br>${gameState.mediaReaction}<br>
+                          资金剩余: ${gameState.funds.toLocaleString()} 元<br>
+                          球迷支持率: ${gameState.fanSupport}%<br>
+                          球队表现: ${gameState.teamPerformance}<br>
+                          当前年份: ${gameState.year}<br>
+                          ${gameState.nextStep}`;
+
+    // 清空现有选择
+    gameContainer.innerHTML = '<div id="game-text">' + gameText.innerHTML + '</div>';
+
+    // 生成新选项
+    options.forEach((option, index) => {
+        const decisionButton = document.createElement('button');
+        decisionButton.className = 'decision px-6 py-3 bg-blue-500 text-white rounded hover:bg-blue-600 transition duration-200 mr-4 mb-4';
+        decisionButton.textContent = option;
+        decisionButton.setAttribute('onclick', functions[index] + '()');
+        gameContainer.appendChild(decisionButton);
+    });
+
+    
+    // 检查游戏是否结束
+    checkGameEnd();
+
+    triggerRandomEvent();
+}
+
+// 检查游戏是否结束
+function checkGameEnd() {
+    if (gameState.year >= 2034 || gameState.funds <= 0 || gameState.fanSupport <= 0) {
+        let endMessage = '';
+        if (gameState.teamPerformance >= 80) {
+            endMessage = '恭喜！在你的领导下，中国足球取得了巨大进步，成功晋级世界杯淘汰赛！';
+        } else if (gameState.teamPerformance >= 50) {
+            endMessage = '在你的努力下，中国足球有了明显进步，但还需要继续努力。';
+        } else {
+            endMessage = '很遗憾，中国足球的发展并不理想，需要重新制定战略。';
+        }
+        updateGame(endMessage, ['重新开始'], ['restartGame']);
+    }
+}
+
+// 重新开始游戏
+function restartGame() {
+    gameState = {
+        coach: null,
+        youthSystem: null,
+        funds: 10000000,
+        fanSupport: 50,
+        teamPerformance: 0,
+        mediaReaction: '',
+        nextStep: '',
+        year: 2024
+    };
+    updateGame('你是中国足协主席，你的目标是让国足崛起。首先，你需要选择一位教练。', ['选择有国际经验的教练', '选择本土教练'], ['chooseCoach("international")', 'chooseCoach("domestic")']);
+}
+
+// 初始化游戏
+restartGame();
+</script>
+
+</body>
+</html>
