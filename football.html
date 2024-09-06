@@ -7,14 +7,14 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 
 </head>
-<body class="bg-gray-100 font-sans">
+<body class="bg-gray-100 font-sans min-h-screen flex items-center justify-center">
 
-<div id="game-container" class="max-w-2xl mx-auto mt-4 sm:mt-10 p-4 sm:p-6 bg-white rounded-lg shadow-md">
-    <h1 class="text-2xl sm:text-3xl font-bold text-center mb-4 sm:mb-6 text-blue-600">国足重建</h1>
-    <div id="game-text" class="text-base sm:text-lg mb-6 sm:mb-8 text-gray-700"></div>
-    <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
-      <button class="decision w-full sm:w-auto px-4 sm:px-6 py-3 bg-blue-500 text-white rounded hover:bg-blue-600 transition duration-200" onclick="chooseCoach('international')">选择有国际经验的教练</button>
-      <button class="decision w-full sm:w-auto px-4 sm:px-6 py-3 bg-green-500 text-white rounded hover:bg-green-600 transition duration-200" onclick="chooseCoach('domestic')">选择本土教练</button>
+<div id="game-container" class="w-full max-w-md mx-auto p-4 bg-white rounded-lg shadow-md">
+    <h1 class="text-2xl font-bold text-center mb-4 text-blue-600">国足重建</h1>
+    <div id="game-text" class="text-sm mb-6 text-gray-700"></div>
+    <div class="flex flex-col space-y-4">
+      <button class="decision w-full px-4 py-3 bg-blue-500 text-white rounded hover:bg-blue-600 transition duration-200 text-sm" onclick="chooseCoach('international')">选择有国际经验的教练</button>
+      <button class="decision w-full px-4 py-3 bg-green-500 text-white rounded hover:bg-green-600 transition duration-200 text-sm" onclick="chooseCoach('domestic')">选择本土教练</button>
     </div>
 </div>
 
@@ -30,6 +30,19 @@ let gameState = {
     nextStep: '',
     year: 2024
 };
+// 初始化游戏
+function initializeGame() {
+    const openingMessage = `
+        最近，中国国家足球队在一场重要比赛中惨遭日本队7:0大比分击败，
+        这一结果引发了全国人民的哀嚎和对中国足球未来的深深忧虑。
+        就在今天早上，你临危受命，被任命为中国足球协会主席。
+        作为新任主席，你肩负着振兴中国足球的重任，一场足球的变革正式拉开帷幕...`;
+    
+    updateGame(openingMessage, ['选择有国际经验的教练', '选择本土教练'], ['chooseCoach("international")', 'chooseCoach("domestic")']);
+}
+
+// 在页面加载完成后初始化游戏
+window.onload = initializeGame;
 
 // 选择教练逻辑
 function chooseCoach(type) {
