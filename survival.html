@@ -57,6 +57,7 @@
             background-color: #00ff00; /* Bright green */
         }
         .enemy {
+            border-radius: 50%; /* Makes the enemy circular */
             background-color: #f00;
         }
         #score {
@@ -95,6 +96,7 @@
         let enemies = [];
         let gameInterval;
         let enemyInterval;
+        const MAX_ENEMIES = 200; // 设置最大敌人数量
 
         // Set initial player position
         let playerPos = { x: 245, y: 245 };
@@ -195,7 +197,7 @@
 
         // Function to move player
         function movePlayer() {
-            const step = 5;
+            const step = 10;
             let dx = 0;
             let dy = 0;
 
@@ -219,56 +221,100 @@
 
         // Create randomly moving enemies
         function createEnemy() {
+            if (enemies.length >= MAX_ENEMIES) {
+                return; // 如果敌人数量达到最大值，不再创建新敌人
+            }
             const enemy = document.createElement('div');
             enemy.classList.add('enemy');
+            const colors = ['#ff0000', '#800080', '#0000ff']; // Red, Purple, Blue
+            const randomNumber = Math.random();
+            const randomColor = randomNumber < 0.8 ? colors[0] : (randomNumber < 0.95 ? colors[1] : colors[2]);
+            enemy.style.backgroundColor = randomColor;
             enemy.style.left = `${Math.random() * (gameArea.clientWidth - 10)}px`;
             enemy.style.top = `${Math.random() * (gameArea.clientHeight - 10)}px`;
+            const enemySize = Math.random();
+            let size;
+            if (enemySize < 0.8) {
+                size = 10;
+            } else if (enemySize < 0.9) {
+                size = 20;
+            } else {
+                size = 30;
+            }
+            
+            enemy.style.width = `${size}px`;
+            enemy.style.height = `${size}px`;
             gameArea.appendChild(enemy);
-            enemies.push({ element: enemy, xSpeed: Math.random() * 4 - 2, ySpeed: Math.random() * 4 - 2 });
+            enemies.push({ 
+                element: enemy, 
+                xSpeed: (Math.random() - 0.5) * 6, // 增加速度范围
+                ySpeed: (Math.random() - 0.5) * 6  // 增加速度范围
+            });
         }
 
         // Update enemy positions
         function updateEnemies() {
-            enemies.forEach((enemyObj, index) => {
+            const playerRect = player.getBoundingClientRect();
+            enemies = enemies.filter((enemyObj, index) => {
                 const enemy = enemyObj.element;
-                let newLeft = parseFloat(enemy.style.left) + enemyObj.xSpeed;
-                let newTop = parseFloat(enemy.style.top) + enemyObj.ySpeed;
+                const enemyRect = enemy.getBoundingClientRect();
 
-                // Bounce mechanism
+                // 计算敌人与玩家的距离
+                const dx = playerRect.left - enemyRect.left;
+                const dy = playerRect.top - enemyRect.top;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+
+                // 如果敌人距离玩家太远，就移除它
+                if (distance > Math.max(gameArea.clientWidth, gameArea.clientHeight) / 2) {
+                    gameArea.removeChild(enemy);
+                    return false;
+                }
+
+                let enemyLeft = parseFloat(enemy.style.left);
+                let enemyTop = parseFloat(enemy.style.top);
+
+                // 计算朝向玩家的方向
+                let dirX = dx / distance;
+                let dirY = dy / distance;
+
+                // 更新敌人位置，增加随机性
+                let newLeft = enemyLeft + (dirX * 2 + enemyObj.xSpeed) * (Math.random() * 0.5 + 0.75);
+                let newTop = enemyTop + (dirY * 2 + enemyObj.ySpeed) * (Math.random() * 0.5 + 0.75);
+
+                // 边界检查和反弹
                 if (newLeft <= 0 || newLeft >= gameArea.clientWidth - 10) {
                     enemyObj.xSpeed = -enemyObj.xSpeed;
+                    newLeft = Math.max(0, Math.min(gameArea.clientWidth - 10, newLeft));
                 }
                 if (newTop <= 0 || newTop >= gameArea.clientHeight - 10) {
                     enemyObj.ySpeed = -enemyObj.ySpeed;
+                    newTop = Math.max(0, Math.min(gameArea.clientHeight - 10, newTop));
                 }
 
                 enemy.style.left = `${newLeft}px`;
                 enemy.style.top = `${newTop}px`;
 
-                // Collision detection
-                if (isCollision(player, enemy)) {
+                // 碰撞检测
+                if (isCollision(playerRect, enemyRect)) {
                     endGame();
                 }
+
+                return true;
             });
         }
 
         // Collision detection
         function isCollision(rect1, rect2) {
-            const rect1Pos = rect1.getBoundingClientRect();
-            const rect2Pos = rect2.getBoundingClientRect();
-
             return !(
-                rect1Pos.right < rect2Pos.left ||
-                rect1Pos.left > rect2Pos.right ||
-                rect1Pos.bottom < rect2Pos.top ||
-                rect1Pos.top > rect2Pos.bottom
+                rect1.right < rect2.left ||
+                rect1.left > rect2.right ||
+                rect1.bottom < rect2.top ||
+                rect1.top > rect2.bottom
             );
         }
 
         // End game
         function endGame() {
-
-            
             clearInterval(gameInterval);
             clearInterval(enemyInterval);
             let finalScore = scoreDisplay.textContent.split(': ')[1];
@@ -300,10 +346,10 @@
                 restartMessage.style.fontSize = '18px';
                 document.body.appendChild(restartMessage);
                 // 清除所有现有的敌人
-              enemies.forEach(enemy => {
-                gameArea.removeChild(enemy.element);
-            });
-            enemies = [];
+                enemies.forEach(enemy => {
+                    gameArea.removeChild(enemy.element);
+                });
+                enemies = [];
 
                 function restartGame() {
                     document.body.removeChild(gameOverMessage);
@@ -316,7 +362,6 @@
                 document.addEventListener('keydown', restartGame);
                 document.addEventListener('touchstart', restartGame);
             }, 3000);
-            //location.reload(); // Reload the page to restart the game
         }
 
         // Game loop
@@ -324,8 +369,10 @@
             score = 0;
             enemies = [];
             
-            // Create initial 20 enemies
-            for (let i = 0; i < 40; i++) {
+            // Create initial enemies
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            const enemyCount = isMobile ? 10 : 50;
+            for (let i = 0; i < enemyCount; i++) {
                 createEnemy();
             }
 
@@ -341,7 +388,7 @@
             }, 50);
 
             // Generate new enemies at intervals
-            enemyInterval = setInterval(createEnemy, 200);
+            enemyInterval = setInterval(createEnemy, 100); // 降低敌人生成频率
         }
 
         // Start game
