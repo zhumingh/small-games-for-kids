@@ -99,7 +99,10 @@
         const MAX_ENEMIES = 200; // 设置最大敌人数量
 
         // Set initial player position
-        let playerPos = { x: 245, y: 245 };
+        let playerPos = {
+            x: Math.floor(gameArea.clientWidth / 2 - player.clientWidth / 2),
+            y: Math.floor(gameArea.clientHeight / 2 - player.clientHeight / 2)
+        };
         player.style.left = `${playerPos.x}px`;
         player.style.top = `${playerPos.y}px`;
 
@@ -385,7 +388,7 @@
             
             // Create initial enemies
             const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-            const enemyCount = isMobile ? 10 : 50;
+            const enemyCount = isMobile ? 10 : 40;
             for (let i = 0; i < enemyCount; i++) {
                 createEnemy();
             }
