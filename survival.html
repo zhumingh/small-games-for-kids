@@ -255,6 +255,19 @@
         // Update enemy positions
         function updateEnemies() {
             const playerRect = player.getBoundingClientRect();
+            const currentScore = parseInt(scoreDisplay.textContent.split(':')[1].trim().split('s')[0]);
+            let fastEnemies = [];
+
+            if (currentScore >= 10) {
+                fastEnemies = enemies.slice(0, 2);
+            }
+            if (currentScore >= 20) {
+                fastEnemies = enemies.slice(0, 4);
+            }
+            if (currentScore >= 30) {
+                fastEnemies = enemies.slice(0, 6);
+            }
+
             enemies = enemies.filter((enemyObj, index) => {
                 const enemy = enemyObj.element;
                 const enemyRect = enemy.getBoundingClientRect();
@@ -278,8 +291,9 @@
                 let dirY = dy / distance;
 
                 // 更新敌人位置，增加随机性
-                let newLeft = enemyLeft + (dirX * 2 + enemyObj.xSpeed) * (Math.random() * 0.5 + 0.75);
-                let newTop = enemyTop + (dirY * 2 + enemyObj.ySpeed) * (Math.random() * 0.5 + 0.75);
+                let speedMultiplier = fastEnemies.includes(enemyObj) ? 5 : 1;
+                let newLeft = enemyLeft + (dirX * 2 + enemyObj.xSpeed) * (Math.random() * 0.5 + 0.75) * speedMultiplier;
+                let newTop = enemyTop + (dirY * 2 + enemyObj.ySpeed) * (Math.random() * 0.5 + 0.75) * speedMultiplier;
 
                 // 边界检查和反弹
                 if (newLeft <= 0 || newLeft >= gameArea.clientWidth - 10) {
