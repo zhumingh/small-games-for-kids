@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Just-World Hypothesis Card Deck for Kids</title>
+    <style>
+        body {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        .card {
+            width: 250px;
+            height: 350px;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            box-sizing: border-box;
+            margin: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+        .card-corner {
+            position: absolute;
+            display: flex;
+            align-items: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .top-left {
+            top: 10px;
+            left: 10px;
+        }
+        .bottom-right {
+            bottom: 10px;
+            right: 10px;
+            transform: rotate(180deg);
+        }
+        .suit {
+            font-size: 28px;
+            margin-left: 5px;
+        }
+        .title {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 40px 0 10px;
+            text-align: center;
+        }
+        .content {
+            font-size: 14px;
+            line-height: 1.4;
+            flex-grow: 1;
+        }
+        .quote {
+            font-style: italic;
+            margin-top: 10px;
+            text-align: center;
+        }
+        .cute-element {
+            position: absolute;
+            font-size: 40px;
+            opacity: 0.2;
+        }
+    </style>
+</head>
+<body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
+    <script>
+        const suits = ['♠', '♥', '♦', '♣'];
+        const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+        const jokers = ['🃏 Black', '🃏 Red'];
+        const cuteElements = ['🌈', '🦄', '🌟', '🍭', '🎈', '🐶', '🐱', '🐰', '🦋', '🌺'];
+
+        const cardData = [];
+        let cardIndex = 0;
+
+        // Sanitize input to prevent XSS attacks
+        function sanitizeHTML(str) {
+            const temp = document.createElement('div');
+            temp.textContent = str;
+            return temp.innerHTML;
+        }
+
+        function createCard(suit, rank) {
+            const card = document.createElement('div');
+            card.className = 'card';
+            const color = (suit === '♥' || suit === '♦') ? 'red' : 'black';
+            const cuteElement = cuteElements[Math.floor(Math.random() * cuteElements.length)];
+            const data = cardData[cardIndex % cardData.length]; // Cycle through card data
+
+            if (!data) {
+                console.error('No card data available');
+                return;
+            }
+
+            card.innerHTML = `
+                <div class="card-corner top-left" style="color: ${color};">
+                    <span>${rank}</span><span class="suit">${suit}</span>
+                </div>
+                <div class="card-corner bottom-right" style="color: ${color};">
+                    <span>${rank}</span><span class="suit">${suit}</span>
+                </div>
+                <div class="title" style="margin-top: 15px; margin-bottom: 6px;">${sanitizeHTML(data.title)}</div>
+                <div class="content" style="margin-bottom: 2px;">
+                    <p>${sanitizeHTML(data.content)}</p>
+                    <p style="color: blue;">${sanitizeHTML(data.example)}</p>
+                </div>
+                <div class="quote" style="color: purple; margin-top: 2px; margin-bottom: 20px;">"${sanitizeHTML(data.quote)}"</div>
+                <span class="cute-element" style="top: ${Math.random() * 70 + 15}%; left: ${Math.random() * 70 + 15}%;">${cuteElement}</span>
+            `;
+            document.body.appendChild(card);
+            cardIndex++;
+        }
+
+        function createJoker(color) {
+            const card = document.createElement('div');
+            card.className = 'card';
+            const cuteElement = cuteElements[Math.floor(Math.random() * cuteElements.length)];
+            const data = cardData[cardIndex % cardData.length]; // Cycle through card data
+
+            if (!data) {
+                console.error('No card data available');
+                return;
+            }
+
+            card.innerHTML = `
+                <div class="card-corner top-left" style="color: ${color.toLowerCase()};">
+                    <span>JOKER</span>
+                </div>
+                <div class="card-corner bottom-right" style="color: ${color.toLowerCase()};">
+                    <span>JOKER</span>
+                </div>
+                <div class="title" style="margin-top: 15px; margin-bottom: 6px;">${sanitizeHTML(data.title)}</div>
+                <div class="content" style="margin-bottom: 4px;">
+                    <p>${sanitizeHTML(data.content)}</p>
+                    <p style="color: blue;">${sanitizeHTML(data.example)}</p>
+                </div>
+                <div class="quote" style="color: purple; margin-top: 4px; margin-bottom: 20px;">"${sanitizeHTML(data.quote)}"</div>
+                <span class="cute-element" style="top: ${Math.random() * 70 + 15}%; left: ${Math.random() * 70 + 15}%;">${cuteElement}</span>
+            `;
+            document.body.appendChild(card);
+            cardIndex++;
+        }
+
+        function createAllCards() {
+            for (let suit of suits) {
+                for (let rank of ranks) {
+                    createCard(suit, rank);
+                }
+            }
+            for (let joker of jokers) {
+                createJoker(joker.split(' ')[1]); // Pass 'Black' or 'Red'
+            }
+        }
+
+        fetch('res/Card_Descriptions.xlsx')
+            .then(response => response.arrayBuffer())
+            .then(data => {
+                const workbook = XLSX.read(new Uint8Array(data), {type: 'array'});
+                const sheetName = workbook.SheetNames[0];
+                const sheet = workbook.Sheets[sheetName];
+                const jsonData = XLSX.utils.sheet_to_json(sheet, {header: 1});
+
+                // Skip the header row
+                for (let i = 1; i < jsonData.length; i++) {
+                    const row = jsonData[i];
+                    if (row.length >= 4) {
+                        cardData.push({
+                            title: row[2],
+                            content: row[3],
+                            example: row[4],
+                            quote: row[5]
+                        });
+                    }
+                }
+
+                // After loading data, create cards
+                createAllCards();
+            })
+            .catch(error => {
+                console.error('Error loading Excel file:', error);
+                // Create a fallback card if an error occurs
+                const fallbackCard = document.createElement('div');
+                fallbackCard.className = 'card';
+                fallbackCard.innerHTML = '<div class="title">Error</div><div class="content">Failed to load card data</div>';
+                document.body.appendChild(fallbackCard);
+            });
+    </script>
+</body>
+</html>
