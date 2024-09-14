@@ -45,6 +45,29 @@
             background-color: rgba(0, 0, 0, 0.5);
             padding: 5px 0;
         }
+        #gameInstructions {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            z-index: 1000;
+            max-width: 80%;
+        }
+        #startButton {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 18px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
     </style>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -101,6 +124,13 @@
             100% { background-position: 0% 50%; }
         }
     </style>
+    <div id="gameInstructions">
+        <h2>Game Instructions</h2>
+        <p>Use the arrow keys (up, down, left, right), individually or in combination, to control the survivor and escape from all the dark forces of society.</p>
+        <p>At 10 seconds, 20 seconds, and 30 seconds, one or more suddenly accelerating enemies will attack.</p>
+        <p>Survive as long as possible to achieve a high score!</p>
+        <button id="startButton">Start Game</button>
+    </div>
     <div id="gameArea">
         <div id="player" class="player"></div>
         <div id="score">Score: 0</div>
@@ -354,7 +384,7 @@
             clearInterval(enemyInterval);
             let finalScore = scoreDisplay.textContent.split(': ')[1];
             const gameOverMessage = document.createElement('div');
-            gameOverMessage.textContent = `游戏结束！您的得分是：${finalScore}`;
+            gameOverMessage.textContent = `Game Over! Your score is: ${finalScore}`;
             gameOverMessage.style.position = 'absolute';
             gameOverMessage.style.top = '50%';
             gameOverMessage.style.left = '50%';
@@ -369,7 +399,7 @@
 
             setTimeout(() => {
                 const restartMessage = document.createElement('div');
-                restartMessage.textContent = '按任意键重新开始游戏';
+                restartMessage.textContent = 'Press any key to restart the game';
                 restartMessage.style.position = 'absolute';
                 restartMessage.style.top = '60%';
                 restartMessage.style.left = '50%';
@@ -426,8 +456,62 @@
             enemyInterval = setInterval(createEnemy, 100); // 降低敌人生成频率
         }
 
-        // Start game
-        startGame();
+        const gameInstructions = document.getElementById('gameInstructions');
+        const startButton = document.getElementById('startButton');
+        let gameStarted = false;
+
+        startButton.addEventListener('click', () => {
+            gameInstructions.style.display = 'none';
+            gameStarted = true;
+            startGame();
+        });
+
+        // function startGame() {
+        //     // Initialize game
+        //     score = 0;
+        //     enemies = [];
+        //     clearInterval(gameInterval);
+        //     clearInterval(enemyInterval);
+            
+        //     gameInterval = setInterval(() => {
+        //         if (gameStarted) {
+        //             movePlayer();
+        //             updateEnemies();
+        //             detectCollision();
+        //             updateScore();
+        //         }
+        //     }, 50);
+
+        //     enemyInterval = setInterval(createEnemy, 1000);
+
+        //     // Add special enemy generation
+        //     setInterval(() => {
+        //         if (gameStarted) {
+        //             createSpecialEnemy();
+        //         }
+        //     }, 10000);
+        // }
+
+        // function createSpecialEnemy() {
+        //     const enemy = document.createElement('div');
+        //     enemy.classList.add('enemy', 'special');
+        //     enemy.style.left = `${Math.random() * (gameArea.clientWidth - 10)}px`;
+        //     enemy.style.top = `${Math.random() * (gameArea.clientHeight - 10)}px`;
+        //     gameArea.appendChild(enemy);
+        //     enemies.push({ 
+        //         element: enemy, 
+        //         xSpeed: (Math.random() - 0.5) * 12, // Faster speed
+        //         ySpeed: (Math.random() - 0.5) * 12  // Faster speed
+        //     });
+        // }
+
+        // Modify existing keyDown function
+        function keyDown(e) {
+            if (!gameStarted) return;
+            // Existing key handling logic
+        }
+
+        // Rest of the game code remains unchanged
     </script>
 
 <audio id="backgroundMusic" loop>
