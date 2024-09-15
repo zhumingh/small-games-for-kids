@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-DJM7SC6MTC"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-DJM7SC6MTC');
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tetris Mini Game | KenPlay.Fun</title>
+    <meta name="description" content="Play the classic Tetris game online. Test your skills and have fun with this addictive puzzle game at KenPlay.Fun!">
+    <meta name="keywords" content="tetris, puzzle game, mini-game, KenPlay.Fun">
+    <link rel="canonical" href="https://kenplay.fun/box.html">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://kenplay.fun/box.html">
+    <meta property="og:title" content="Tetris Mini Game | KenPlay.Fun">
+    <meta property="og:description" content="Play the classic Tetris game online. Test your skills and have fun with this addictive puzzle game!">
+    <meta property="og:image" content="https://kenplay.fun/res/tetris-share.png">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://kenplay.fun/box.html">
+    <meta property="twitter:title" content="Tetris Mini Game | KenPlay.Fun">
+    <meta property="twitter:description" content="Play the classic Tetris game online. Test your skills and have fun with this addictive puzzle game!">
+    <meta property="twitter:image" content="https://kenplay.fun/res/tetris-share.png">
+
+    <style>
+        body {
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        #tetris {
+            background: #111;
+        }
+        #score {
+            color: #fff;
+            font-size: 20px;
+            position: absolute;
+            top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="tetris" width="240" height="400"></canvas>
+    <div id="score">分数：0</div>
+    <script src="res/js/tetris.js"></script>
+</body>
+
+</html>
