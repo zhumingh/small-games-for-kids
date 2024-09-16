@@ -129,6 +129,7 @@ function playerReset() {
     if (collide(arena, player)) {
         arena.forEach(row => row.fill(0));
         player.score = 0;
+        dropInterval = 1000; // 重置下降速度
         updateScore();
     }
 }
@@ -177,6 +178,10 @@ function update(time = 0) {
 // 更新分数
 function updateScore() {
     document.getElementById('score').innerText = `分数：${player.score}`;
+    
+    // 根据分数调整下降速度
+    const level = Math.floor(player.score / 10) + 1;
+    dropInterval = Math.max(200, 1000 - (level - 1) * 100); // 最快200毫秒一次
 }
 
 // 颜色数组
@@ -202,51 +207,43 @@ const player = {
 };
 
 // 键盘事件监听
+const keys = {};
+
 document.addEventListener('keydown', event => {
+    if (keys[event.key]) return;
+    keys[event.key] = true;
+
     if (event.key === 'ArrowLeft') {
         playerMove(-1);
     } else if (event.key === 'ArrowRight') {
         playerMove(1);
     } else if (event.key === 'ArrowDown') {
-        playerDrop();
-    } else if (event.key === 'z') {
-        playerRotate(-1);
-    } else if (event.key === 'x') {
-        playerRotate(1);
-    }
-});
-
-
-
-document.addEventListener('keydown', event => {
-    if (event.key === 'ArrowLeft') {
-        playerMove(-1);
-    } else if (event.key === 'ArrowRight') {
-        playerMove(1);
-    } else if (event.key === 'ArrowDown') {
-        playerDrop();
+        playerHardDrop();
     } else if (event.key === 'ArrowUp') {
-        playerRotate(1); // 上方向键旋转方块
+        playerRotate(1);
     } else if (event.key === 'z' || event.key === 'Z') {
         playerRotate(-1);
     } else if (event.key === 'x' || event.key === 'X') {
         playerRotate(1);
     } else if (event.key === 'Escape') {
-        togglePause(); // 按下 Esc 键暂停或继续游戏
+        togglePause(); // 需要实现这个函数
     }
 });
 
-
-// ...（之前的代码保持不变）
-
-// 添加或修改以下部分
+document.addEventListener('keyup', event => {
+    keys[event.key] = false;
+});
 
 // 硬降功能
-function playerHardDrop() {
-    while (!collide(arena, player)) {
+async function playerHardDrop() {
+    while (true) {
+        if (collide(arena, { ...player, pos: { ...player.pos, y: player.pos.y + 1 } })) {
+            break;
+        }
         player.pos.y++;
+        await new Promise(resolve => setTimeout(resolve, 50));
     }
-    player.pos.y--; // 回退一格，因为最后一次增量导致碰撞
+    // 不需要回退，因为最后一次移动没有执行
     merge(arena, player);
     playerReset();
     arenaSweep();
@@ -254,7 +251,7 @@ function playerHardDrop() {
     dropCounter = 0;
 }
 
-// （可选）软降功能
+// 软降功能
 function playerSoftDrop() {
     player.pos.y++;
     if (collide(arena, player)) {
@@ -266,39 +263,6 @@ function playerSoftDrop() {
     }
     dropCounter = 0;
 }
-
-// 键盘事件监听
-document.addEventListener('keydown', event => {
-    if (keys[event.key]) return;
-    keys[event.key] = true;
-
-    if (event.key === 'ArrowLeft') {
-        playerMove(-1);
-    } else if (event.key === 'ArrowRight') {
-        playerMove(1);
-    } else if (event.key === 'ArrowDown') {
-        playerHardDrop(); // 下方向键执行硬降
-    } else if (event.key === 'ArrowUp') {
-        playerRotate(1);
-    } else if (event.key === 'Shift') {
-        playerSoftDrop(); // Shift 键执行软降（可选）
-    } else if (event.key === 'z' || event.key === 'Z') {
-        playerRotate(-1);
-    } else if (event.key === 'x' || event.key === 'X') {
-        playerRotate(1);
-    } else if (event.key === 'Escape') {
-        togglePause();
-    }
-});
-
-document.addEventListener('keyup', event => {
-    keys[event.key] = false;
-});
-
-// ...（其余代码保持不变）
-
-
-
 
 // 初始化游戏
 playerReset();
