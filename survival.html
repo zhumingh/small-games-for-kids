@@ -281,8 +281,24 @@
             const randomNumber = Math.random();
             const randomColor = randomNumber < 0.8 ? colors[0] : (randomNumber < 0.95 ? colors[1] : colors[2]);
             enemy.style.backgroundColor = randomColor;
-            enemy.style.left = `${Math.random() * (gameArea.clientWidth - 10)}px`;
-            enemy.style.top = `${Math.random() * (gameArea.clientHeight - 10)}px`;
+            // Calculate the center of the game area
+            const centerX = gameArea.clientWidth / 2;
+            const centerY = gameArea.clientHeight / 2;
+            
+            // Generate a random angle
+            const angle = Math.random() * 2 * Math.PI;
+            
+            // Calculate a distance that's at least 1/4 of the game area's width or height, whichever is larger
+            const minDistance = Math.max(gameArea.clientWidth, gameArea.clientHeight) / 4;
+            const distance = minDistance + Math.random() * minDistance; // This ensures the enemy is between 1/4 and 1/2 of the max dimension away
+            
+            // Calculate the enemy's position
+            const enemyX = centerX + Math.cos(angle) * distance;
+            const enemyY = centerY + Math.sin(angle) * distance;
+            
+            // Set the enemy's position, ensuring it's within the game area
+            enemy.style.left = `${Math.max(0, Math.min(gameArea.clientWidth - 10, enemyX))}px`;
+            enemy.style.top = `${Math.max(0, Math.min(gameArea.clientHeight - 10, enemyY))}px`;
             const enemySize = Math.random();
             let size;
             if (enemySize < 0.8) {
@@ -431,6 +447,22 @@
 
         // Game loop
         function startGame() {
+            // Reset player position to the center
+            player.style.left = '50%';
+            player.style.top = '50%';
+            player.style.transform = 'translate(-50%, -50%)';
+
+            // Reset player's internal position
+            playerX = gameArea.offsetWidth / 2 - player.offsetWidth / 2;
+            playerY = gameArea.offsetHeight / 2 - player.offsetHeight / 2;
+
+            // Reset player position
+            playerPos = {
+                x: gameArea.offsetWidth / 2 - player.offsetWidth / 2,
+                y: gameArea.offsetHeight / 2 - player.offsetHeight / 2
+            };
+            // Reset score display
+            //scoreDisplay.textContent = 'Progress: 0s000';
             score = 0;
             enemies = [];
             
