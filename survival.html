@@ -256,6 +256,9 @@
             touchStartY = 0;
         }
 
+        // Array to store player positions
+        let playerPath = [];
+
         // Function to move player
         function movePlayer() {
             const step = 10;
@@ -278,6 +281,9 @@
 
             player.style.left = `${playerPos.x}px`;
             player.style.top = `${playerPos.y}px`;
+
+            // Record player position
+            playerPath.push({ x: playerPos.x, y: playerPos.y });
         }
 
         // Create randomly moving enemies
@@ -412,8 +418,11 @@
             helper.style.height = '20px';
             helper.style.backgroundColor = '#fff'; // White color for the helper
             helper.style.borderRadius = '50%';
-            helper.style.left = `${Math.random() * (gameArea.clientWidth - 20)}px`;
-            helper.style.top = `${Math.random() * (gameArea.clientHeight - 20)}px`;
+            const playerRect = player.getBoundingClientRect();
+            const offsetX = (Math.random() - 0.5) * 200; // Random offset within ±50 pixels
+            const offsetY = (Math.random() - 0.5) * 200; // Random offset within ±50 pixels
+            helper.style.left = `${Math.max(0, Math.min(gameArea.clientWidth - 20, playerRect.left + offsetX))}px`;
+            helper.style.top = `${Math.max(0, Math.min(gameArea.clientHeight - 20, playerRect.top + offsetY))}px`;
             gameArea.appendChild(helper);
 
             setTimeout(() => {
@@ -441,7 +450,33 @@
 
         setInterval(createHelper, 5000); // Create a helper every 5 seconds
 
+        // Function to draw player path
+        function drawPlayerPath() {
+            const canvas = document.createElement('canvas');
+            canvas.width = gameArea.clientWidth;
+            canvas.height = gameArea.clientHeight;
+            canvas.style.position = 'absolute';
+            canvas.style.top = '0';
+            canvas.style.left = '0';
+            canvas.style.zIndex = '999'; // Ensure it's on top
+            gameArea.appendChild(canvas);
 
+            const ctx = canvas.getContext('2d');
+            ctx.strokeStyle = 'rgba(0, 255, 0, 0.5)'; // Green color with some transparency
+            ctx.lineWidth = 2;
+
+            ctx.beginPath();
+            ctx.moveTo(playerPath[0].x, playerPath[0].y);
+            for (let i = 1; i < playerPath.length - 1; i++) {
+                const cp = {
+                    x: (playerPath[i].x + playerPath[i + 1].x) / 2,
+                    y: (playerPath[i].y + playerPath[i + 1].y) / 2
+                };
+                ctx.quadraticCurveTo(playerPath[i].x, playerPath[i].y, cp.x, cp.y);
+            }
+            ctx.lineTo(playerPath[playerPath.length - 1].x, playerPath[playerPath.length - 1].y);
+            ctx.stroke();
+        }
 
         // End game
         function endGame() {
@@ -461,6 +496,9 @@
             gameOverMessage.style.fontSize = '24px';
             gameOverMessage.style.textAlign = 'center';
             document.body.appendChild(gameOverMessage);
+
+            // Draw player path
+            drawPlayerPath();
 
             setTimeout(() => {
                 const restartMessage = document.createElement('div');
@@ -496,6 +534,11 @@
 
         // Game loop
         function startGame() {
+            // Clear the previously drawn player path
+            const existingCanvas = gameArea.querySelector('canvas');
+            if (existingCanvas) {
+                gameArea.removeChild(existingCanvas);
+            }
             // Reset player position to the center
             player.style.left = '50%';
             player.style.top = '50%';
@@ -510,8 +553,11 @@
                 x: gameArea.offsetWidth / 2 - player.offsetWidth / 2,
                 y: gameArea.offsetHeight / 2 - player.offsetHeight / 2
             };
+
+            // Reset player path
+            playerPath = [{ x: playerPos.x, y: playerPos.y }];
+
             // Reset score display
-            //scoreDisplay.textContent = 'Progress: 0s000';
             score = 0;
             enemies = [];
             
@@ -546,53 +592,6 @@
             gameStarted = true;
             startGame();
         });
-
-        // function startGame() {
-        //     // Initialize game
-        //     score = 0;
-        //     enemies = [];
-        //     clearInterval(gameInterval);
-        //     clearInterval(enemyInterval);
-            
-        //     gameInterval = setInterval(() => {
-        //         if (gameStarted) {
-        //             movePlayer();
-        //             updateEnemies();
-        //             detectCollision();
-        //             updateScore();
-        //         }
-        //     }, 50);
-
-        //     enemyInterval = setInterval(createEnemy, 1000);
-
-        //     // Add special enemy generation
-        //     setInterval(() => {
-        //         if (gameStarted) {
-        //             createSpecialEnemy();
-        //         }
-        //     }, 10000);
-        // }
-
-        // function createSpecialEnemy() {
-        //     const enemy = document.createElement('div');
-        //     enemy.classList.add('enemy', 'special');
-        //     enemy.style.left = `${Math.random() * (gameArea.clientWidth - 10)}px`;
-        //     enemy.style.top = `${Math.random() * (gameArea.clientHeight - 10)}px`;
-        //     gameArea.appendChild(enemy);
-        //     enemies.push({ 
-        //         element: enemy, 
-        //         xSpeed: (Math.random() - 0.5) * 12, // Faster speed
-        //         ySpeed: (Math.random() - 0.5) * 12  // Faster speed
-        //     });
-        // }
-
-        // Modify existing keyDown function
-        function keyDown(e) {
-            if (!gameStarted) return;
-            // Existing key handling logic
-        }
-
-        // Rest of the game code remains unchanged
     </script>
 
 <audio id="backgroundMusic" loop>
