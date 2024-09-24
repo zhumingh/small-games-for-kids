@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dynamic Visualization with P5.js</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+</head>
+<body>
+  <script>
+    let t = 0;
+
+    function setup() {
+      createCanvas(400, 400); // 创建400x400画布
+      background(6);          // 设置背景颜色为深灰色
+      stroke(255, 66, 66);    // 设置绘制颜色为白色和微红
+    }
+
+    // 定义a函数，返回点的坐标
+    function a(x, y, d = 5 * cos(mag(k = x / 8 - 25, e = y / 8 - 25) / 3)) {
+      let xPos = (x + d * k * sin(d * 2.5 - t) + k / 2 * sin(y / 3 + t)) / 2 + 100;
+      let yPos = d * 19 + (d - 2) * 5 * abs(cos(d / 2 - t / 2)) + d * e + 215;
+      return [xPos, yPos];
+    }
+
+    function draw() {
+      t += PI / 60;  // 让t逐步增加，生成动画效果
+      for (let y = 100; y < 300; y++) {
+        for (let x = 100; x < 300; x++) {
+          let [xPos, yPos] = a(x, y);  // 获取点的位置
+          point(xPos, yPos);           // 在指定位置绘制点
+        }
+      }
+    }
+  </script>
+</body>
+</html>

@@ -134,6 +134,16 @@
     <div id="gameArea">
         <div id="player" class="player"></div>
         <div id="score">Score: 0</div>
+    <div id="backToIndex" style="position: absolute; top: 10px; right: 10px; font-size: 12px; color: rgba(255, 255, 255, 0.5); cursor: pointer;">
+        Back to Index
+    </div>
+    <script>
+        document.getElementById('backToIndex').addEventListener('click', function() {
+            if (confirm('Are you sure you want to leave the game?')) {
+                window.location.href = 'index.html';
+            }
+        });
+    </script>
     </div>
 
     <script>
@@ -393,6 +403,45 @@
                 rect1.top > rect2.bottom
             );
         }
+
+        function createHelper() {
+            const helper = document.createElement('div');
+            helper.classList.add('helper');
+            helper.style.position = 'absolute';
+            helper.style.width = '20px';
+            helper.style.height = '20px';
+            helper.style.backgroundColor = '#fff'; // White color for the helper
+            helper.style.borderRadius = '50%';
+            helper.style.left = `${Math.random() * (gameArea.clientWidth - 20)}px`;
+            helper.style.top = `${Math.random() * (gameArea.clientHeight - 20)}px`;
+            gameArea.appendChild(helper);
+
+            setTimeout(() => {
+                gameArea.removeChild(helper);
+            }, 3000); // Helper stays for 3 seconds
+
+            // Remove enemies in the vicinity of the helper
+            enemies = enemies.filter(enemyObj => {
+                const enemy = enemyObj.element;
+                const enemyRect = enemy.getBoundingClientRect();
+                const helperRect = helper.getBoundingClientRect();
+
+                const distance = Math.sqrt(
+                    Math.pow(helperRect.left - enemyRect.left, 2) +
+                    Math.pow(helperRect.top - enemyRect.top, 2)
+                );
+
+                if (distance < 100) { // Define the vicinity range
+                    gameArea.removeChild(enemy);
+                    return false;
+                }
+                return true;
+            });
+        }
+
+        setInterval(createHelper, 5000); // Create a helper every 5 seconds
+
+
 
         // End game
         function endGame() {

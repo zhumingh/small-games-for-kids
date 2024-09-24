@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-DJM7SC6MTC"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-DJM7SC6MTC');
+    </script>
+
+    <meta name="description" content="Play the exciting Dinosaur Game! Jump and duck to avoid obstacles in this fun and addictive browser game.">
+    <meta name="keywords" content="dinosaur game, browser game, jumping game, obstacle game">
+    <link rel="canonical" href="https://kenplay.fun/dino.html">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://kenplay.fun/dragon.html">
+    <meta property="og:title" content="Dinosaur Game | KenPlay.Fun">
+    <meta property="og:description" content="Play the exciting Dinosaur Game! Jump and duck to avoid obstacles in this fun and addictive browser game.">
+    <meta property="og:image" content="https://kenplay.fun/res/share.png">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://kenplay.fun/dragon.html">
+    <meta property="twitter:title" content="Dinosaur Game | KenPlay.Fun">
+    <meta property="twitter:description" content="Play the exciting Dinosaur Game! Jump and duck to avoid obstacles in this fun and addictive browser game.">
+    <meta property="twitter:image" content="https://kenplay.fun/res/share.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dinosaur Game</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .dinosaur {
+            width: 60px;
+            height: 60px;
+            background-color: #333;
+            position: absolute;
+            bottom: 0;
+            left: 50px;
+            transition: height 0.2s;
+        }
+        .bird {
+            width: 40px;
+            height: 40px;
+            background-color: #f00;
+            position: absolute;
+            right: -40px;
+        }
+        .ducking {
+            height: 30px;
+        }
+        .obstacle {
+            width: 20px;
+            height: 40px;
+            background-color: #0f0;
+            position: absolute;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 h-screen flex items-center justify-center">
+    <div id="game-container" class="w-full max-w-2xl h-64 bg-white relative overflow-hidden">
+        <div id="dinosaur" class="dinosaur"></div>
+        <div id="score" class="absolute top-2 right-2 text-xl font-bold"></div>
+    </div>
+
+    <script>
+        const dinosaur = document.getElementById('dinosaur');
+        const gameContainer = document.getElementById('game-container');
+        let isGameOver = false;
+        let score = 0;
+
+        let isJumping = false;
+        let jumpCount = 0;
+        const maxJumpHeight = 100;
+        const gravity = 0.6;
+        let velocityY = 0;
+
+        function createBird() {
+            const bird = document.createElement('div');
+            bird.classList.add('bird');
+            bird.style.bottom = '30px';
+            gameContainer.appendChild(bird);
+
+            let position = gameContainer.offsetWidth;
+            
+            function moveBird() {
+                if (isGameOver) return;
+                position -= 5;
+                bird.style.right = position + 'px';
+
+                if (position < -40) {
+                    gameContainer.removeChild(bird);
+                    score++;
+                    console.log('Score:', score);
+                } else {
+                    requestAnimationFrame(moveBird);
+                }
+
+                checkCollision(bird);
+            }
+
+            requestAnimationFrame(moveBird);
+        }
+
+        function checkCollision(bird) {
+            const dinoRect = dinosaur.getBoundingClientRect();
+            const birdRect = bird.getBoundingClientRect();
+
+            if (
+                dinoRect.right > birdRect.left &&
+                dinoRect.left < birdRect.right &&
+                dinoRect.bottom > birdRect.top &&
+                dinoRect.top < birdRect.bottom
+            ) {
+                gameOver();
+            }
+        }
+
+        function gameOver() {
+            isGameOver = true;
+            alert('Game Over! Your score: ' + score);
+        }
+
+        function jump() {
+            if (!isJumping && jumpCount < 2) {
+                isJumping = true;
+                jumpCount++;
+                velocityY = -10;
+            }
+        }
+
+        function applyGravity() {
+            if (isJumping) {
+                dinosaur.style.bottom = parseInt(dinosaur.style.bottom || '0') + velocityY + 'px';
+                velocityY += gravity;
+
+                if (parseInt(dinosaur.style.bottom) <= 0) {
+                    dinosaur.style.bottom = '0px';
+                    isJumping = false;
+                    jumpCount = 0;
+                    velocityY = 0;
+                }
+            }
+            requestAnimationFrame(applyGravity);
+        }
+
+        function createObstacle() {
+            const obstacle = document.createElement('div');
+            obstacle.classList.add('obstacle');
+            obstacle.style.right = '-20px';
+            obstacle.style.bottom = '0px';
+            gameContainer.appendChild(obstacle);
+
+            let position = gameContainer.offsetWidth;
+            
+            function moveObstacle() {
+                if (isGameOver) return;
+                position -= 5;
+                obstacle.style.right = position + 'px';
+
+                if (position < -20) {
+                    gameContainer.removeChild(obstacle);
+                    score++;
+                    updateScore();
+                } else {
+                    requestAnimationFrame(moveObstacle);
+                }
+
+                checkCollision(obstacle);
+            }
+
+            requestAnimationFrame(moveObstacle);
+        }
+
+        function updateScore() {
+            document.getElementById('score').textContent = 'Score: ' + score;
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                jump();
+            } else if (e.code === 'ArrowDown') {
+                dinosaur.classList.add('ducking');
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            if (e.code === 'ArrowDown') {
+                dinosaur.classList.remove('ducking');
+            }
+        });
+
+        applyGravity();
+        setInterval(createObstacle, 2000);
+        updateScore();
+    </script>
+</body>
+</html>
