@@ -99,6 +99,45 @@
         .flicker {
             animation: flicker 2s infinite;
         }
+
+        .platform-list {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 30px;
+        }
+        .platform-item {
+            background-color: #252526;
+            padding: 15px;
+            border-radius: 5px;
+            width: 250px;
+            text-align: left;
+            transition: all 0.3s ease;
+            color: #9cdcfe;
+            text-decoration: none;
+        }
+        .platform-item:hover {
+            background-color: #2c203d;
+            transform: translateY(-5px);
+        }
+        .platform-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #d7ba7d;
+        }
+        .platform-description {
+            font-size: 0.9em;
+            color: #9cdcfe;
+        }
+
+
+
+
+
+
+
+
     </style>
 </head>
 <body>
@@ -178,12 +217,62 @@
             </a>
         </div>
 
+
+        <div class="container">
+        <h2 style="text-align: center; color: #569cd6; margin-top: 40px;">Explore More Gaming Platforms</h2>
+        <div class="platform-list">
+            <a href="https://www.kongregate.com" target="_blank" class="platform-item">
+                <div class="platform-title">Kongregate</div>
+                <p class="platform-description">Thousands of free online games across various genres.</p>
+            </a>
+            <a href="https://www.miniclip.com" target="_blank" class="platform-item">
+                <div class="platform-title">Miniclip</div>
+                <p class="platform-description">Vast selection of online games, from sports to casual.</p>
+            </a>
+            <a href="https://www.armorgames.com" target="_blank" class="platform-item">
+                <div class="platform-title">Armor Games</div>
+                <p class="platform-description">High-quality games focusing on indie developers.</p>
+            </a>
+            <a href="https://www.addictinggames.com" target="_blank" class="platform-item">
+                <div class="platform-title">Addicting Games</div>
+                <p class="platform-description">Wide variety of easy-to-play games in your browser.</p>
+            </a>
+            <a href="https://www.crazygames.com" target="_blank" class="platform-item">
+                <div class="platform-title">CrazyGames</div>
+                <p class="platform-description">Latest HTML5 games with user-friendly interfaces.</p>
+            </a>
+            <a href="https://www.poki.com" target="_blank" class="platform-item">
+                <div class="platform-title">Poki</div>
+                <p class="platform-description">Curated games playable on desktop and mobile.</p>
+            </a>
+            <a href="https://www.newgrounds.com" target="_blank" class="platform-item">
+                <div class="platform-title">Newgrounds</div>
+                <p class="platform-description">Community-driven platform for games and art.</p>
+            </a>
+            <a href="https://www.coolmathgames.com" target="_blank" class="platform-item">
+                <div class="platform-title">Coolmath Games</div>
+                <p class="platform-description">Fun and educational games targeting younger audiences.</p>
+            </a>
+            <a href="https://www.y8.com" target="_blank" class="platform-item">
+                <div class="platform-title">Y8 Games</div>
+                <p class="platform-description">Thousands of browser-based games, including multiplayer.</p>
+            </a>
+            <a href="https://www.gamejolt.com" target="_blank" class="platform-item">
+                <div class="platform-title">Game Jolt</div>
+                <p class="platform-description">Indie game downloads and browser-based games.</p>
+            </a>
+        </div>
+    </div>
+
+
         <div class="hint" style="text-align: center; margin-top: 15px; color: #2e4a61; font-size: 0.7em;">
             <p>More ideas or advice? <a href="mailto:zhumingh@gmail.com" style="color: #4ec9b0; text-decoration: none;">email me</a></p>
         </div>
     </div>
 
-   
+    
+
+
     
     <div class="social-links" style="text-align: center; margin-top: 20px; padding-bottom: 20px;"> <!-- Changed from fixed positioning to relative -->
         <a href="https://x.com/zhumingh" target="_blank" class="social-link" style="display: inline-block; margin: 0 10px; text-decoration: none; color: #569cd6; font-size: 1.0em;">
