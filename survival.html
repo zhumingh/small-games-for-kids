@@ -488,26 +488,55 @@
         function endGame() {
             clearInterval(gameInterval);
             clearInterval(enemyInterval);
-            clearInterval(helperInterval); // 清除助手生成的定时器
+            clearInterval(helperInterval);
+
             let finalScore = scoreDisplay.textContent.split(': ')[1];
+
+            // Create a semi-transparent overlay
+            const overlay = document.createElement('div');
+            overlay.style.position = 'absolute';
+            overlay.style.top = '0';
+            overlay.style.left = '0';
+            overlay.style.width = '100%';
+            overlay.style.height = '100%';
+            overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+            overlay.style.zIndex = '1000';
+            document.body.appendChild(overlay);
+
+            // Create a container for game over content
+            const gameOverContainer = document.createElement('div');
+            gameOverContainer.style.position = 'absolute';
+            gameOverContainer.style.top = '50%';
+            gameOverContainer.style.left = '50%';
+            gameOverContainer.style.transform = 'translate(-50%, -50%)';
+            gameOverContainer.style.textAlign = 'center';
+            gameOverContainer.style.zIndex = '1001';
+            gameOverContainer.style.width = '80%';
+            gameOverContainer.style.maxWidth = '400px';
+
+            // Game over message
             const gameOverMessage = document.createElement('div');
-            gameOverMessage.textContent = `Game Over! Your score is: ${finalScore}`;
-            gameOverMessage.style.position = 'absolute';
-            gameOverMessage.style.top = '50%';
-            gameOverMessage.style.left = '50%';
-            gameOverMessage.style.transform = 'translate(-50%, -50%)';
-            gameOverMessage.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
-            gameOverMessage.style.color = 'white';
-            gameOverMessage.style.padding = '20px';
-            gameOverMessage.style.borderRadius = '10px';
-            gameOverMessage.style.fontSize = '24px';
-            gameOverMessage.style.textAlign = 'center';
-            document.body.appendChild(gameOverMessage);
+            gameOverMessage.textContent = 'Game Over!';
+            gameOverMessage.style.color = '#FF4136';
+            gameOverMessage.style.fontSize = '36px';
+            gameOverMessage.style.fontWeight = 'bold';
+            gameOverMessage.style.marginBottom = '20px';
+            gameOverContainer.appendChild(gameOverMessage);
+
+            // Score display
+            const scoreMessage = document.createElement('div');
+            scoreMessage.textContent = `Your score: ${finalScore}`;
+            scoreMessage.style.color = '#FFFFFF';
+            scoreMessage.style.fontSize = '24px';
+            scoreMessage.style.marginBottom = '30px';
+            gameOverContainer.appendChild(scoreMessage);
+
+            document.body.appendChild(gameOverContainer);
 
             // Draw player path
             drawPlayerPath();
 
-            // 移除所有现有的敌人
+            // Remove existing enemies
             enemies.forEach(enemyObj => {
                 if (enemyObj.element.parentNode === gameArea) {
                     gameArea.removeChild(enemyObj.element);
@@ -515,7 +544,7 @@
             });
             enemies = [];
 
-            // 移除所有现有的助手元素
+            // Remove existing helpers
             const helpers = gameArea.querySelectorAll('.helper');
             helpers.forEach(helper => {
                 if (helper.parentNode === gameArea) {
@@ -525,21 +554,15 @@
 
             setTimeout(() => {
                 const restartMessage = document.createElement('div');
-                restartMessage.textContent = 'Press any key to restart the game';
-                restartMessage.style.position = 'absolute';
-                restartMessage.style.top = '60%';
-                restartMessage.style.left = '50%';
-                restartMessage.style.transform = 'translate(-50%, -50%)';
-                restartMessage.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
-                restartMessage.style.color = 'white';
-                restartMessage.style.padding = '10px';
-                restartMessage.style.borderRadius = '5px';
+                restartMessage.textContent = 'Press any key or tap to restart';
+                restartMessage.style.color = '#7FDBFF';
                 restartMessage.style.fontSize = '18px';
-                document.body.appendChild(restartMessage);
+                restartMessage.style.cursor = 'pointer';
+                gameOverContainer.appendChild(restartMessage);
 
                 function restartGame() {
-                    document.body.removeChild(gameOverMessage);
-                    document.body.removeChild(restartMessage);
+                    document.body.removeChild(overlay);
+                    document.body.removeChild(gameOverContainer);
                     document.removeEventListener('keydown', restartGame);
                     document.removeEventListener('touchstart', restartGame);
                     startGame();
@@ -547,7 +570,15 @@
 
                 document.addEventListener('keydown', restartGame);
                 document.addEventListener('touchstart', restartGame);
-            }, 3000);
+            }, 2000);
+
+            // Add a subtle animation to the game over container
+            let opacity = 0;
+            const fadeIn = setInterval(() => {
+                opacity += 0.1;
+                gameOverContainer.style.opacity = opacity;
+                if (opacity >= 1) clearInterval(fadeIn);
+            }, 50);
         }
 
         // Game loop
