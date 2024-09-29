@@ -417,7 +417,7 @@
             helper.style.position = 'absolute';
             helper.style.width = '20px';
             helper.style.height = '20px';
-            helper.style.backgroundColor = '#fff'; // White color for the helper
+            helper.style.backgroundColor = '#e0e0e0'; // Gray-white color for the helper
             helper.style.borderRadius = '50%';
             const playerRect = player.getBoundingClientRect();
             const offsetX = (Math.random() - 0.5) * 200; // Random offset within ±100 pixels
@@ -468,7 +468,7 @@
             gameArea.appendChild(canvas);
 
             const ctx = canvas.getContext('2d');
-            ctx.strokeStyle = 'rgba(0, 255, 0, 0.5)'; // Green color with some transparency
+            ctx.strokeStyle = 'rgba(0, 255, 0, 1)'; // Solid green color with no transparency
             ctx.lineWidth = 2;
 
             ctx.beginPath();
@@ -518,6 +518,7 @@
             const gameOverMessage = document.createElement('div');
             gameOverMessage.textContent = 'Game Over!';
             gameOverMessage.style.color = '#FF4136';
+            //gameOverMessage.style.color = 
             gameOverMessage.style.fontSize = '36px';
             gameOverMessage.style.fontWeight = 'bold';
             gameOverMessage.style.marginBottom = '20px';
