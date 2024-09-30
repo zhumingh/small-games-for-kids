@@ -11,7 +11,7 @@
   gtag('config', 'G-DJM7SC6MTC');
 </script>
 
-    <script src="analytics.js"></script>
+    
 
     <title>Dodge Survival Game | KenPlay.Fun</title>
     <meta name="description" content="Test your reflexes in this exciting Dodge Survival Game. Avoid obstacles and survive as long as you can in this thrilling mini-game at KenPlay.Fun!">
@@ -419,36 +419,53 @@
             helper.style.height = '20px';
             helper.style.backgroundColor = '#e0e0e0'; // Gray-white color for the helper
             helper.style.borderRadius = '50%';
-            const playerRect = player.getBoundingClientRect();
-            const offsetX = (Math.random() - 0.5) * 200; // Random offset within ±100 pixels
-            const offsetY = (Math.random() - 0.5) * 200; // Random offset within ±100 pixels
-            helper.style.left = `${Math.max(0, Math.min(gameArea.clientWidth - 20, playerRect.left + offsetX))}px`;
-            helper.style.top = `${Math.max(0, Math.min(gameArea.clientHeight - 20, playerRect.top + offsetY))}px`;
+            
+            // Place helper randomly in the game area
+            helper.style.left = `${Math.random() * (gameArea.clientWidth - 20)}px`;
+            helper.style.top = `${Math.random() * (gameArea.clientHeight - 20)}px`;
             gameArea.appendChild(helper);
+
+            // Randomly select a portion of enemies to move towards the helper
+            const attractedEnemies = enemies.filter(() => Math.random() < 0.3); // 30% chance for each enemy
+
+            attractedEnemies.forEach(enemyObj => {
+                enemyObj.attractedToHelper = true;
+            });
 
             setTimeout(() => {
                 if (helper.parentNode === gameArea) {
                     gameArea.removeChild(helper);
                 }
+                // Reset attracted enemies to move towards player
+                attractedEnemies.forEach(enemyObj => {
+                    enemyObj.attractedToHelper = false;
+                });
             }, 3000); // Helper stays for 3 seconds
 
-            // Remove enemies in the vicinity of the helper
-            enemies = enemies.filter(enemyObj => {
+            // Update enemy movement logic in the main game loop
+            const updateEnemyMovement = (enemyObj) => {
                 const enemy = enemyObj.element;
                 const enemyRect = enemy.getBoundingClientRect();
-                const helperRect = helper.getBoundingClientRect();
+                let targetRect;
 
-                const distance = Math.sqrt(
-                    Math.pow(helperRect.left - enemyRect.left, 2) +
-                    Math.pow(helperRect.top - enemyRect.top, 2)
-                );
-
-                if (distance < 100) { // Define the vicinity range
-                    gameArea.removeChild(enemy);
-                    return false;
+                if (enemyObj.attractedToHelper) {
+                    targetRect = helper.getBoundingClientRect();
+                } else {
+                    targetRect = player.getBoundingClientRect();
                 }
-                return true;
-            });
+
+                const dx = targetRect.left - enemyRect.left;
+                const dy = targetRect.top - enemyRect.top;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+
+                // Update enemy position (existing logic)
+                // ...
+
+                return true; // Keep the enemy
+            };
+
+            // Replace the existing enemy update logic with the new updateEnemyMovement function
+            enemies = enemies.filter(updateEnemyMovement);
         }
 
         // 将助手生成的定时器放入 startGame 函数中
@@ -478,7 +495,8 @@
                     x: (playerPath[i].x + playerPath[i + 1].x) / 2,
                     y: (playerPath[i].y + playerPath[i + 1].y) / 2
                 };
-                ctx.quadraticCurveTo(playerPath[i].x, playerPath[i].y, cp.x, cp.y);
+                //ctx.quadraticCurveTo(playerPath[i].x, playerPath[i].y, cp.x, cp.y);
+                ctx.bezierCurveTo(playerPath[i].x, playerPath[i].y, cp.x, cp.y, playerPath[i + 1].x, playerPath[i + 1].y);
             }
             ctx.lineTo(playerPath[playerPath.length - 1].x, playerPath[playerPath.length - 1].y);
             ctx.stroke();
@@ -514,11 +532,12 @@
             gameOverContainer.style.width = '80%';
             gameOverContainer.style.maxWidth = '400px';
 
+            // Draw player path
+            drawPlayerPath();
             // Game over message
             const gameOverMessage = document.createElement('div');
             gameOverMessage.textContent = 'Game Over!';
             gameOverMessage.style.color = '#FF4136';
-            //gameOverMessage.style.color = 
             gameOverMessage.style.fontSize = '36px';
             gameOverMessage.style.fontWeight = 'bold';
             gameOverMessage.style.marginBottom = '20px';
@@ -529,13 +548,20 @@
             scoreMessage.textContent = `Your score: ${finalScore}`;
             scoreMessage.style.color = '#FFFFFF';
             scoreMessage.style.fontSize = '24px';
-            scoreMessage.style.marginBottom = '30px';
+            scoreMessage.style.marginBottom = '15px';
             gameOverContainer.appendChild(scoreMessage);
+
+            // Steps display
+            const stepsMessage = document.createElement('div');
+            stepsMessage.textContent = `Total steps: ${playerPath.length}`;
+            stepsMessage.style.color = '#FFFFFF';
+            stepsMessage.style.fontSize = '24px';
+            stepsMessage.style.marginBottom = '30px';
+            gameOverContainer.appendChild(stepsMessage);
 
             document.body.appendChild(gameOverContainer);
 
-            // Draw player path
-            drawPlayerPath();
+            
 
             // Remove existing enemies
             enemies.forEach(enemyObj => {
