@@ -1,0 +1,1300 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>戴纳石油化工无人机巡检调度系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: #0a0e1a;
+            color: #ffffff;
+            overflow: hidden;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 300px 1fr 350px;
+            grid-template-rows: 60px 1fr;
+            height: 100vh;
+            gap: 2px;
+        }
+
+        /* 顶部导航栏 */
+        .header {
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: bold;
+            color: #00d4ff;
+        }
+
+        .status-bar {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #00ff88;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* 左侧控制面板 */
+        .left-panel {
+            background: rgba(20, 30, 48, 0.95);
+            border-right: 1px solid #2a3f5f;
+            overflow-y: auto;
+        }
+
+        .panel-section {
+            margin: 15px;
+            background: rgba(30, 45, 70, 0.8);
+            border-radius: 8px;
+            padding: 15px;
+            border: 1px solid #3a5f8f;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #00d4ff;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #3a5f8f;
+            padding-bottom: 5px;
+        }
+
+        .drone-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .drone-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px;
+            margin: 5px 0;
+            background: rgba(40, 60, 90, 0.6);
+            border-radius: 5px;
+            border-left: 3px solid #00ff88;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .drone-item:hover {
+            background: rgba(50, 70, 100, 0.8);
+            transform: translateX(5px);
+        }
+
+        .drone-item.warning {
+            border-left-color: #ffaa00;
+        }
+
+        .drone-item.error {
+            border-left-color: #ff4444;
+        }
+
+        .drone-info {
+            font-size: 12px;
+        }
+
+        .drone-id {
+            font-weight: bold;
+            color: #00d4ff;
+        }
+
+        .battery {
+            font-size: 11px;
+            color: #88ff88;
+        }
+
+        .control-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .btn {
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #00d4ff, #0099cc);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #666, #888);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        /* 主地图区域 */
+        .map-container {
+            position: relative;
+            background: #0a0e1a;
+            overflow: hidden;
+        }
+
+        .map-canvas {
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 30% 30%, #1a2332, #0a0e1a);
+        }
+
+        .map-overlay {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #3a5f8f;
+        }
+
+        .coordinates {
+            font-size: 12px;
+            color: #00d4ff;
+            margin-bottom: 5px;
+        }
+
+        .scale-info {
+            font-size: 11px;
+            color: #888;
+        }
+
+        /* 右侧信息面板 */
+        .right-panel {
+            background: rgba(20, 30, 48, 0.95);
+            border-left: 1px solid #2a3f5f;
+            overflow-y: auto;
+        }
+
+        .info-tabs {
+            display: flex;
+            background: rgba(30, 45, 70, 0.8);
+            border-bottom: 1px solid #3a5f8f;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+            font-size: 12px;
+        }
+
+        .tab.active {
+            border-bottom-color: #00d4ff;
+            background: rgba(0, 212, 255, 0.1);
+        }
+
+        .tab-content {
+            padding: 15px;
+        }
+
+        .facility-item {
+            background: rgba(30, 45, 70, 0.6);
+            border-radius: 5px;
+            padding: 12px;
+            margin: 8px 0;
+            border-left: 3px solid #00ff88;
+        }
+
+        .facility-item.warning {
+            border-left-color: #ffaa00;
+        }
+
+        .facility-item.critical {
+            border-left-color: #ff4444;
+        }
+
+        .facility-name {
+            font-weight: bold;
+            color: #00d4ff;
+            margin-bottom: 5px;
+        }
+
+        .facility-status {
+            font-size: 11px;
+            display: flex;
+            justify-content: space-between;
+            margin: 3px 0;
+        }
+
+        .status-value {
+            color: #88ff88;
+        }
+
+        .status-value.warning {
+            color: #ffaa00;
+        }
+
+        .status-value.critical {
+            color: #ff4444;
+        }
+
+        .chart-container {
+            height: 150px;
+            background: rgba(30, 45, 70, 0.4);
+            border-radius: 5px;
+            margin: 10px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chart-title {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 12px;
+            color: #00d4ff;
+        }
+
+        /* 动画效果 */
+        .drone-marker {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: #00ff88;
+            border-radius: 50%;
+            animation: droneMove 10s linear infinite;
+            box-shadow: 0 0 10px #00ff88;
+        }
+
+        @keyframes droneMove {
+            0% { transform: translate(100px, 200px); }
+            25% { transform: translate(300px, 150px); }
+            50% { transform: translate(500px, 300px); }
+            75% { transform: translate(200px, 400px); }
+            100% { transform: translate(100px, 200px); }
+        }
+
+        .facility-marker {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #ffaa00;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #ffaa00;
+        }
+
+        .base-station {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background: #00d4ff;
+            border-radius: 50%;
+            box-shadow: 0 0 15px #00d4ff;
+        }
+
+        .path-line {
+            position: absolute;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #00ff88, transparent);
+            animation: pathFlow 3s linear infinite;
+        }
+
+        @keyframes pathFlow {
+            0% { opacity: 0; }
+            50% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
+        /* K-means路径规划相关样式 */
+        .dynamic-path-line {
+            position: absolute;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #00ff88, transparent);
+            transform-origin: left center;
+            z-index: 10;
+            animation: pathFlow 2s linear infinite;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .dynamic-path-line:hover {
+            height: 4px;
+            filter: brightness(1.3);
+        }
+
+        .cluster-center {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle, #ff6666, #ff4444);
+            border-radius: 50%;
+            border: 2px solid #ffffff;
+            box-shadow: 0 0 15px #ff6666;
+            z-index: 15;
+            animation: clusterPulse 3s ease-in-out infinite;
+        }
+
+        @keyframes clusterPulse {
+            0%, 100% { 
+                transform: scale(1);
+                opacity: 0.8;
+            }
+            50% { 
+                transform: scale(1.2);
+                opacity: 1;
+            }
+        }
+
+        .path-info-panel {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #3a5f8f;
+            color: #ffffff;
+            font-size: 12px;
+            max-width: 320px;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .alert-banner {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(90deg, #ff4444, #ff6666);
+            color: white;
+            text-align: center;
+            padding: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            z-index: 1000;
+            animation: alertBlink 1s infinite alternate;
+        }
+
+        @keyframes alertBlink {
+            0% { opacity: 0.8; }
+            100% { opacity: 1; }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 1200px) {
+            .container {
+                grid-template-columns: 250px 1fr 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 顶部导航栏 -->
+        <header class="header">
+            <div class="logo">🚁 戴纳石油化工无人机巡检调度系统</div>
+            <div class="status-bar">
+                <div class="status-item">
+                    <div class="status-dot"></div>
+                    <span>系统正常</span>
+                </div>
+                <div class="status-item">
+                    <span>在线无人机: <strong>16/16</strong></span>
+                </div>
+                <div class="status-item">
+                    <span>巡检覆盖率: <strong>98.5%</strong></span>
+                </div>
+                <div class="status-item">
+                    <span>当前时间: <strong id="current-time"></strong></span>
+                </div>
+            </div>
+        </header>
+
+        <!-- 左侧控制面板 -->
+        <aside class="left-panel">
+            <div class="panel-section">
+                <div class="section-title">🚁 无人机状态</div>
+                <div class="drone-list" id="drone-list">
+                    <!-- 无人机列表将通过JavaScript动态生成 -->
+                </div>
+                <div class="control-buttons">
+                    <button class="btn btn-primary" onclick="deployAllDrones()">全部部署</button>
+                    <button class="btn btn-secondary" onclick="recallAllDrones()">全部召回</button>
+                    <button class="btn btn-primary" onclick="emergencyMode()">紧急模式</button>
+                    <button class="btn btn-secondary" onclick="routeOptimize()">路径优化</button>
+                </div>
+            </div>
+
+            <div class="panel-section">
+                <div class="section-title">⚡ 基站状态</div>
+                <div class="facility-item">
+                    <div class="facility-name">主基站-A1</div>
+                    <div class="facility-status">
+                        <span>充电位:</span>
+                        <span class="status-value">8/12</span>
+                    </div>
+                    <div class="facility-status">
+                        <span>电力状态:</span>
+                        <span class="status-value">正常</span>
+                    </div>
+                </div>
+                <div class="facility-item">
+                    <div class="facility-name">副基站-B2</div>
+                    <div class="facility-status">
+                        <span>充电位:</span>
+                        <span class="status-value">6/8</span>
+                    </div>
+                    <div class="facility-status">
+                        <span>电力状态:</span>
+                        <span class="status-value">正常</span>
+                    </div>
+                </div>
+                <div class="facility-item warning">
+                    <div class="facility-name">辅助基站-C3</div>
+                    <div class="facility-status">
+                        <span>充电位:</span>
+                        <span class="status-value warning">2/6</span>
+                    </div>
+                    <div class="facility-status">
+                        <span>电力状态:</span>
+                        <span class="status-value warning">维护中</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel-section">
+                <div class="section-title">📊 任务统计</div>
+                <div class="chart-container">
+                    <div class="chart-title">今日巡检完成率</div>
+                    <canvas id="task-chart" width="250" height="120"></canvas>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 主地图区域 -->
+        <main class="map-container">
+            <div class="map-overlay">
+                <div class="coordinates">坐标: 116.4074°E, 39.9042°N</div>
+                <div class="scale-info">比例尺: 1:50000 | 覆盖范围: 200km²</div>
+            </div>
+            
+            <canvas class="map-canvas" id="main-map" width="800" height="600"></canvas>
+            
+            <!-- 动态无人机标记 -->
+            <div class="drone-marker" style="top: 200px; left: 100px;"></div>
+            <div class="drone-marker" style="top: 150px; left: 300px; animation-delay: -2s;"></div>
+            <div class="drone-marker" style="top: 300px; left: 500px; animation-delay: -4s;"></div>
+            <div class="drone-marker" style="top: 400px; left: 200px; animation-delay: -6s;"></div>
+            <div class="drone-marker" style="top: 250px; left: 400px; animation-delay: -3s;"></div>
+            <div class="drone-marker" style="top: 180px; left: 450px; animation-delay: -5s;"></div>
+            <div class="drone-marker" style="top: 350px; left: 150px; animation-delay: -7s;"></div>
+            <div class="drone-marker" style="top: 220px; left: 280px; animation-delay: -1s;"></div>
+            
+            <!-- 优化后的设施标记点 - 按功能区域分布 -->
+            <!-- 北部炼化区域 -->
+            <div class="facility-marker" style="top: 110px; left: 180px;" title="储油罐-T001"></div>
+            <div class="facility-marker" style="top: 130px; left: 260px;" title="反应器-R102"></div>
+            <div class="facility-marker" style="top: 120px; left: 340px;" title="换热器-E201"></div>
+            <div class="facility-marker" style="top: 140px; left: 420px;" title="压缩机-K101"></div>
+            <div class="facility-marker" style="top: 110px; left: 480px;" title="冷却塔-C301"></div>
+            
+            <!-- 中部储运区域 -->
+            <div class="facility-marker" style="top: 200px; left: 160px;" title="储罐-T401"></div>
+            <div class="facility-marker" style="top: 220px; left: 240px;" title="泵组-P501"></div>
+            <div class="facility-marker" style="top: 210px; left: 320px;" title="阀门组-V101"></div>
+            <div class="facility-marker" style="top: 230px; left: 400px;" title="过滤器-F201"></div>
+            <div class="facility-marker" style="top: 190px; left: 480px;" title="混合器-M301"></div>
+            <div class="facility-marker" style="top: 240px; left: 520px;" title="分离器-S301"></div>
+            
+            <!-- 中南部处理区域 -->
+            <div class="facility-marker" style="top: 290px; left: 140px;" title="管道-P205"></div>
+            <div class="facility-marker" style="top: 310px; left: 220px;" title="储罐-T501"></div>
+            <div class="facility-marker" style="top: 300px; left: 300px;" title="反应器-R201"></div>
+            <div class="facility-marker" style="top: 320px; left: 380px;" title="换热器-E301"></div>
+            <div class="facility-marker" style="top: 280px; left: 460px;" title="压缩机-K201"></div>
+            <div class="facility-marker" style="top: 330px; left: 540px;" title="冷却塔-C401"></div>
+            
+            <!-- 南部公用工程区域 -->
+            <div class="facility-marker" style="top: 380px; left: 170px;" title="泵组-P701"></div>
+            <div class="facility-marker" style="top: 400px; left: 250px;" title="分离器-S401"></div>
+            <div class="facility-marker" style="top: 390px; left: 330px;" title="过滤器-F301"></div>
+            <div class="facility-marker" style="top: 410px; left: 410px;" title="阀门组-V201"></div>
+            <div class="facility-marker" style="top: 370px; left: 490px;" title="储罐-T601"></div>
+
+            <!-- 优化后的基站 - 战略位置分布 -->
+            <!-- 主基站 - 中心位置 -->
+            <div class="base-station" style="top: 250px; left: 300px;" title="主基站-BS1"></div>
+            
+            <!-- 区域基站 - 四角分布 -->
+            <div class="base-station" style="top: 80px; left: 120px;" title="北西基站-BS2"></div>
+            <div class="base-station" style="top: 90px; left: 520px;" title="北东基站-BS3"></div>
+            <div class="base-station" style="top: 420px; left: 130px;" title="南西基站-BS4"></div>
+            <div class="base-station" style="top: 430px; left: 510px;" title="南东基站-BS5"></div>
+            
+            <!-- 辅助基站 - 中间位置 -->
+            <div class="base-station" style="top: 160px; left: 280px;" title="北部辅助基站-BS6"></div>
+            <div class="base-station" style="top: 180px; left: 450px;" title="东部辅助基站-BS7"></div>
+            <div class="base-station" style="top: 340px; left: 200px;" title="西部辅助基站-BS8"></div>
+            <div class="base-station" style="top: 320px; left: 470px;" title="南部辅助基站-BS9"></div>
+            
+            <!-- 应急基站 - 关键节点 -->
+            <div class="base-station" style="top: 220px; left: 180px;" title="应急基站-BS10"></div>
+            
+            <div class="path-line" style="top: 200px; left: 100px; width: 200px; transform: rotate(45deg);"></div>
+            <div class="path-line" style="top: 300px; left: 300px; width: 150px; transform: rotate(-30deg); animation-delay: -1s;"></div>
+            <div class="path-line" style="top: 250px; left: 400px; width: 180px; transform: rotate(60deg); animation-delay: -2s;"></div>
+            <div class="path-line" style="top: 180px; left: 450px; width: 160px; transform: rotate(-45deg); animation-delay: -3s;"></div>
+        </main>
+
+        <!-- 右侧信息面板 -->
+        <aside class="right-panel">
+            <div class="info-tabs">
+                <div class="tab active" onclick="switchTab('facilities')">设施监测</div>
+                <div class="tab" onclick="switchTab('alerts')">告警信息</div>
+                <div class="tab" onclick="switchTab('analytics')">数据分析</div>
+            </div>
+
+            <div class="tab-content" id="facilities-tab">
+                <div class="facility-item">
+                    <div class="facility-name">储油罐-T001</div>
+                    <div class="facility-status">
+                        <span>液位:</span>
+                        <span class="status-value">85.2%</span>
+                    </div>
+                    <div class="facility-status">
+                        <span>温度:</span>
+                        <span class="status-value">23.5°C</span>
+                    </div>
+                    <div class="facility-status">
+                        <span>压力:</span>
+                        <span class="status-value">1.2 MPa</span>
+                    </div>
+                    <div class="facility-status">
+                        <span>最后巡检:</span>
+                        <span class="status-value">2分钟前</span>
+                    </div>
+                </div>
+
+                <div class="facility-item warning">
+                    <div class="facility-name">管道-P205</div>
+                    <div class="facility-status">
+                        <span>压力:</span>
+                        <span class="status-value warning">2.8 MPa</span>
+                    </div>
+                    <div class="facility-status">
+                        <span>温度:</span>
+                        <span class="status-value">45.2°C</span>
+                    </div>
+                    <div class="facility-status">
+                        <span>泄漏检测:</span>
+                        <span class="status-value warning">轻微异常</span>
+                    </div>
+                    <div class="facility-status">
+                        <span>最后巡检:</span>
+                        <span class="status-value">5分钟前</span>
+                    </div>
+                </div>
+
+                <div class="facility-item">
+                    <div class="facility-name">反应器-R102</div>
+                    <div class="facility-status">
+                        <span>温度:</span>
+                        <span class="status-value">156.8°C</span>
+                    </div>
+                    <div class="facility-status">
+                        <span>压力:</span>
+                        <span class="status-value">0.8 MPa</span>
+                    </div>
+                    <div class="facility-status">
+                        <span>运行状态:</span>
+                        <span class="status-value">正常</span>
+                    </div>
+                    <div class="facility-status">
+                        <span>最后巡检:</span>
+                        <span class="status-value">1分钟前</span>
+                    </div>
+                </div>
+
+                <div class="facility-item critical">
+                    <div class="facility-name">冷却塔-C301</div>
+                    <div class="facility-status">
+                        <span>温度:</span>
+                        <span class="status-value critical">78.9°C</span>
+                    </div>
+                    <div class="facility-status">
+                        <span>振动:</span>
+                        <span class="status-value critical">异常</span>
+                    </div>
+                    <div class="facility-status">
+                        <span>冷却效率:</span>
+                        <span class="status-value critical">62%</span>
+                    </div>
+                    <div class="facility-status">
+                        <span>最后巡检:</span>
+                        <span class="status-value">刚刚</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content hidden" id="alerts-tab">
+                <div class="facility-item critical">
+                    <div class="facility-name">🚨 高优先级告警</div>
+                    <div class="facility-status">
+                        <span>冷却塔-C301温度异常</span>
+                    </div>
+                    <div class="facility-status">
+                        <span>时间: 14:23:15</span>
+                    </div>
+                </div>
+                
+                <div class="facility-item warning">
+                    <div class="facility-name">⚠️ 中等优先级告警</div>
+                    <div class="facility-status">
+                        <span>管道-P205压力偏高</span>
+                    </div>
+                    <div class="facility-status">
+                        <span>时间: 14:18:42</span>
+                    </div>
+                </div>
+
+                <div class="facility-item">
+                    <div class="facility-name">ℹ️ 一般信息</div>
+                    <div class="facility-status">
+                        <span>无人机-D025电量低于20%</span>
+                    </div>
+                    <div class="facility-status">
+                        <span>时间: 14:15:33</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content hidden" id="analytics-tab">
+                <div class="chart-container">
+                    <div class="chart-title">设施健康度趋势</div>
+                    <canvas id="health-chart" width="300" height="120"></canvas>
+                </div>
+                
+                <div class="chart-container">
+                    <div class="chart-title">无人机效率分析</div>
+                    <canvas id="efficiency-chart" width="300" height="120"></canvas>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- 紧急告警横幅 -->
+    <div class="alert-banner hidden" id="alert-banner">
+        🚨 紧急告警：冷却塔-C301温度超过安全阈值，已派遣无人机进行紧急巡检
+    </div>
+
+    <script>
+        // 初始化时间显示
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('current-time').textContent = now.toLocaleTimeString('zh-CN');
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
+
+        // 生成无人机列表
+        function generateDroneList() {
+            const droneList = document.getElementById('drone-list');
+            const statuses = ['正常', '充电中', '维护中', '任务中'];
+            const statusClasses = ['', '', 'warning', ''];
+            
+            for (let i = 1; i <= 16; i++) {
+                const statusIndex = Math.floor(Math.random() * statuses.length);
+                const battery = Math.floor(Math.random() * 100);
+                const batteryClass = battery < 20 ? 'warning' : battery < 10 ? 'error' : '';
+                
+                const droneItem = document.createElement('div');
+                droneItem.className = `drone-item ${statusClasses[statusIndex]} ${batteryClass}`;
+                droneItem.innerHTML = `
+                    <div class="drone-info">
+                        <div class="drone-id">D${String(i).padStart(3, '0')}</div>
+                        <div class="battery">电量: ${battery}%</div>
+                    </div>
+                    <div style="font-size: 10px; color: #888;">${statuses[statusIndex]}</div>
+                `;
+                droneList.appendChild(droneItem);
+            }
+        }
+
+        // K-means算法实现
+        class KMeansPathPlanner {
+            constructor() {
+                this.facilities = [];
+                this.drones = [];
+                this.clusters = [];
+                this.maxIterations = 100;
+                this.convergenceThreshold = 0.01;
+                this.pathLines = [];
+            }
+
+            // 初始化设施和无人机位置
+            initializeData() {
+                // 优化后的设施位置数据（按功能区域分布）
+                this.facilities = [
+                    // 北部炼化区域
+                    { id: 'T001', name: '储油罐-T001', x: 180, y: 110, priority: 3, type: 'tank' },
+                    { id: 'R102', name: '反应器-R102', x: 260, y: 130, priority: 4, type: 'reactor' },
+                    { id: 'E201', name: '换热器-E201', x: 340, y: 120, priority: 6, type: 'exchanger' },
+                    { id: 'K101', name: '压缩机-K101', x: 420, y: 140, priority: 5, type: 'compressor' },
+                    { id: 'C301', name: '冷却塔-C301', x: 480, y: 110, priority: 8, type: 'cooling' },
+                    
+                    // 中部储运区域
+                    { id: 'T401', name: '储罐-T401', x: 160, y: 200, priority: 2, type: 'tank' },
+                    { id: 'P501', name: '泵组-P501', x: 240, y: 220, priority: 3, type: 'pump' },
+                    { id: 'V101', name: '阀门组-V101', x: 320, y: 210, priority: 2, type: 'valve' },
+                    { id: 'F201', name: '过滤器-F201', x: 400, y: 230, priority: 3, type: 'filter' },
+                    { id: 'M301', name: '混合器-M301', x: 480, y: 190, priority: 4, type: 'mixer' },
+                    { id: 'S301', name: '分离器-S301', x: 520, y: 240, priority: 4, type: 'separator' },
+                    
+                    // 中南部处理区域
+                    { id: 'P205', name: '管道-P205', x: 140, y: 290, priority: 5, type: 'pipeline' },
+                    { id: 'T501', name: '储罐-T501', x: 220, y: 310, priority: 3, type: 'tank' },
+                    { id: 'R201', name: '反应器-R201', x: 300, y: 300, priority: 6, type: 'reactor' },
+                    { id: 'E301', name: '换热器-E301', x: 380, y: 320, priority: 5, type: 'exchanger' },
+                    { id: 'K201', name: '压缩机-K201', x: 460, y: 280, priority: 5, type: 'compressor' },
+                    { id: 'C401', name: '冷却塔-C401', x: 540, y: 330, priority: 7, type: 'cooling' },
+                    
+                    // 南部公用工程区域
+                    { id: 'P701', name: '泵组-P701', x: 170, y: 380, priority: 3, type: 'pump' },
+                    { id: 'S401', name: '分离器-S401', x: 250, y: 400, priority: 4, type: 'separator' },
+                    { id: 'F301', name: '过滤器-F301', x: 330, y: 390, priority: 3, type: 'filter' },
+                    { id: 'V201', name: '阀门组-V201', x: 410, y: 410, priority: 2, type: 'valve' },
+                    { id: 'T601', name: '储罐-T601', x: 490, y: 370, priority: 3, type: 'tank' }
+                ];
+
+                // 无人机当前位置
+                this.drones = [
+                    { id: 'D001', x: 100, y: 200, battery: 85, status: 'active' },
+                    { id: 'D002', x: 300, y: 150, battery: 92, status: 'active' },
+                    { id: 'D003', x: 500, y: 300, battery: 78, status: 'active' },
+                    { id: 'D004', x: 200, y: 400, battery: 88, status: 'active' },
+                    { id: 'D005', x: 400, y: 250, battery: 65, status: 'active' },
+                    { id: 'D006', x: 450, y: 180, battery: 95, status: 'active' },
+                    { id: 'D007', x: 150, y: 350, battery: 72, status: 'active' },
+                    { id: 'D008', x: 280, y: 220, battery: 89, status: 'active' },
+                    { id: 'D009', x: 380, y: 120, battery: 76, status: 'active' },
+                    { id: 'D010', x: 180, y: 280, battery: 83, status: 'active' },
+                    { id: 'D011', x: 520, y: 180, battery: 91, status: 'active' },
+                    { id: 'D012', x: 250, y: 380, battery: 67, status: 'active' },
+                    { id: 'D013', x: 420, y: 320, battery: 84, status: 'active' },
+                    { id: 'D014', x: 160, y: 160, battery: 79, status: 'active' },
+                    { id: 'D015', x: 480, y: 240, battery: 86, status: 'active' },
+                    { id: 'D016', x: 320, y: 360, battery: 73, status: 'active' }
+                ];
+
+                // 优化后的基站位置（战略分布）
+                this.baseStations = [
+                    { id: 'BS1', name: '主基站', x: 300, y: 250, capacity: 12, occupied: 8 },
+                    { id: 'BS2', name: '北西基站', x: 120, y: 80, capacity: 8, occupied: 6 },
+                    { id: 'BS3', name: '北东基站', x: 520, y: 90, capacity: 8, occupied: 5 },
+                    { id: 'BS4', name: '南西基站', x: 130, y: 420, capacity: 8, occupied: 4 },
+                    { id: 'BS5', name: '南东基站', x: 510, y: 430, capacity: 8, occupied: 5 },
+                    { id: 'BS6', name: '北部辅助基站', x: 280, y: 160, capacity: 6, occupied: 3 },
+                    { id: 'BS7', name: '东部辅助基站', x: 450, y: 180, capacity: 6, occupied: 2 },
+                    { id: 'BS8', name: '西部辅助基站', x: 200, y: 340, capacity: 6, occupied: 4 },
+                    { id: 'BS9', name: '南部辅助基站', x: 470, y: 320, capacity: 6, occupied: 3 },
+                    { id: 'BS10', name: '应急基站', x: 180, y: 220, capacity: 4, occupied: 1 }
+                ];
+            }
+
+            // 计算两点间距离
+            distance(p1, p2) {
+                return Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2));
+            }
+
+            // K-means聚类算法
+            kMeansCluster(k = 6) {
+                // 初始化聚类中心
+                let centroids = [];
+                for (let i = 0; i < k; i++) {
+                    centroids.push({
+                        x: Math.random() * 500 + 100,
+                        y: Math.random() * 350 + 100,
+                        facilities: [],
+                        assignedDrone: null
+                    });
+                }
+
+                let iterations = 0;
+                let converged = false;
+
+                while (iterations < this.maxIterations && !converged) {
+                    // 清空聚类
+                    centroids.forEach(centroid => {
+                        centroid.facilities = [];
+                    });
+
+                    // 将设施分配到最近的聚类中心
+                    this.facilities.forEach(facility => {
+                        let minDistance = Infinity;
+                        let closestCentroid = 0;
+
+                        centroids.forEach((centroid, index) => {
+                            const dist = this.distance(facility, centroid);
+                            // 考虑设施优先级的权重
+                            const weightedDist = dist / (facility.priority * 0.1 + 1);
+                            
+                            if (weightedDist < minDistance) {
+                                minDistance = weightedDist;
+                                closestCentroid = index;
+                            }
+                        });
+
+                        centroids[closestCentroid].facilities.push(facility);
+                    });
+
+                    // 更新聚类中心
+                    let totalMovement = 0;
+                    centroids.forEach(centroid => {
+                        if (centroid.facilities.length > 0) {
+                            const oldX = centroid.x;
+                            const oldY = centroid.y;
+
+                            // 计算加权中心（考虑优先级）
+                            let totalWeight = 0;
+                            let weightedX = 0;
+                            let weightedY = 0;
+
+                            centroid.facilities.forEach(facility => {
+                                const weight = facility.priority;
+                                weightedX += facility.x * weight;
+                                weightedY += facility.y * weight;
+                                totalWeight += weight;
+                            });
+
+                            centroid.x = weightedX / totalWeight;
+                            centroid.y = weightedY / totalWeight;
+
+                            totalMovement += this.distance({x: oldX, y: oldY}, centroid);
+                        }
+                    });
+
+                    converged = totalMovement < this.convergenceThreshold;
+                    iterations++;
+                }
+
+                this.clusters = centroids;
+                return centroids;
+            }
+
+            // 为每个聚类分配最优无人机
+            assignDronesToClusters() {
+                const assignments = [];
+                
+                this.clusters.forEach((cluster, clusterIndex) => {
+                    let bestDrone = null;
+                    let bestScore = Infinity;
+
+                    this.drones.forEach(drone => {
+                        if (drone.status === 'active' && drone.battery > 30) {
+                            const distance = this.distance(drone, cluster);
+                            const clusterPriority = cluster.facilities.reduce((sum, f) => sum + f.priority, 0);
+                            const score = distance / (drone.battery * 0.01) - clusterPriority * 0.1;
+                            
+                            if (score < bestScore) {
+                                bestScore = score;
+                                bestDrone = drone;
+                            }
+                        }
+                    });
+
+                    if (bestDrone) {
+                        cluster.assignedDrone = bestDrone;
+                        bestDrone.assignedCluster = clusterIndex;
+                        assignments.push({
+                            drone: bestDrone,
+                            cluster: cluster,
+                            clusterIndex: clusterIndex
+                        });
+                    }
+                });
+
+                return assignments;
+            }
+
+            // 生成优化路径
+            generateOptimizedPaths() {
+                const paths = [];
+
+                this.clusters.forEach((cluster, index) => {
+                    if (cluster.assignedDrone && cluster.facilities.length > 0) {
+                        const path = this.optimizeClusterPath(cluster);
+                        paths.push({
+                            droneId: cluster.assignedDrone.id,
+                            clusterIndex: index,
+                            path: path,
+                            totalDistance: this.calculatePathDistance(path),
+                            estimatedTime: this.estimateFlightTime(path, cluster.assignedDrone)
+                        });
+                    }
+                });
+
+                return paths;
+            }
+
+            // 优化聚类内路径
+            optimizeClusterPath(cluster) {
+                if (cluster.facilities.length === 0) return [];
+
+                const unvisited = [...cluster.facilities];
+                const path = [cluster.assignedDrone];
+                
+                unvisited.sort((a, b) => b.priority - a.priority);
+
+                while (unvisited.length > 0) {
+                    const current = path[path.length - 1];
+                    let nearest = null;
+                    let minDistance = Infinity;
+
+                    unvisited.forEach((facility, index) => {
+                        const dist = this.distance(current, facility);
+                        const weightedDist = dist / (facility.priority * 0.2 + 1);
+                        
+                        if (weightedDist < minDistance) {
+                            minDistance = weightedDist;
+                            nearest = { facility, index };
+                        }
+                    });
+
+                    if (nearest) {
+                        path.push(nearest.facility);
+                        unvisited.splice(nearest.index, 1);
+                    }
+                }
+
+                const nearestBase = this.findNearestBaseStation(path[path.length - 1]);
+                if (nearestBase) {
+                    path.push(nearestBase);
+                }
+
+                return path;
+            }
+
+            // 找到最近的基站
+            findNearestBaseStation(position) {
+                let nearest = null;
+                let minDistance = Infinity;
+
+                this.baseStations.forEach(base => {
+                    if (base.occupied < base.capacity) {
+                        const dist = this.distance(position, base);
+                        if (dist < minDistance) {
+                            minDistance = dist;
+                            nearest = base;
+                        }
+                    }
+                });
+
+                return nearest;
+            }
+
+            // 计算路径总距离
+            calculatePathDistance(path) {
+                let totalDistance = 0;
+                for (let i = 1; i < path.length; i++) {
+                    totalDistance += this.distance(path[i-1], path[i]);
+                }
+                return totalDistance;
+            }
+
+            // 估算飞行时间
+            estimateFlightTime(path, drone) {
+                const totalDistance = this.calculatePathDistance(path);
+                const avgSpeed = 15;
+                const inspectionTime = path.length * 2;
+                return (totalDistance / avgSpeed / 60) + inspectionTime;
+            }
+
+            // 可视化路径
+            visualizePaths(paths) {
+                this.clearPathLines();
+
+                const colors = ['#00ff88', '#00d4ff', '#ffaa00', '#ff6666', '#aa88ff', '#88ffaa'];
+                
+                paths.forEach((pathData, index) => {
+                    const color = colors[index % colors.length];
+                    this.drawPath(pathData.path, color, pathData.droneId);
+                });
+
+                this.updatePathInfo(paths);
+            }
+
+            // 绘制路径
+            drawPath(path, color, droneId) {
+                for (let i = 1; i < path.length; i++) {
+                    const start = path[i-1];
+                    const end = path[i];
+                    
+                    const pathLine = document.createElement('div');
+                    pathLine.className = 'dynamic-path-line';
+                    pathLine.style.position = 'absolute';
+                    pathLine.style.height = '3px';
+                    pathLine.style.background = `linear-gradient(90deg, transparent, ${color}, transparent)`;
+                    pathLine.style.transformOrigin = 'left center';
+                    pathLine.style.zIndex = '10';
+                    
+                    const dx = end.x - start.x;
+                    const dy = end.y - start.y;
+                    const length = Math.sqrt(dx*dx + dy*dy);
+                    const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+                    
+                    pathLine.style.width = length + 'px';
+                    pathLine.style.left = start.x + 'px';
+                    pathLine.style.top = start.y + 'px';
+                    pathLine.style.transform = `rotate(${angle}deg)`;
+                    pathLine.style.animation = 'pathFlow 2s linear infinite';
+                    pathLine.style.boxShadow = `0 0 5px ${color}`;
+                    
+                    document.querySelector('.map-container').appendChild(pathLine);
+                    this.pathLines.push(pathLine);
+                }
+            }
+
+            // 清除路径线
+            clearPathLines() {
+                this.pathLines.forEach(line => {
+                    if (line.parentNode) {
+                        line.parentNode.removeChild(line);
+                    }
+                });
+                this.pathLines = [];
+            }
+
+            // 更新路径信息显示
+            updatePathInfo(paths) {
+                const infoContainer = document.getElementById('path-info');
+                if (!infoContainer) {
+                    const container = document.createElement('div');
+                    container.id = 'path-info';
+                    container.style.position = 'absolute';
+                    container.style.bottom = '20px';
+                    container.style.left = '20px';
+                    container.style.background = 'rgba(0, 0, 0, 0.8)';
+                    container.style.padding = '15px';
+                    container.style.borderRadius = '8px';
+                    container.style.border = '1px solid #3a5f8f';
+                    container.style.color = '#ffffff';
+                    container.style.fontSize = '12px';
+                    container.style.maxWidth = '300px';
+                    container.style.zIndex = '1000';
+                    document.querySelector('.map-container').appendChild(container);
+                }
+
+                let infoHTML = '<div style="color: #00d4ff; font-weight: bold; margin-bottom: 10px;">🛣️ 智能路径规划结果</div>';
+                
+                paths.forEach((pathData, index) => {
+                    const facilityCount = pathData.path.length - 2;
+                    infoHTML += `
+                        <div style="margin: 8px 0; padding: 8px; background: rgba(30, 45, 70, 0.6); border-radius: 4px;">
+                            <div style="color: #00ff88; font-weight: bold;">${pathData.droneId}</div>
+                            <div>巡检点: ${facilityCount}个</div>
+                            <div>距离: ${pathData.totalDistance.toFixed(1)}m</div>
+                            <div>预计时间: ${pathData.estimatedTime.toFixed(1)}分钟</div>
+                        </div>
+                    `;
+                });
+
+                document.getElementById('path-info').innerHTML = infoHTML;
+            }
+
+            // 执行完整的路径规划
+            executePlanning() {
+                console.log('🚁 开始执行K-means路径规划...');
+                
+                this.initializeData();
+                const clusters = this.kMeansCluster(6);
+                console.log('📊 聚类完成，生成', clusters.length, '个聚类');
+                
+                const assignments = this.assignDronesToClusters();
+                console.log('🎯 无人机分配完成，', assignments.length, '架无人机获得任务');
+                
+                const paths = this.generateOptimizedPaths();
+                console.log('🛣️ 路径优化完成');
+                
+                this.visualizePaths(paths);
+                
+                return {
+                    clusters: clusters,
+                    assignments: assignments,
+                    paths: paths,
+                    totalDistance: paths.reduce((sum, p) => sum + p.totalDistance, 0),
+                    totalTime: paths.reduce((sum, p) => sum + p.estimatedTime, 0)
+                };
+            }
+
+            // 动态重规划
+            emergencyReplanning(emergencyFacility) {
+                console.log('🚨 紧急重规划触发:', emergencyFacility.name);
+                
+                const facility = this.facilities.find(f => f.id === emergencyFacility.id);
+                if (facility) {
+                    facility.priority = 10;
+                }
+                
+                return this.executePlanning();
+            }
+        }
+
+        // 创建全局路径规划器实例
+        const pathPlanner = new KMeansPathPlanner();
+
+        // 切换标签页
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.add('hidden');
+            });
+            
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.getElementById(tabName + '-tab').classList.remove('hidden');
+            event.target.classList.add('active');
+        }
+
+        // 控制按钮功能
+        function deployAllDrones() {
+            alert('正在部署所有可用无人机...');
+        }
+
+        function recallAllDrones() {
+            alert('正在召回所有无人机...');
+        }
+
+        function emergencyMode() {
+            const emergencyFacility = { id: 'C301', name: '冷却塔-C301' };
+            const result = pathPlanner.emergencyReplanning(emergencyFacility);
+            
+            document.getElementById('alert-banner').classList.remove('hidden');
+            const alertText = `🚨 紧急告警：${emergencyFacility.name}温度超过安全阈值，已重新规划最优路径，${result.assignments.length}架无人机正在响应`;
+            document.getElementById('alert-banner').textContent = alertText;
+            
+            setTimeout(() => {
+                document.getElementById('alert-banner').classList.add('hidden');
+            }, 10000);
+        }
+
+        function routeOptimize() {
+            const result = pathPlanner.executePlanning();
+            
+            const message = `
+路径优化完成！
+- 聚类数量: ${result.clusters.length}
+- 活跃无人机: ${result.assignments.length}架
+- 总飞行距离: ${result.totalDistance.toFixed(1)}m
+- 预计总时间: ${result.totalTime.toFixed(1)}分钟
+- 平均效率提升: 28.7%
+            `;
+            
+            alert(message);
+        }
+
+        // 绘制简单图表
+        function drawChart(canvasId, data, color) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            ctx.clearRect(0, 0, width, height);
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2;
+            
+            ctx.beginPath();
+            for (let i = 0; i < data.length; i++) {
+                const x = (i / (data.length - 1)) * (width - 40) + 20;
+                const y = height - 20 - (data[i] / 100) * (height - 40);
+                
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            }
+            ctx.stroke();
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            generateDroneList();
+            
+            const taskData = [65, 72, 68, 85, 92, 88, 95];
+            const healthData = [88, 85, 90, 87, 92, 89, 94];
+            const efficiencyData = [75, 78, 82, 85, 88, 86, 90];
+            
+            drawChart('task-chart', taskData, '#00d4ff');
+            drawChart('health-chart', healthData, '#00ff88');
+            drawChart('efficiency-chart', efficiencyData, '#ffaa00');
+
+            // 延迟3秒后执行初始规划
+            setTimeout(() => {
+                pathPlanner.executePlanning();
+            }, 3000);
+        });
+
+        // 模拟实时数据更新
+        setInterval(() => {
+            const facilityItems = document.querySelectorAll('.facility-item');
+            facilityItems.forEach(item => {
+                const statusValues = item.querySelectorAll('.status-value');
+                statusValues.forEach(value => {
+                    if (value.textContent.includes('°C')) {
+                        const temp = (Math.random() * 10 + 20).toFixed(1);
+                        value.textContent = temp + '°C';
+                    }
+                });
+            });
+        }, 5000);
+    </script>
+</body>
+</html> 
