@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>无人机调度系统原型</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #34495e;
+            --accent-color: #3498db;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --success-color: #2ecc71;
+            --text-light: #ecf0f1;
+            --border-radius: 6px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        body {
+            background-color: #1a1a1a;
+            color: var(--text-light);
+            overflow: hidden;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: 300px 1fr 350px;
+            grid-template-rows: 1fr 300px;
+            height: 100vh;
+            gap: 10px;
+            padding: 10px;
+        }
+        
+        .panel {
+            background-color: var(--secondary-color);
+            border-radius: var(--border-radius);
+            padding: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: auto;
+        }
+        
+        /* 左侧边栏 - 无人机列表 */
+        .sidebar {
+            grid-row: 1 / 3;
+            grid-column: 1;
+        }
+        
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .search-box {
+            background-color: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 4px;
+            padding: 8px 12px;
+            width: 100%;
+            color: white;
+            margin-bottom: 15px;
+        }
+        
+        .drone-list {
+            list-style-type: none;
+        }
+        
+        .drone-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            margin-bottom: 8px;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .drone-item:hover {
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+        
+        .drone-normal {
+            border-left: 4px solid var(--success-color);
+        }
+        
+        .drone-working {
+            border-left: 4px solid var(--warning-color);
+        }
+        
+        .drone-alert {
+            border-left: 4px solid var(--danger-color);
+            animation: pulse 1.5s infinite;
+        }
+        
+        /* 中央地图区域 */
+        .map-container {
+            grid-row: 1;
+            grid-column: 2;
+            position: relative;
+            background: url('./aa.png') no-repeat center center;
+            background-size: cover;
+            border-radius: var(--border-radius);
+        }
+        
+        .map-controls {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .map-btn {
+            background-color: rgba(0, 0, 0, 0.6);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .drone-marker {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            cursor: pointer;
+        }
+        
+        .marker-normal {
+            background-color: var(--success-color);
+            box-shadow: 0 0 10px var(--success-color);
+        }
+        
+        .marker-working {
+            background-color: var(--warning-color);
+            box-shadow: 0 0 10px var(--warning-color);
+        }
+        
+        .marker-alert {
+            background-color: var(--danger-color);
+            box-shadow: 0 0 10px var(--danger-color);
+            animation: pulse 1.5s infinite;
+        }
+        
+        /* 右侧信息卡片区 */
+        .info-panel {
+            grid-row: 1 / 3;
+            grid-column: 3;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .tab-container {
+            display: flex;
+            margin-bottom: 15px;
+        }
+        
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            background-color: rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+        }
+        
+        .tab.active {
+            background-color: var(--accent-color);
+        }
+        
+        .tab-content {
+            flex: 1;
+            overflow: auto;
+        }
+        
+        .alert-item {
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-left: 4px solid var(--danger-color);
+        }
+        
+        /* 数据统计面板 */
+        .stats-panel {
+            grid-row: 2;
+            grid-column: 2;
+        }
+        
+        .stats-container {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+        
+        .stat-box {
+            text-align: center;
+            background-color: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 4px;
+            flex: 1;
+            margin: 0 5px;
+        }
+        
+        .stat-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        /* 弹窗 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: var(--secondary-color);
+            width: 80%;
+            max-width: 800px;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            position: relative;
+        }
+        
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 1.5em;
+            cursor: pointer;
+        }
+        
+        @keyframes pulse {
+            0% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- 左侧边栏 - 无人机列表 -->
+        <div class="panel sidebar">
+            <div class="sidebar-header">
+                <h2>无人机列表</h2>
+                <div>
+                    <span id="drone-count">8</span> 台
+                </div>
+            </div>
+            <input type="text" class="search-box" placeholder="搜索无人机编号、状态或位置...">
+            <ul class="drone-list">
+                <li class="drone-item drone-normal">
+                    <div class="drone-info">
+                        <div class="drone-id">无人机 #001</div>
+                        <div class="drone-location">东北区</div>
+                    </div>
+                    <div class="drone-status">正常巡查</div>
+                </li>
+                <li class="drone-item drone-normal">
+                    <div class="drone-info">
+                        <div class="drone-id">无人机 #002</div>
+                        <div class="drone-location">西北区</div>
+                    </div>
+                    <div class="drone-status">正常巡查</div>
+                </li>
+                <li class="drone-item drone-working">
+                    <div class="drone-info">
+                        <div class="drone-id">无人机 #003</div>
+                        <div class="drone-location">中央区</div>
+                    </div>
+                    <div class="drone-status">任务执行中</div>
+                </li>
+                <li class="drone-item drone-alert">
+                    <div class="drone-info">
+                        <div class="drone-id">无人机 #004</div>
+                        <div class="drone-location">东南区</div>
+                    </div>
+                    <div class="drone-status">异常告警</div>
+                </li>
+                <li class="drone-item drone-normal">
+                    <div class="drone-info">
+                        <div class="drone-id">无人机 #005</div>
+                        <div class="drone-location">西南区</div>
+                    </div>
+                    <div class="drone-status">正常巡查</div>
+                </li>
+                <li class="drone-item drone-working">
+                    <div class="drone-info">
+                        <div class="drone-id">无人机 #006</div>
+                        <div class="drone-location">北区</div>
+                    </div>
+                    <div class="drone-status">任务执行中</div>
+                </li>
+                <li class="drone-item drone-normal">
+                    <div class="drone-info">
+                        <div class="drone-id">无人机 #007</div>
+                        <div class="drone-location">南区</div>
+                    </div>
+                    <div class="drone-status">正常巡查</div>
+                </li>
+                <li class="drone-item drone-normal">
+                    <div class="drone-info">
+                        <div class="drone-id">无人机 #008</div>
+                        <div class="drone-location">西区</div>
+                    </div>
+                    <div class="drone-status">正常巡查</div>
+                </li>
+            </ul>
+            
+            <div style="margin-top: 20px;">
+                <button id="batch-command" style="width: 100%; padding: 10px; background-color: var(--accent-color); border: none; color: white; border-radius: 4px; cursor: pointer;">批量下发指令</button>
+            </div>
+        </div>
+        
+        <!-- 中央地图区域 -->
+        <div class="panel map-container">
+            <div class="map-controls">
+                <button class="map-btn">卫星图</button>
+                <button class="map-btn">热成像图</button>
+                <button class="map-btn">巡检图层</button>
+            </div>
+            
+            <!-- 无人机标记点 -->
+            <div class="drone-marker marker-normal" style="top: 30%; left: 25%;" title="无人机 #001"></div>
+            <div class="drone-marker marker-normal" style="top: 25%; left: 15%;" title="无人机 #002"></div>
+            <div class="drone-marker marker-working" style="top: 50%; left: 50%;" title="无人机 #003"></div>
+            <div class="drone-marker marker-alert" style="top: 75%; left: 70%;" title="无人机 #004"></div>
+            <div class="drone-marker marker-normal" style="top: 70%; left: 20%;" title="无人机 #005"></div>
+            <div class="drone-marker marker-working" style="top: 20%; left: 55%;" title="无人机 #006"></div>
+            <div class="drone-marker marker-normal" style="top: 80%; left: 45%;" title="无人机 #007"></div>
+            <div class="drone-marker marker-normal" style="top: 60%; left: 30%;" title="无人机 #008"></div>
+        </div>
+        
+        <!-- 右侧信息卡片区 -->
+        <div class="panel info-panel">
+            <div class="tab-container">
+                <div class="tab active">实时信息</div>
+                <div class="tab">任务调度</div>
+                <div class="tab">异常处理</div>
+            </div>
+            
+            <div class="tab-content">
+                <div class="alert-item">
+                    <div style="display: flex; justify-content: space-between;">
+                        <strong>火灾隐患告警</strong>
+                        <span>12:45</span>
+                    </div>
+                    <p>无人机 #004 在东南区发现热成像异常，疑似火灾隐患。</p>
+                    <div style="margin-top: 10px; display: flex; gap: 5px;">
+                        <button style="background-color: var(--accent-color); border: none; color: white; padding: 5px 10px; border-radius: 4px; cursor: pointer;">查看详情</button>
+                        <button style="background-color: var(--success-color); border: none; color: white; padding: 5px 10px; border-radius: 4px; cursor: pointer;">派发任务</button>
+                    </div>
+                </div>
+                
+                <div class="alert-item" style="border-left-color: var(--warning-color);">
+                    <div style="display: flex; justify-content: space-between;">
+                        <strong>任务分派记录</strong>
+                        <span>12:30</span>
+                    </div>
+                    <p>无人机 #003 已分派至中央区进行特殊检查任务。</p>
+                </div>
+                
+                <div class="alert-item" style="border-left-color: var(--warning-color);">
+                    <div style="display: flex; justify-content: space-between;">
+                        <strong>任务分派记录</strong>
+                        <span>12:15</span>
+                    </div>
+                    <p>无人机 #006 已分派至北区进行例行维护检查。</p>
+                </div>
+                
+                <div class="alert-item" style="border-left-color: var(--accent-color);">
+                    <div style="display: flex; justify-content: space-between;">
+                        <strong>气象预警</strong>
+                        <span>11:45</span>
+                    </div>
+                    <p>东南区可能在14:00后出现大风天气，建议提前调整飞行计划。</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 数据统计面板 -->
+        <div class="panel stats-panel">
+            <h3 style="margin-bottom: 15px;">数据统计分析</h3>
+            
+            <div class="stats-container">
+                <div class="stat-box">
+                    <div>巡检覆盖率</div>
+                    <div class="stat-value">87%</div>
+                </div>
+                <div class="stat-box">
+                    <div>今日告警数</div>
+                    <div class="stat-value">3</div>
+                </div>
+                <div class="stat-box">
+                    <div>飞行总里程</div>
+                    <div class="stat-value">126 km</div>
+                </div>
+                <div class="stat-box">
+                    <div>任务完成率</div>
+                    <div class="stat-value">92%</div>
+                </div>
+            </div>
+            
+            <div style="display: flex; gap: 10px;">
+                <button style="flex: 1; padding: 10px; background-color: var(--accent-color); border: none; color: white; border-radius: 4px; cursor: pointer;">查看详细报告</button>
+                <button style="flex: 1; padding: 10px; background-color: rgba(0, 0, 0, 0.3); border: none; color: white; border-radius: 4px; cursor: pointer;">录像回放</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 异常事件弹窗 -->
+    <div class="modal" id="alert-modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2 style="color: var(--danger-color); margin-bottom: 20px;">火灾隐患告警</h2>
+            
+            <div style="display: flex; gap: 20px; margin-bottom: 20px;">
+                <div style="flex: 2;">
+                    <img src="https://i.imgur.com/jxHmfGb.jpg" alt="热成像图" style="width: 100%; border-radius: 4px;">
+                </div>
+                <div style="flex: 1;">
+                    <div style="margin-bottom: 15px;">
+                        <strong>告警时间：</strong> 2023-08-15 12:45
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <strong>告警位置：</strong> 东南区 B3 建筑
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <strong>告警类型：</strong> 温度异常
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <strong>检测无人机：</strong> #004
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <strong>异常等级：</strong> <span style="color: var(--danger-color);">紧急</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button style="padding: 10px 15px; background-color: var(--secondary-color); border: none; color: white; border-radius: 4px; cursor: pointer;">忽略告警</button>
+                <button style="padding: 10px 15px; background-color: var(--accent-color); border: none; color: white; border-radius: 4px; cursor: pointer;">派发人员检查</button>
+                <button style="padding: 10px 15px; background-color: var(--danger-color); border: none; color: white; border-radius: 4px; cursor: pointer;">启动应急预案</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 简单交互逻辑
+        document.addEventListener('DOMContentLoaded', function() {
+            // 无人机标记点点击事件
+            const droneMarkers = document.querySelectorAll('.drone-marker');
+            droneMarkers.forEach(marker => {
+                marker.addEventListener('click', function() {
+                    alert('查看无人机: ' + this.getAttribute('title') + ' 的详细信息');
+                });
+            });
+            
+            // 无人机列表项点击事件
+            const droneItems = document.querySelectorAll('.drone-item');
+            droneItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    // 模拟选中效果
+                    this.style.backgroundColor = 'rgba(52, 152, 219, 0.3)';
+                });
+            });
+            
+            // 批量指令按钮点击事件
+            document.getElementById('batch-command').addEventListener('click', function() {
+                alert('打开批量指令面板');
+            });
+            
+            // 标签切换
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // 移除所有激活状态
+                    tabs.forEach(t => t.classList.remove('active'));
+                    // 添加当前标签激活状态
+                    this.classList.add('active');
+                });
+            });
+            
+            // 模拟5秒后弹出告警
+            setTimeout(function() {
+                document.getElementById('alert-modal').style.display = 'flex';
+            }, 5000);
+            
+            // 关闭弹窗
+            document.querySelector('.close-btn').addEventListener('click', function() {
+                document.getElementById('alert-modal').style.display = 'none';
+            });
+        });
+    </script>
+</body>
+</html>
